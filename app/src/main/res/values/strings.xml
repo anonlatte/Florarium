@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Florarium</string>
+    <string name="content_description_image">Image of the</string>
 </resources>

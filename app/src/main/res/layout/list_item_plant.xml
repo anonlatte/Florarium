@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="plant"
+            type="com.anonlatte.florarium.db.models.Plant" />
+
+        <variable
+            name="plantDescription"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/default_margin">
+
+        <ImageView
+            android:id="@+id/plantImage"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@{@string/content_description_image + plant.name}"
+            tools:background="@tools:sample/backgrounds/scenic" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/default_margin"
+            android:layout_marginLeft="@dimen/default_margin"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/plantName"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="@{plant.name}"
+                tools:text="@tools:sample/lorem/random" />
+
+            <TextView
+                android:id="@+id/plantDescription"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:text="@{plantDescription}"
+                tools:text="@tools:sample/lorem/random" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>
