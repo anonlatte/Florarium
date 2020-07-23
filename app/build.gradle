@@ -59,6 +59,7 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
 
+    androidTestImplementation "androidx.arch.core:core-testing:$archCoreVersion"
     androidTestImplementation "androidx.navigation:navigation-testing:$navigationVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.test.ext:junit:$junitExtVersion"
