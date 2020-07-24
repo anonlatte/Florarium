@@ -7,6 +7,15 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.anonlatte.florarium.ui.home.HomeFragment"
-        android:label="HomeFragment" />
+        android:label="HomeFragment">
+        <action
+            android:id="@+id/action_homeFragment_to_creationFragment"
+            app:destination="@id/creationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/creationFragment"
+        android:name="com.anonlatte.florarium.ui.creation.CreationFragment"
+        android:label="CreationFragment" />
 
 </navigation>

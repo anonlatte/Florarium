@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Florarium</string>
     <string name="content_description_image">Image of the</string>
+    <string name="hint_plant_title">Plant name</string>
+    <string name="title_main_info">Main info</string>
+    <string name="description_chosen_plant_image">Chosen plant image</string>
 </resources>
