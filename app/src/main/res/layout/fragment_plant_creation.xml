@@ -3,142 +3,152 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <ScrollView
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent">
 
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin_normal"
-                android:gravity="center"
                 android:orientation="vertical">
 
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/margin_small"
+                    android:layout_margin="@dimen/margin_normal"
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        style="@style/TextAppearance.MaterialComponents.Caption"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:layout_marginBottom="@dimen/margin_extra_small"
-                        android:text="@string/title_main_info" />
-
-                    <FrameLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
-
-                        <ImageView
-                            android:layout_width="@dimen/size_plant_image_creation"
-                            android:layout_height="@dimen/size_plant_image_creation"
-                            android:contentDescription="@string/description_chosen_plant_image"
-                            android:scaleType="centerCrop"
-                            android:src="@drawable/flower_example" />
-
-                        <Button
-                            style="@style/IconOnly"
-                            android:layout_width="@dimen/size_image_button"
-                            android:layout_height="@dimen/size_image_button"
-                            android:layout_gravity="end|bottom"
-                            android:layout_margin="@dimen/margin_extra_small"
-                            app:icon="@drawable/ic_outline_camera_24" />
-
-                    </FrameLayout>
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_small"
-                        android:hint="@string/hint_plant_title"
-                        app:counterEnabled="true"
-                        app:counterMaxLength="40">
+                        android:layout_margin="@dimen/margin_small"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/title"
-                            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        <TextView
+                            style="@style/TextAppearance.MaterialComponents.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:layout_marginBottom="@dimen/margin_extra_small"
+                            android:text="@string/title_main_info" />
 
+                        <FrameLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="@dimen/size_plant_image_creation"
+                                android:layout_height="@dimen/size_plant_image_creation"
+                                android:contentDescription="@string/description_chosen_plant_image"
+                                android:scaleType="centerCrop"
+                                android:src="@drawable/flower_example" />
+
+                            <Button
+                                style="@style/IconOnly"
+                                android:layout_width="@dimen/size_image_button"
+                                android:layout_height="@dimen/size_image_button"
+                                android:layout_gravity="end|bottom"
+                                android:layout_margin="@dimen/margin_extra_small"
+                                app:icon="@drawable/ic_outline_camera_24" />
+
+                        </FrameLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
-                            tools:text="Prickly pear" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                </LinearLayout>
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:hint="@string/hint_plant_title"
+                            app:counterEnabled="true"
+                            app:counterMaxLength="40">
 
-            </com.google.android.material.card.MaterialCardView>
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/title"
+                                style="@style/TextAppearance.MaterialComponents.Subtitle1"
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_normal"
-                android:layout_marginLeft="@dimen/margin_normal"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:layout_marginRight="@dimen/margin_normal"
-                android:layout_marginBottom="@dimen/margin_normal"
-                android:gravity="center"
-                android:orientation="vertical">
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="text"
+                                tools:text="Prickly pear" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
 
-                <LinearLayout
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_normal"
+                    android:layout_marginLeft="@dimen/margin_normal"
+                    android:layout_marginEnd="@dimen/margin_normal"
+                    android:layout_marginRight="@dimen/margin_normal"
+                    android:layout_marginBottom="@dimen/margin_normal"
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        style="@style/TextAppearance.MaterialComponents.Caption"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="start"
-                        android:layout_marginStart="@dimen/margin_small"
-                        android:layout_marginLeft="@dimen/margin_small"
-                        android:layout_marginTop="@dimen/margin_small"
-                        android:layout_marginBottom="@dimen/margin_extra_small"
-                        android:text="@string/title_care_schedule" />
+                        android:gravity="center"
+                        android:orientation="vertical">
 
-                    <include
-                        android:id="@+id/wateringListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_drop_24}"
-                        app:title="@{@string/title_watering}"
-                        app:value="@{@string/value_not_set}" />
+                        <TextView
+                            style="@style/TextAppearance.MaterialComponents.Caption"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="start"
+                            android:layout_marginStart="@dimen/margin_small"
+                            android:layout_marginLeft="@dimen/margin_small"
+                            android:layout_marginTop="@dimen/margin_small"
+                            android:layout_marginBottom="@dimen/margin_extra_small"
+                            android:text="@string/title_care_schedule" />
 
-                    <include
-                        android:id="@+id/sprayingListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_spray_24}"
-                        app:title="@{@string/title_spraying}"
-                        app:value="@{@string/value_not_set}" />
+                        <include
+                            android:id="@+id/wateringListItem"
+                            layout="@layout/list_item_schedule"
+                            app:icon="@{@drawable/ic_outline_drop_24}"
+                            app:title="@{@string/title_watering}"
+                            app:value="@{@string/value_not_set}" />
 
-                    <include
-                        android:id="@+id/fertilizingListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_fertilizing_24}"
-                        app:title="@{@string/title_fertilizing}"
-                        app:value="@{@string/value_not_set}" />
+                        <include
+                            android:id="@+id/sprayingListItem"
+                            layout="@layout/list_item_schedule"
+                            app:icon="@{@drawable/ic_outline_spray_24}"
+                            app:title="@{@string/title_spraying}"
+                            app:value="@{@string/value_not_set}" />
 
-                    <include
-                        android:id="@+id/rotatingListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_rotate_right_24}"
-                        app:title="@{@string/title_rotating}"
-                        app:value="@{@string/value_not_set}" />
+                        <include
+                            android:id="@+id/fertilizingListItem"
+                            layout="@layout/list_item_schedule"
+                            app:icon="@{@drawable/ic_outline_fertilizing_24}"
+                            app:title="@{@string/title_fertilizing}"
+                            app:value="@{@string/value_not_set}" />
 
-                </LinearLayout>
+                        <include
+                            android:id="@+id/rotatingListItem"
+                            layout="@layout/list_item_schedule"
+                            app:icon="@{@drawable/ic_outline_rotate_right_24}"
+                            app:title="@{@string/title_rotating}"
+                            app:value="@{@string/value_not_set}" />
 
-            </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
 
-        </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-    </ScrollView>
+            </LinearLayout>
+
+        </ScrollView>
+
+        <include
+            android:id="@+id/bottomSheet"
+            layout="@layout/bottom_sheet" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>
