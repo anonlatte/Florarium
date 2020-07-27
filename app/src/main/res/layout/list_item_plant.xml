@@ -35,7 +35,7 @@
 
             <TextView
                 android:id="@+id/plantName"
-                style="@style/TextAppearance.AppCompat.Subhead"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="1"
@@ -44,7 +44,7 @@
 
             <TextView
                 android:id="@+id/plantDescription"
-                style="@style/TextAppearance.AppCompat.Caption"
+                style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
