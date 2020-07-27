@@ -13,7 +13,6 @@
             android:orientation="vertical">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/mainPlantInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/margin_normal"
@@ -28,7 +27,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        style="@style/TextAppearance.AppCompat.Caption"
+                        style="@style/TextAppearance.MaterialComponents.Caption"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
@@ -36,7 +35,6 @@
                         android:text="@string/title_main_info" />
 
                     <FrameLayout
-                        android:id="@+id/image"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
@@ -68,12 +66,73 @@
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/title"
-                            style="@style/TextAppearance.AppCompat.Subhead"
+                            style="@style/TextAppearance.MaterialComponents.Subtitle1"
+
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text"
                             tools:text="Prickly pear" />
                     </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_normal"
+                android:layout_marginLeft="@dimen/margin_normal"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_marginRight="@dimen/margin_normal"
+                android:layout_marginBottom="@dimen/margin_normal"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Caption"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="start"
+                        android:layout_marginStart="@dimen/margin_small"
+                        android:layout_marginLeft="@dimen/margin_small"
+                        android:layout_marginTop="@dimen/margin_small"
+                        android:layout_marginBottom="@dimen/margin_extra_small"
+                        android:text="@string/title_care_schedule" />
+
+                    <include
+                        android:id="@+id/wateringListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_drop_24}"
+                        app:title="@{@string/title_watering}"
+                        app:value="@{@string/value_not_set}" />
+
+                    <include
+                        android:id="@+id/sprayingListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_spray_24}"
+                        app:title="@{@string/title_spraying}"
+                        app:value="@{@string/value_not_set}" />
+
+                    <include
+                        android:id="@+id/fertilizingListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_fertilizing_24}"
+                        app:title="@{@string/title_fertilizing}"
+                        app:value="@{@string/value_not_set}" />
+
+                    <include
+                        android:id="@+id/rotatingListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_rotate_right_24}"
+                        app:title="@{@string/title_rotating}"
+                        app:value="@{@string/value_not_set}" />
+
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>

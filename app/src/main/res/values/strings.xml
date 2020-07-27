@@ -1,7 +1,17 @@
 <resources>
     <string name="app_name">Florarium</string>
     <string name="content_description_image">Image of the</string>
-    <string name="hint_plant_title">Plant name</string>
-    <string name="title_main_info">Main info</string>
     <string name="description_chosen_plant_image">Chosen plant image</string>
+    <string name="hint_plant_title">Plant name</string>
+    <string name="title_care_schedule">Care schedule</string>
+    <string name="title_fertilizing">Fertilizing</string>
+    <string name="title_main_info">Main info</string>
+    <string name="title_rotating">Rotating</string>
+    <string name="title_spraying">Spraying</string>
+    <string name="title_watering">Watering</string>
+    <string name="tooltip_fertilizing">Fertilizing</string>
+    <string name="tooltip_rotating">Rotating</string>
+    <string name="tooltip_spraying">Spraying</string>
+    <string name="tooltip_watering">Watering</string>
+    <string name="value_not_set">Not set</string>
 </resources>
