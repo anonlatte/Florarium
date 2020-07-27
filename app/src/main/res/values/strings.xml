@@ -14,4 +14,8 @@
     <string name="tooltip_spraying">Spraying</string>
     <string name="tooltip_watering">Watering</string>
     <string name="value_not_set">Not set</string>
+    <string name="slider_description">Slider for setting value in days</string>
+    <string name="title_interval_in_days">Interval (in days) - %d</string>
+    <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
+    <string name="title_last_care_days_ago">Last care (days ago) - %d</string>
 </resources>

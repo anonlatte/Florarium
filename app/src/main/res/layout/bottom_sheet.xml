@@ -48,5 +48,20 @@
                 tools:text="Bottom Sheet Title" />
         </LinearLayout>
 
+        <include
+            layout="@layout/list_item_bottom_sheet"
+            app:icon="@{@drawable/ic_outline_drop_24}"
+            app:title="@{@string/title_interval_in_days}" />
+
+        <include
+            layout="@layout/list_item_bottom_sheet"
+            app:icon="@{@drawable/ic_outline_snowflake_24}"
+            app:title="@{@string/title_interval_for_winter}" />
+
+        <include
+            layout="@layout/list_item_bottom_sheet"
+            app:icon="@{@drawable/ic_outline_history_24}"
+            app:title="@{@string/title_last_care_days_ago}" />
+
     </LinearLayout>
 </layout>

@@ -28,4 +28,13 @@
         <item name="android:background">@drawable/rounded_dialog</item>
     </style>
 
+    <style name="Tooltip" parent="Widget.MaterialComponents.Tooltip">
+        <item name="shapeAppearanceOverlay">@style/tooltipOverlay</item>
+        <item name="backgroundTint">@color/colorPrimary</item>
+    </style>
+
+    <style name="tooltipOverlay">
+        <item name="cornerSize">50%</item>
+    </style>
+
 </resources>
