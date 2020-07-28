@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_small"
-            android:text="@{title}"
+            android:text="@{String.format(title, value)}"
             tools:text="@string/title_interval_in_days" />
 
         <LinearLayout
@@ -48,11 +48,13 @@
                 tools:src="@drawable/ic_outline_drop_24" />
 
             <com.google.android.material.slider.Slider
+                android:id="@+id/daySlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/slider_description"
                 android:stepSize="1"
                 android:valueFrom="0"
+                android:value="@{value}"
                 android:valueTo="30"
                 app:labelStyle="@style/Tooltip" />
 

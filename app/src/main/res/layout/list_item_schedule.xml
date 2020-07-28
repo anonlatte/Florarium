@@ -67,10 +67,12 @@
         </LinearLayout>
 
         <Switch
+            android:id="@+id/itemSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
             android:layout_marginRight="@dimen/margin_small"
+            android:checked="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

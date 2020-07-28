@@ -49,19 +49,59 @@
         </LinearLayout>
 
         <include
+            android:id="@+id/defaultIntervalItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_drop_24}"
-            app:title="@{@string/title_interval_in_days}" />
+            app:title="@{@string/title_interval_in_days}"
+            app:value="@{0}" />
 
         <include
+            android:id="@+id/winterIntervalItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_snowflake_24}"
-            app:title="@{@string/title_interval_for_winter}" />
+            app:title="@{@string/title_interval_for_winter}"
+            app:value="@{0}" />
 
         <include
+            android:id="@+id/lastCareItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_history_24}"
-            app:title="@{@string/title_last_care_days_ago}" />
+            app:title="@{@string/title_last_care}"
+            app:value="@{0}" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/cancelButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_small"
+                android:layout_marginRight="@dimen/margin_small"
+                android:text="@android:string/cancel"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/okButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/okButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_small"
+                android:layout_marginLeft="@dimen/margin_small"
+                android:text="@android:string/ok"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cancelButton"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
+
 </layout>
