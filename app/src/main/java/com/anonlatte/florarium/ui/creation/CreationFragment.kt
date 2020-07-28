@@ -67,6 +67,7 @@ class CreationFragment : Fragment() {
         scheduleItemView: View?
     ) {
         dialogBinding.okButton.setOnClickListener {
+            scheduleItemView?.itemSwitch!!.isChecked = true
             dialog.dismiss()
         }
 
