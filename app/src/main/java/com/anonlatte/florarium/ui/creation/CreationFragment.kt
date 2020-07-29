@@ -16,11 +16,12 @@ import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.databinding.ListItemScheduleBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.list_item_schedule.view.*
 
 class CreationFragment : Fragment() {
     private val viewModel by viewModels<CreationViewModel>()
-    private lateinit var binding: FragmentPlantCreationBinding
+    private var _binding: FragmentPlantCreationBinding? = null
+    private val binding get() = _binding!!
+    private lateinit var mainRepository: MainRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,6 +29,8 @@ class CreationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
+
+        mainRepository = MainRepository.getRepository(requireActivity().application)
 
         bindScheduleItemClickListener(binding.wateringListItem)
         bindScheduleItemClickListener(binding.sprayingListItem)
@@ -41,7 +44,7 @@ class CreationFragment : Fragment() {
 
     @SuppressLint("InflateParams")
     private fun onScheduleItemClickListener(
-        scheduleItemView: View?,
+        itemScheduleBinding: ListItemScheduleBinding,
         title: String?,
         icon: Drawable?
     ) {
@@ -53,7 +56,7 @@ class CreationFragment : Fragment() {
         dialogBinding.title = title
         dialogBinding.icon = icon
 
-        setDialogListeners(dialog, dialogBinding, scheduleItemView)
+        setDialogListeners(dialog, dialogBinding, itemScheduleBinding)
 
         addSliderListeners(dialogBinding)
 
@@ -64,15 +67,15 @@ class CreationFragment : Fragment() {
     private fun setDialogListeners(
         dialog: BottomSheetDialog,
         dialogBinding: BottomSheetBinding,
-        scheduleItemView: View?
+        itemScheduleBinding: ListItemScheduleBinding
     ) {
         dialogBinding.okButton.setOnClickListener {
-            scheduleItemView?.itemSwitch!!.isChecked = true
+            itemScheduleBinding.itemSwitch.isChecked = true
             dialog.dismiss()
         }
 
         dialog.setOnCancelListener {
-            scheduleItemView?.itemSwitch!!.isChecked = false
+            itemScheduleBinding.itemSwitch.isChecked = false
         }
 
         dialogBinding.cancelButton.setOnClickListener {
@@ -104,10 +107,17 @@ class CreationFragment : Fragment() {
     private fun bindScheduleItemClickListener(itemScheduleBinding: ListItemScheduleBinding) {
         with(itemScheduleBinding) {
             executePendingBindings()
-            scheduleItem.setOnClickListener { onScheduleItemClickListener(it, title, icon) }
-            scheduleItem.itemSwitch.setOnTouchListener { switchView, event ->
+            scheduleItem.setOnClickListener {
+                onScheduleItemClickListener(
+                    itemScheduleBinding,
+                    title,
+                    icon
+                )
+            }
+            /** Convert itemSwitch to View to avoid overriding [View.performClick] */
+            (itemSwitch as View).setOnTouchListener { switchView, event ->
                 if (event.action == MotionEvent.ACTION_DOWN && !(switchView as Switch).isChecked) {
-                    onScheduleItemClickListener(switchView, title, icon)
+                    onScheduleItemClickListener(itemScheduleBinding, title, icon)
                     switchView.performClick()
                 }
                 false

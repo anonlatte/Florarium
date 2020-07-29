@@ -15,27 +15,36 @@ import com.anonlatte.florarium.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
     private val viewModel by viewModels<HomeViewModel>()
-    private lateinit var plantsAdapter: PlantsAdapter
-    private lateinit var binding: FragmentHomeBinding
+    private var plantsAdapter: PlantsAdapter? = null
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        val view = binding.root
+
         initializeAdapter()
         subscribeUI()
 
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_creationFragment)
         }
-        return binding.root
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        plantsAdapter = null
     }
 
     private fun subscribeUI() {
         viewModel.plantsList.observe(viewLifecycleOwner, Observer {
-            plantsAdapter.plantsList = it
+            plantsAdapter?.plantsList = it
         })
     }
 
