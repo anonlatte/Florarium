@@ -15,6 +15,12 @@ android {
         versionCode rootProject.versionCode
         versionName rootProject.versionName
 
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.incremental": "true"]
+            }
+        }
+
         vectorDrawables.useSupportLibrary true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
