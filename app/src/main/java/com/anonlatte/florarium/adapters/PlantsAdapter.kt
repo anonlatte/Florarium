@@ -21,9 +21,11 @@ class PlantsAdapter(var plantsList: List<Plant>) :
 
     inner class PlantsViewHolder(private val binding: ListItemPlantBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(plant: Plant) {
-            binding.plant = plant
-            binding.executePendingBindings()
+        fun bind(plant: Plant?) {
+            plant?.let {
+                binding.plant = plant
+                binding.executePendingBindings()
+            }
         }
     }
 }

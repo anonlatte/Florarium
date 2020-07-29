@@ -14,8 +14,12 @@
             type="android.graphics.drawable.Drawable" />
 
         <variable
-            name="value"
+            name="scheduleValue"
             type="String" />
+
+        <variable
+            name="scheduleItemType"
+            type="Integer" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -62,7 +66,7 @@
                 style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{value}"
+                android:text="@{scheduleValue}"
                 tools:text="Not set" />
         </LinearLayout>
 

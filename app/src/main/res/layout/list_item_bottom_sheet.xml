@@ -12,6 +12,11 @@
         <variable
             name="icon"
             type="android.graphics.drawable.Drawable" />
+
+        <variable
+            name="sliderValue"
+            type="Float" />
+
     </data>
 
     <LinearLayout
@@ -40,16 +45,18 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginRight="@dimen/margin_small"
-                android:src="@{icon}"
                 android:contentDescription="@null"
+                android:src="@{icon}"
                 tools:src="@drawable/ic_outline_drop_24" />
 
+            <!-- FIXME two-way binding for slider when it'll be supported -->
             <com.google.android.material.slider.Slider
                 android:id="@+id/daySlider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/slider_description"
                 android:stepSize="1"
+                android:value="@{sliderValue}"
                 android:valueFrom="0"
                 android:valueTo="30"
                 app:labelStyle="@style/Tooltip" />

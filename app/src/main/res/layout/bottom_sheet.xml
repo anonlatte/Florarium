@@ -13,6 +13,18 @@
             name="icon"
             type="android.graphics.drawable.Drawable" />
 
+        <variable
+            name="careIntervalValue"
+            type="Float" />
+
+        <variable
+            name="winterCareIntervalValue"
+            type="Float" />
+
+        <variable
+            name="lastCareValue"
+            type="Float" />
+
     </data>
 
     <LinearLayout
@@ -41,18 +53,21 @@
             android:id="@+id/defaultIntervalItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_drop_24}"
+            app:sliderValue="@{careIntervalValue}"
             app:title="@{@string/title_interval_in_days(0)}" />
 
         <include
             android:id="@+id/winterIntervalItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_snowflake_24}"
+            app:sliderValue="@{winterCareIntervalValue}"
             app:title="@{@string/title_interval_for_winter(0)}" />
 
         <include
             android:id="@+id/lastCareItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_history_24}"
+            app:sliderValue="@{lastCareValue}"
             app:title="@{@string/title_last_care(0)}" />
 
         <androidx.constraintlayout.widget.ConstraintLayout

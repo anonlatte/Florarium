@@ -60,7 +60,9 @@
                                 android:layout_height="@dimen/size_image_button"
                                 android:layout_gravity="end|bottom"
                                 android:layout_margin="@dimen/margin_extra_small"
-                                app:icon="@drawable/ic_outline_camera_24" />
+                                app:backgroundTint="@color/iconsColor"
+                                app:icon="@drawable/ic_outline_camera_24"
+                                app:iconTint="@color/colorSecondary" />
 
                         </FrameLayout>
 
@@ -114,67 +116,49 @@
                             android:id="@+id/wateringListItem"
                             layout="@layout/list_item_schedule"
                             app:icon="@{@drawable/ic_outline_drop_24}"
-                            app:title="@{@string/title_watering}"
-                            app:value="@{@string/value_not_set}" />
+                            app:scheduleItemType="@{0}"
+                            app:scheduleValue="@{@string/value_not_set}"
+                            app:title="@{@string/title_watering}" />
 
                         <include
                             android:id="@+id/sprayingListItem"
                             layout="@layout/list_item_schedule"
                             app:icon="@{@drawable/ic_outline_spray_24}"
-                            app:title="@{@string/title_spraying}"
-                            app:value="@{@string/value_not_set}" />
+                            app:scheduleItemType="@{1}"
+                            app:scheduleValue="@{@string/value_not_set}"
+                            app:title="@{@string/title_spraying}" />
 
                         <include
                             android:id="@+id/fertilizingListItem"
                             layout="@layout/list_item_schedule"
                             app:icon="@{@drawable/ic_outline_fertilizing_24}"
-                            app:title="@{@string/title_fertilizing}"
-                            app:value="@{@string/value_not_set}" />
+                            app:scheduleItemType="@{2}"
+                            app:scheduleValue="@{@string/value_not_set}"
+                            app:title="@{@string/title_fertilizing}" />
 
                         <include
                             android:id="@+id/rotatingListItem"
                             layout="@layout/list_item_schedule"
                             app:icon="@{@drawable/ic_outline_rotate_right_24}"
-                            app:title="@{@string/title_rotating}"
-                            app:value="@{@string/value_not_set}" />
+                            app:scheduleItemType="@{3}"
+                            app:scheduleValue="@{@string/value_not_set}"
+                            app:title="@{@string/title_rotating}" />
 
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <Button
+                    android:id="@+id/dismissCreationButton"
+                    style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal|bottom"
                     android:layout_marginBottom="@dimen/margin_small"
                     android:gravity="center"
-                    android:orientation="horizontal">
-
-                    <Button
-                        android:id="@+id/dismissCreationButton"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/margin_small"
-                        android:layout_marginRight="@dimen/margin_small"
-                        android:text="@android:string/cancel"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/createButton"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <Button
-                        android:id="@+id/createButton"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/margin_small"
-                        android:layout_marginLeft="@dimen/margin_small"
-                        android:text="@android:string/ok"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/dismissCreationButton"
-                        app:layout_constraintTop_toTopOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:text="@string/content_plant_create_button"
+                    app:icon="@drawable/ic_add_24"
+                    app:iconGravity="textStart" />
 
             </LinearLayout>
 

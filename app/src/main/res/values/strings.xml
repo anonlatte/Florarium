@@ -18,4 +18,5 @@
     <string name="title_interval_in_days">Interval (in days) - %d</string>
     <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
     <string name="title_last_care">Last care (days ago) - %d</string>
+    <string name="content_plant_create_button">Add to my plants</string>
 </resources>
