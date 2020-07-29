@@ -1,23 +1,29 @@
 package com.anonlatte.florarium.db.models
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
+import androidx.room.Ignore
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "plants",
-    foreignKeys = [ForeignKey(
-        entity = RegularSchedule::class,
-        parentColumns = ["id"],
-        childColumns = ["regularScheduleId"],
-        onDelete = CASCADE,
-        onUpdate = CASCADE
-    ), ForeignKey(
-        entity = WinterSchedule::class,
-        parentColumns = ["id"],
-        childColumns = ["winterScheduleId"],
-        onDelete = CASCADE,
-        onUpdate = CASCADE
-    )
+    foreignKeys = [
+        ForeignKey(
+            entity = RegularSchedule::class,
+            parentColumns = ["id"],
+            childColumns = ["regularScheduleId"],
+            onDelete = CASCADE,
+            onUpdate = CASCADE
+        ), ForeignKey(
+            entity = WinterSchedule::class,
+            parentColumns = ["id"],
+            childColumns = ["winterScheduleId"],
+            onDelete = CASCADE,
+            onUpdate = CASCADE
+        )
     ],
     indices = [Index("regularScheduleId"), Index("winterScheduleId")]
 )

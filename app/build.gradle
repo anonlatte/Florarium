@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: "org.jlleitschuh.gradle.ktlint"
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -70,4 +71,9 @@ dependencies {
     testImplementation "androidx.room:room-testing:$roomVersion"
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.hamcrest:hamcrest-library:$hamcrestVersion"
+}
+
+ktlint {
+    android.set(true)
+    outputColorName.set("RED")
 }

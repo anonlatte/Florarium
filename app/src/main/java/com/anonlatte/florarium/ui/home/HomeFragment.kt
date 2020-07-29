@@ -43,9 +43,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun subscribeUI() {
-        viewModel.plantsList.observe(viewLifecycleOwner, Observer {
-            plantsAdapter?.plantsList = it
-        })
+        viewModel.plantsList.observe(
+            viewLifecycleOwner,
+            Observer {
+                plantsAdapter?.plantsList = it
+            }
+        )
     }
 
     private fun initializeAdapter() {

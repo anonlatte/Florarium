@@ -1,7 +1,7 @@
 package com.anonlatte.florarium.utilities
 
 import com.anonlatte.florarium.db.models.Plant
-import java.util.*
+import java.util.Date
 
 val testPlants = arrayListOf(
     Plant(plantId = 1, name = "rose", plantedAt = Date().time),
