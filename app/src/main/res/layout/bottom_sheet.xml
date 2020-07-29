@@ -25,49 +25,35 @@
         app:layout_behavior="@string/bottom_sheet_behavior"
         tools:showIn="@layout/fragment_plant_creation">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <ImageView
-                android:id="@+id/titleIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@null"
-                android:src="@{icon}"
-                tools:src="@drawable/ic_outline_drop_24" />
-
-            <TextView
-                android:id="@+id/bottomSheetTitle"
-                style="@style/TextAppearance.AppCompat.Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginLeft="@dimen/margin_small"
-                android:text="@{title}"
-                tools:text="Bottom Sheet Title" />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/bottomSheetTitle"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableStart="@{icon}"
+            android:drawableLeft="@{icon}"
+            android:drawablePadding="@dimen/margin_small"
+            android:text="@{title}"
+            tools:drawableLeft="@drawable/ic_outline_drop_24"
+            tools:text="Bottom Sheet Title" />
 
         <include
             android:id="@+id/defaultIntervalItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_drop_24}"
-            app:title="@{@string/title_interval_in_days}"
-            app:value="@{0}" />
+            app:title="@{@string/title_interval_in_days(0)}" />
 
         <include
             android:id="@+id/winterIntervalItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_snowflake_24}"
-            app:title="@{@string/title_interval_for_winter}"
-            app:value="@{0}" />
+            app:title="@{@string/title_interval_for_winter(0)}" />
 
         <include
             android:id="@+id/lastCareItem"
             layout="@layout/list_item_bottom_sheet"
             app:icon="@{@drawable/ic_outline_history_24}"
-            app:title="@{@string/title_last_care}"
-            app:value="@{0}" />
+            app:title="@{@string/title_last_care(0)}" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

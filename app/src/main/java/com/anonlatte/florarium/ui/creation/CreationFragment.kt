@@ -15,6 +15,7 @@ import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.databinding.ListItemScheduleBinding
+import com.anonlatte.florarium.repository.MainRepository
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class CreationFragment : Fragment() {
@@ -28,7 +29,8 @@ class CreationFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
+        _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         mainRepository = MainRepository.getRepository(requireActivity().application)
 
@@ -39,7 +41,12 @@ class CreationFragment : Fragment() {
 
         makeScheduleItemsClickable()
 
-        return binding.root
+        return view
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     @SuppressLint("InflateParams")

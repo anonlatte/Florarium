@@ -10,10 +10,6 @@
             type="String" />
 
         <variable
-            name="value"
-            type="Integer" />
-
-        <variable
             name="icon"
             type="android.graphics.drawable.Drawable" />
     </data>
@@ -29,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/margin_small"
-            android:text="@{String.format(title, value)}"
+            android:text="@{title}"
             tools:text="@string/title_interval_in_days" />
 
         <LinearLayout
@@ -45,6 +41,7 @@
                 android:layout_marginEnd="@dimen/margin_small"
                 android:layout_marginRight="@dimen/margin_small"
                 android:src="@{icon}"
+                android:contentDescription="@null"
                 tools:src="@drawable/ic_outline_drop_24" />
 
             <com.google.android.material.slider.Slider
@@ -54,7 +51,6 @@
                 android:contentDescription="@string/slider_description"
                 android:stepSize="1"
                 android:valueFrom="0"
-                android:value="@{value}"
                 android:valueTo="30"
                 app:labelStyle="@style/Tooltip" />
 

@@ -23,7 +23,7 @@
             android:id="@+id/plantImage"
             android:layout_width="56dp"
             android:layout_height="56dp"
-            android:contentDescription="@{@string/content_description_image + plant.name}"
+            android:contentDescription="@{@string/content_description_image(plant.name)}"
             tools:background="@tools:sample/backgrounds/scenic" />
 
         <LinearLayout

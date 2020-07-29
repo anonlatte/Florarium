@@ -151,7 +151,7 @@
                     android:orientation="horizontal">
 
                     <Button
-                        android:id="@+id/cancelButton"
+                        android:id="@+id/dismissCreationButton"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -159,12 +159,12 @@
                         android:layout_marginRight="@dimen/margin_small"
                         android:text="@android:string/cancel"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/okButton"
+                        app:layout_constraintEnd_toStartOf="@id/createButton"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <Button
-                        android:id="@+id/okButton"
+                        android:id="@+id/createButton"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_small"
@@ -172,7 +172,7 @@
                         android:text="@android:string/ok"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/cancelButton"
+                        app:layout_constraintStart_toEndOf="@+id/dismissCreationButton"
                         app:layout_constraintTop_toTopOf="parent" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
