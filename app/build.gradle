@@ -14,6 +14,8 @@ android {
         versionCode rootProject.versionCode
         versionName rootProject.versionName
 
+        vectorDrawables.useSupportLibrary true
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -58,6 +60,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
 
     androidTestImplementation "androidx.arch.core:core-testing:$archCoreVersion"
     androidTestImplementation "androidx.navigation:navigation-testing:$navigationVersion"
