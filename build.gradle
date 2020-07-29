@@ -21,6 +21,7 @@ buildscript {
         junitVersion = '4.13'
         kotlinVersion = '1.3.72'
         ktxVersion = '1.3.0'
+        leakcanaryVersion = '2.4'
         lifeCycleVersion = '2.2.0'
         materialVersion = '1.2.0-rc01'
         navigationVersion = '2.3.0'
