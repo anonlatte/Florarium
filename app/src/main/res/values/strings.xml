@@ -19,4 +19,6 @@
     <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
     <string name="title_last_care">Last care (days ago) - %d</string>
     <string name="content_plant_create_button">Add to my plants</string>
+    <string name="error_empty_plant_name">Name can\'t be empty</string>
+    <string name="message_plant_is_added">Plant is added!</string>
 </resources>

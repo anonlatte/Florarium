@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.anonlatte.florarium.ui.creation.CreationViewModel" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -67,6 +74,7 @@
                         </FrameLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/titleInputLayout"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -76,12 +84,12 @@
                             app:counterMaxLength="40">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/title"
+                                android:id="@+id/titleEditText"
                                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
-
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text"
+                                android:text="@={viewModel.plant.name}"
                                 tools:text="Prickly pear" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
@@ -149,7 +157,7 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <Button
-                    android:id="@+id/dismissCreationButton"
+                    android:id="@+id/addPlantButton"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

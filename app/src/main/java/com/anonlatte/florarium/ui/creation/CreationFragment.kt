@@ -7,9 +7,12 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.TooltipCompat
+import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
@@ -22,7 +25,6 @@ class CreationFragment : Fragment() {
     private val viewModel by viewModels<CreationViewModel>()
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
-    private lateinit var mainRepository: MainRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,9 +32,10 @@ class CreationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
-        val view = binding.root
+        _binding!!.viewModel = viewModel
+        subScribeUI()
 
-        mainRepository = MainRepository.getRepository(requireActivity().application)
+        viewModel.mainRepository = MainRepository.getRepository(requireActivity().application)
 
         bindScheduleItemClickListener(binding.wateringListItem)
         bindScheduleItemClickListener(binding.sprayingListItem)
@@ -41,12 +44,37 @@ class CreationFragment : Fragment() {
 
         makeScheduleItemsClickable()
 
-        return view
+        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // TODO add extended validation
+    private fun subScribeUI() {
+        binding.addPlantButton.setOnClickListener {
+            if (binding.titleEditText.text.isNullOrEmpty()) {
+                binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
+            } else {
+                binding.titleInputLayout.error = null
+                viewModel.addPlantToGarden()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.message_plant_is_added),
+                    Toast.LENGTH_SHORT
+                ).show()
+                findNavController().navigateUp()
+            }
+        }
+        binding.titleEditText.doOnTextChanged { text, _, _, _ ->
+            if (text.isNullOrEmpty()) {
+                binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
+            } else {
+                binding.titleInputLayout.error = null
+            }
+        }
     }
 
     @SuppressLint("InflateParams")

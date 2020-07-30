@@ -28,8 +28,8 @@ import androidx.room.PrimaryKey
     indices = [Index("regularScheduleId"), Index("winterScheduleId")]
 )
 data class Plant(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val plantId: Long,
-    var name: String,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val plantId: Long? = 0,
+    var name: String? = null,
     var regularScheduleId: Long? = null,
     var winterScheduleId: Long? = null,
     var imageUrl: String? = null,
@@ -37,7 +37,7 @@ data class Plant(
     var humidity: Double? = null, // In percents
     var soilAcidity: Double? = null, // pH
     var lighting: Double? = null, // Lumen
-    var plantedAt: Long
+    var plantedAt: Long? = null
 ) {
     @Ignore
     var regularSchedule: RegularSchedule? = null
