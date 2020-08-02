@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.anonlatte.florarium.ui.home.HomeFragment"
-        android:label="HomeFragment"
+        android:label="@string/label_fragment_home"
         tools:layout="@layout/fragment_home">
         <action
             android:id="@+id/action_homeFragment_to_creationFragment"
@@ -22,7 +22,7 @@
     <fragment
         android:id="@+id/creationFragment"
         android:name="com.anonlatte.florarium.ui.creation.CreationFragment"
-        android:label="CreationFragment"
+        android:label="@string/label_fragment_plant_creation"
         tools:layout="@layout/fragment_plant_creation" />
 
 </navigation>

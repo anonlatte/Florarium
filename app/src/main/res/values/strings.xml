@@ -1,10 +1,19 @@
 <resources>
     <string name="app_name">Florarium</string>
     <string name="content_description_image">Image of the %s</string>
+    <string name="content_plant_create_button">Add to my plants</string>
     <string name="description_chosen_plant_image">Chosen plant image</string>
+    <string name="error_empty_plant_name">Name can\'t be empty</string>
     <string name="hint_plant_title">Plant name</string>
+    <string name="label_fragment_home">Plants</string>
+    <string name="label_fragment_plant_creation">Create plant</string>
+    <string name="message_plant_is_added">Plant is added!</string>
+    <string name="slider_description">Slider for setting value in days</string>
     <string name="title_care_schedule">Care schedule</string>
     <string name="title_fertilizing">Fertilizing</string>
+    <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
+    <string name="title_interval_in_days">Interval (in days) - %d</string>
+    <string name="title_last_care">Last care (days ago) - %d</string>
     <string name="title_main_info">Main info</string>
     <string name="title_rotating">Rotating</string>
     <string name="title_spraying">Spraying</string>
@@ -14,11 +23,4 @@
     <string name="tooltip_spraying">Spraying</string>
     <string name="tooltip_watering">Watering</string>
     <string name="value_not_set">Not set</string>
-    <string name="slider_description">Slider for setting value in days</string>
-    <string name="title_interval_in_days">Interval (in days) - %d</string>
-    <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
-    <string name="title_last_care">Last care (days ago) - %d</string>
-    <string name="content_plant_create_button">Add to my plants</string>
-    <string name="error_empty_plant_name">Name can\'t be empty</string>
-    <string name="message_plant_is_added">Plant is added!</string>
 </resources>
