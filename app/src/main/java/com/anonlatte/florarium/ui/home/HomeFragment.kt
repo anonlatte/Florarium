@@ -15,7 +15,6 @@ import com.anonlatte.florarium.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
     private val viewModel by viewModels<HomeViewModel>()
-    private var plantsAdapter: PlantsAdapter? = null
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -25,34 +24,32 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val view = binding.root
 
-        initializeAdapter()
-        subscribeUI()
+        val plantsAdapter = PlantsAdapter()
+        setupRecyclerView(plantsAdapter)
+        subscribeUI(plantsAdapter)
 
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_creationFragment)
         }
-        return view
+        return binding.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        plantsAdapter = null
     }
 
-    private fun subscribeUI() {
+    private fun subscribeUI(plantsAdapter: PlantsAdapter) {
         viewModel.plantsList.observe(
             viewLifecycleOwner,
-            Observer {
-                plantsAdapter?.plantsList = it
+            Observer { plants ->
+                plantsAdapter.setPlants(plants)
             }
         )
     }
 
-    private fun initializeAdapter() {
-        plantsAdapter = PlantsAdapter(viewModel.plantsList.value!!)
+    private fun setupRecyclerView(plantsAdapter: PlantsAdapter) {
         binding.plantsList.apply {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(requireContext())

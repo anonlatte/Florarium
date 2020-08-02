@@ -1,21 +1,34 @@
 package com.anonlatte.florarium.ui.creation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.WinterSchedule
 import com.anonlatte.florarium.repository.MainRepository
-import timber.log.Timber
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.Date
 
-class CreationViewModel : ViewModel() {
-    var plant: Plant? = Plant()
+class CreationViewModel(application: Application) : AndroidViewModel(application) {
+    var plant: Plant = Plant()
     var regularSchedule: RegularSchedule = RegularSchedule()
     var winterSchedule: WinterSchedule = WinterSchedule()
-    var mainRepository: MainRepository? = null
+    private val mainRepository = MainRepository(application)
 
     fun addPlantToGarden() {
-        Timber.d("$plant \n $regularSchedule \n $winterSchedule")
+        viewModelScope.launch(Dispatchers.IO) {
+            mainRepository.createPlant(plant).also { plantId ->
+                regularSchedule.plantId = plantId
+                winterSchedule.plantId = plantId
+            }
+            addSchedule()
+        }
+    }
+
+    private fun addSchedule() {
+        mainRepository.addSchedule(regularSchedule, winterSchedule)
     }
 
     fun getTimestampFromDaysAgo(days: Int): Long =

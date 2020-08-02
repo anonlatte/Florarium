@@ -18,7 +18,6 @@ import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.databinding.ListItemScheduleBinding
 import com.anonlatte.florarium.db.models.ScheduleType
-import com.anonlatte.florarium.repository.MainRepository
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class CreationFragment : Fragment() {
@@ -33,9 +32,8 @@ class CreationFragment : Fragment() {
     ): View? {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
         _binding!!.viewModel = viewModel
-        subScribeUI()
 
-        viewModel.mainRepository = MainRepository.getRepository(requireActivity().application)
+        subScribeUI()
 
         bindScheduleItemClickListener(binding.wateringListItem)
         bindScheduleItemClickListener(binding.sprayingListItem)
