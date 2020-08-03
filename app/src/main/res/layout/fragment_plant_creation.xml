@@ -55,6 +55,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/plantImageView"
                                 android:layout_width="@dimen/size_plant_image_creation"
                                 android:layout_height="@dimen/size_plant_image_creation"
                                 android:contentDescription="@string/description_chosen_plant_image"
@@ -62,6 +63,7 @@
                                 android:src="@drawable/flower_example" />
 
                             <Button
+                                android:id="@+id/loadImage"
                                 style="@style/IconOnly"
                                 android:layout_width="@dimen/size_image_button"
                                 android:layout_height="@dimen/size_image_button"

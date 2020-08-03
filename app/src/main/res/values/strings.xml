@@ -23,4 +23,5 @@
     <string name="tooltip_spraying">Spraying</string>
     <string name="tooltip_watering">Watering</string>
     <string name="value_not_set">Not set</string>
+    <string name="title_intent_image_select">Select from</string>
 </resources>
