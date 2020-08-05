@@ -8,9 +8,10 @@ buildscript {
         }
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:4.0.1")
+        classpath(Config.BuildPlugins.androidGradle)
         classpath(embeddedKotlin("gradle-plugin"))
-        classpath("org.jlleitschuh.gradle:ktlint-gradle:9.3.0")
+        classpath(Config.BuildPlugins.ktlint)
+        classpath(Config.BuildPlugins.checkUpdatesPlugin)
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files

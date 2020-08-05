@@ -4,18 +4,19 @@ plugins {
     kotlin("android.extensions")
     kotlin("kapt")
     id("org.jlleitschuh.gradle.ktlint")
+    id("name.remal.check-dependency-updates")
 }
 
 android {
-    compileSdkVersion(BuildPlugins.App.compileSdkVersion)
-    buildToolsVersion(BuildPlugins.App.buildToolsVersion)
+    compileSdkVersion(Config.App.compileSdkVersion)
+    buildToolsVersion(Config.App.buildToolsVersion)
 
     defaultConfig {
-        applicationId = "com.anonlatte.florarium"
-        minSdkVersion(BuildPlugins.App.minSdkVersion)
-        targetSdkVersion(BuildPlugins.App.targetSdkVersion)
-        versionCode = BuildPlugins.App.versionCode
-        versionName = BuildPlugins.App.versionName
+        applicationId = Config.App.applicationId
+        minSdkVersion(Config.App.minSdkVersion)
+        targetSdkVersion(Config.App.targetSdkVersion)
+        versionCode = Config.App.versionCode
+        versionName = Config.App.versionName
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -54,34 +55,34 @@ android {
 
 dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
-    kapt(BuildPlugins.Libs.roomCompiler)
+    kapt(Config.Libs.roomCompiler)
     implementation(embeddedKotlin("stdlib-jdk7"))
-    implementation(BuildPlugins.Libs.timber)
-    implementation(BuildPlugins.Libs.material)
-    implementation(BuildPlugins.Libs.workRuntime)
-    implementation(BuildPlugins.Libs.vectorDrawable)
-    implementation(BuildPlugins.Libs.roomRuntime)
-    implementation(BuildPlugins.Libs.room)
-    implementation(BuildPlugins.Libs.navigationUI)
-    implementation(BuildPlugins.Libs.navigationFragment)
-    implementation(BuildPlugins.Libs.navigationDynamicFeatures)
-    implementation(BuildPlugins.Libs.viewModel)
-    implementation(BuildPlugins.Libs.lifecycleRuntime)
-    implementation(BuildPlugins.Libs.liveData)
-    implementation(BuildPlugins.Libs.lifecycleExtensions)
-    implementation(BuildPlugins.Libs.fragment)
-    implementation(BuildPlugins.Libs.core)
-    implementation(BuildPlugins.Libs.constraintLayout)
-    implementation(BuildPlugins.Libs.appcompat)
-    debugImplementation(BuildPlugins.Libs.leakCanary)
+    implementation(Config.Libs.timber)
+    implementation(Config.Libs.material)
+    implementation(Config.Libs.workRuntime)
+    implementation(Config.Libs.vectorDrawable)
+    implementation(Config.Libs.roomRuntime)
+    implementation(Config.Libs.room)
+    implementation(Config.Libs.navigationUI)
+    implementation(Config.Libs.navigationFragment)
+    implementation(Config.Libs.navigationDynamicFeatures)
+    implementation(Config.Libs.viewModel)
+    implementation(Config.Libs.lifecycleRuntime)
+    implementation(Config.Libs.liveData)
+    implementation(Config.Libs.lifecycleExtensions)
+    implementation(Config.Libs.fragment)
+    implementation(Config.Libs.core)
+    implementation(Config.Libs.constraintLayout)
+    implementation(Config.Libs.appcompat)
+    debugImplementation(Config.Libs.leakCanary)
 
-    androidTestImplementation(BuildPlugins.TestLibs.archCore)
-    androidTestImplementation(BuildPlugins.TestLibs.navigation)
-    androidTestImplementation(BuildPlugins.TestLibs.espresso)
-    androidTestImplementation(BuildPlugins.TestLibs.junitExt)
-    testImplementation(BuildPlugins.TestLibs.room)
-    testImplementation(BuildPlugins.TestLibs.junit)
-    testImplementation(BuildPlugins.TestLibs.hamcrest)
+    androidTestImplementation(Config.TestLibs.archCore)
+    androidTestImplementation(Config.TestLibs.navigation)
+    androidTestImplementation(Config.TestLibs.espresso)
+    androidTestImplementation(Config.TestLibs.junitExt)
+    testImplementation(Config.TestLibs.room)
+    testImplementation(Config.TestLibs.junit)
+    testImplementation(Config.TestLibs.hamcrest)
 }
 
 ktlint {
