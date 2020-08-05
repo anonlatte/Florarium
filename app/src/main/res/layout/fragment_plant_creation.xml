@@ -21,150 +21,122 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_normal"
-                android:layout_marginLeft="@dimen/margin_normal"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:layout_marginRight="@dimen/margin_normal"
                 android:orientation="vertical">
 
-                <com.google.android.material.card.MaterialCardView
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/margin_normal"
-                    android:layout_marginBottom="@dimen/margin_normal"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:layout_marginBottom="@dimen/margin_normal">
 
-                    <LinearLayout
+                    <ImageView
+                        android:id="@+id/plantImageView"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/margin_small"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_height="336dp"
+                        android:contentDescription="@string/description_chosen_plant_image"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/flower_example" />
 
-                        <TextView
-                            style="@style/TextAppearance.MaterialComponents.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="start"
-                            android:layout_marginBottom="@dimen/margin_extra_small"
-                            android:text="@string/title_main_info" />
-
-                        <FrameLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content">
-
-                            <ImageView
-                                android:id="@+id/plantImageView"
-                                android:layout_width="@dimen/size_plant_image_creation"
-                                android:layout_height="@dimen/size_plant_image_creation"
-                                android:contentDescription="@string/description_chosen_plant_image"
-                                android:scaleType="centerCrop"
-                                android:src="@drawable/flower_example" />
-
-                            <Button
-                                android:id="@+id/loadImage"
-                                style="@style/IconOnly"
-                                android:layout_width="@dimen/size_image_button"
-                                android:layout_height="@dimen/size_image_button"
-                                android:layout_gravity="end|bottom"
-                                android:layout_margin="@dimen/margin_extra_small"
-                                app:backgroundTint="@color/iconsColor"
-                                app:icon="@drawable/ic_outline_camera_24"
-                                app:iconTint="@color/colorSecondary" />
-
-                        </FrameLayout>
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/gradient_creation_header"
+                        android:padding="@dimen/margin_extra_small">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/titleInputLayout"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/margin_small"
                             android:hint="@string/hint_plant_title"
-                            app:counterEnabled="true"
-                            app:counterMaxLength="40">
+                            android:textColorHint="@color/edit_text_with_gradient_background"
+                            app:boxStrokeColor="?attr/colorOnPrimarySurface"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="0dp"
+                            app:hintTextColor="@color/edit_text_with_gradient_background"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/loadImage"
+                            app:layout_constraintStart_toStartOf="parent">
 
                             <com.google.android.material.textfield.TextInputEditText
                                 android:id="@+id/titleEditText"
-                                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                                style="@style/TextAppearance.MaterialComponents.Headline5"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="text"
                                 android:text="@={viewModel.plant.name}"
-                                tools:text="Prickly pear" />
+                                android:textColor="?attr/colorOnPrimarySurface" />
                         </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
 
-                </com.google.android.material.card.MaterialCardView>
+                        <Button
+                            android:id="@+id/loadImage"
+                            style="@style/IconOnly"
+                            android:layout_width="@dimen/size_image_button"
+                            android:layout_height="@dimen/size_image_button"
+                            android:layout_gravity="end|bottom"
+                            app:backgroundTint="@color/iconsColor"
+                            app:icon="@drawable/ic_outline_camera_24"
+                            app:iconTint="@color/colorSecondary"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
 
-                <com.google.android.material.card.MaterialCardView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_normal"
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical">
+                        android:layout_gravity="start"
+                        android:layout_marginStart="@dimen/margin_normal"
+                        android:layout_marginLeft="@dimen/margin_normal"
+                        android:layout_marginBottom="@dimen/margin_normal"
+                        android:text="@string/title_care_schedule" />
 
-                        <TextView
-                            style="@style/TextAppearance.MaterialComponents.Caption"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="start"
-                            android:layout_marginStart="@dimen/margin_small"
-                            android:layout_marginLeft="@dimen/margin_small"
-                            android:layout_marginTop="@dimen/margin_small"
-                            android:layout_marginBottom="@dimen/margin_extra_small"
-                            android:text="@string/title_care_schedule" />
+                    <include
+                        android:id="@+id/wateringListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_drop_24}"
+                        app:scheduleItemType="@{0}"
+                        app:scheduleValue="@{@string/value_not_set}"
+                        app:title="@{@string/title_watering}" />
 
-                        <include
-                            android:id="@+id/wateringListItem"
-                            layout="@layout/list_item_schedule"
-                            app:icon="@{@drawable/ic_outline_drop_24}"
-                            app:scheduleItemType="@{0}"
-                            app:scheduleValue="@{@string/value_not_set}"
-                            app:title="@{@string/title_watering}" />
+                    <include
+                        android:id="@+id/sprayingListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_spray_24}"
+                        app:scheduleItemType="@{1}"
+                        app:scheduleValue="@{@string/value_not_set}"
+                        app:title="@{@string/title_spraying}" />
 
-                        <include
-                            android:id="@+id/sprayingListItem"
-                            layout="@layout/list_item_schedule"
-                            app:icon="@{@drawable/ic_outline_spray_24}"
-                            app:scheduleItemType="@{1}"
-                            app:scheduleValue="@{@string/value_not_set}"
-                            app:title="@{@string/title_spraying}" />
+                    <include
+                        android:id="@+id/fertilizingListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_fertilizing_24}"
+                        app:scheduleItemType="@{2}"
+                        app:scheduleValue="@{@string/value_not_set}"
+                        app:title="@{@string/title_fertilizing}" />
 
-                        <include
-                            android:id="@+id/fertilizingListItem"
-                            layout="@layout/list_item_schedule"
-                            app:icon="@{@drawable/ic_outline_fertilizing_24}"
-                            app:scheduleItemType="@{2}"
-                            app:scheduleValue="@{@string/value_not_set}"
-                            app:title="@{@string/title_fertilizing}" />
-
-                        <include
-                            android:id="@+id/rotatingListItem"
-                            layout="@layout/list_item_schedule"
-                            app:icon="@{@drawable/ic_outline_rotate_right_24}"
-                            app:scheduleItemType="@{3}"
-                            app:scheduleValue="@{@string/value_not_set}"
-                            app:title="@{@string/title_rotating}" />
-
-                    </LinearLayout>
-
-                </com.google.android.material.card.MaterialCardView>
+                    <include
+                        android:id="@+id/rotatingListItem"
+                        layout="@layout/list_item_schedule"
+                        app:icon="@{@drawable/ic_outline_rotate_right_24}"
+                        app:scheduleItemType="@{3}"
+                        app:scheduleValue="@{@string/value_not_set}"
+                        app:title="@{@string/title_rotating}" />
+                </LinearLayout>
 
                 <Button
                     android:id="@+id/addPlantButton"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="56dp"
                     android:layout_gravity="center_horizontal|bottom"
-                    android:layout_marginBottom="@dimen/margin_small"
+                    android:layout_margin="@dimen/margin_small"
                     android:gravity="center"
                     android:text="@string/content_plant_create_button"
                     app:icon="@drawable/ic_add_24"
@@ -176,7 +148,8 @@
 
         <include
             android:id="@+id/bottomSheet"
-            layout="@layout/bottom_sheet" />
+            layout="@layout/bottom_sheet"
+            tools:visibility="gone" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

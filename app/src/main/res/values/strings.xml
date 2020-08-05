@@ -4,7 +4,7 @@
     <string name="content_plant_create_button">Add to my plants</string>
     <string name="description_chosen_plant_image">Chosen plant image</string>
     <string name="error_empty_plant_name">Name can\'t be empty</string>
-    <string name="hint_plant_title">Plant name</string>
+    <string name="hint_plant_title">Enter plant name</string>
     <string name="label_fragment_home">Plants</string>
     <string name="label_fragment_plant_creation">Create plant</string>
     <string name="message_plant_is_added">Plant is added!</string>

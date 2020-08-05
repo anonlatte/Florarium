@@ -6,4 +6,5 @@
     <color name="colorSecondary">#4CAF50</color>
     <color name="dividerColor">#BDBDBD</color>
     <color name="iconsColor">#FFFFFF</color>
+    <color name="edit_text_with_gradient_background">#8AFFFFFF</color>
 </resources>
