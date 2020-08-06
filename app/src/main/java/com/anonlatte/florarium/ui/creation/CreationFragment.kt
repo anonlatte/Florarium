@@ -85,7 +85,7 @@ class CreationFragment : Fragment() {
         binding.addPlantButton.setOnClickListener {
             if (binding.titleEditText.text.isNullOrEmpty()) {
                 binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
-            } else {
+            } else if (binding.titleInputLayout.error == null) {
                 binding.titleInputLayout.error = null
                 viewModel.addPlantToGarden()
                 Toast.makeText(
@@ -97,10 +97,20 @@ class CreationFragment : Fragment() {
             }
         }
         binding.titleEditText.doOnTextChanged { text, _, _, _ ->
-            if (text.isNullOrEmpty()) {
-                binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
-            } else {
-                binding.titleInputLayout.error = null
+            when {
+                text.isNullOrEmpty() -> {
+                    binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
+                }
+                text.length > 40 -> {
+                    binding.titleInputLayout.error =
+                        getString(
+                            R.string.error_long_plant_name,
+                            text.length
+                        )
+                }
+                else -> {
+                    binding.titleInputLayout.error = null
+                }
             }
         }
         binding.loadImage.setOnClickListener {
