@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
-import android.os.ParcelFileDescriptor
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.TooltipCompat
+import androidx.core.content.FileProvider
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,19 +26,27 @@ import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.databinding.ListItemScheduleBinding
 import com.anonlatte.florarium.db.models.ScheduleType
+import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_CAPTURE
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_SELECT
+import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.FileDescriptor
+import timber.log.Timber
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class CreationFragment : Fragment() {
     private val viewModel by viewModels<CreationViewModel>()
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
+    private lateinit var currentPhotoPath: String
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,20 +70,34 @@ class CreationFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)
         if (resultCode == RESULT_OK) {
+            // TODO saving and caching images for reusing
             when (requestCode) {
                 REQUEST_IMAGE_SELECT -> {
                     resultData?.data?.also { uri ->
-                        lifecycleScope.launch {
-                            val bitmap = getBitmapFromUri(uri)
-                            binding.plantImageView.setImageBitmap(bitmap)
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val imageFile = createImageFile()
+                            val inputStream = requireContext().contentResolver.openInputStream(uri)
+                            val outputStream = FileOutputStream(imageFile)
+                            var bitmap: Bitmap? = null
+                            inputStream?.let {
+                                bitmap = BitmapFactory.decodeStream(inputStream)
+                                inputStream.close()
+                            }
+                            bitmap?.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
+                            outputStream.flush()
+                            outputStream.close()
                         }
+                        Glide.with(requireContext())
+                            .load(uri)
+                            .into(binding.plantImageView)
+                        viewModel.plant.imageUrl = currentPhotoPath
                     }
                 }
                 REQUEST_IMAGE_CAPTURE -> {
-                    resultData?.let {
-                        val imageBitmap = it.extras?.get("data") as Bitmap
-                        binding.plantImageView.setImageBitmap(imageBitmap)
-                    }
+                    Glide.with(requireContext())
+                        .load(currentPhotoPath)
+                        .into(binding.plantImageView)
+                    viewModel.plant.imageUrl = currentPhotoPath
                 }
             }
         }
@@ -139,30 +162,46 @@ class CreationFragment : Fragment() {
     }
 
     private fun openImageSelectIntent() {
-        val imageSelectIntent = Intent(
+        Intent(
             Intent.ACTION_PICK,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        )
-        startActivityForResult(imageSelectIntent, REQUEST_IMAGE_SELECT)
+        ).also { selectPictureIntent ->
+            startActivityForResult(selectPictureIntent, REQUEST_IMAGE_SELECT)
+        }
     }
 
     private fun openImageCaptureIntent() {
-        val imageCaptureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(requireActivity().packageManager)
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
+                val photoFile = try {
+                    createImageFile()
+                } catch (exception: IOException) {
+                    Timber.e(exception)
+                    null
+                }
+                photoFile?.also {
+                    val photoURI: Uri = FileProvider.getUriForFile(
+                        requireContext(),
+                        PROVIDER_AUTHORITY,
+                        it
+                    )
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                }
+            }
         }
-        startActivityForResult(imageCaptureIntent, REQUEST_IMAGE_CAPTURE)
     }
 
-    private suspend fun getBitmapFromUri(uri: Uri): Bitmap? = withContext(Dispatchers.IO) {
-        val parcelFileDescriptor: ParcelFileDescriptor? =
-            requireActivity().contentResolver.openFileDescriptor(uri, "r")
-        var image: Bitmap? = null
-        parcelFileDescriptor?.use {
-            val fileDescriptor: FileDescriptor = parcelFileDescriptor.fileDescriptor
-            image = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-            parcelFileDescriptor.close()
+    private fun getFormattedTimeStamp(): String =
+        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        val timeStamp = getFormattedTimeStamp()
+        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(timeStamp, ".jpg", storageDir).apply {
+            currentPhotoPath = absolutePath
         }
-        image
     }
 
     private fun onScheduleItemClickListener(
@@ -191,6 +230,10 @@ class CreationFragment : Fragment() {
         itemScheduleBinding: ListItemScheduleBinding
     ) {
         dialogBinding.okButton.setOnClickListener {
+            /**
+             * TODO check if DefaultCareValue slider < 0 then don't execute
+             *  move out checking condition from [updateCareSchedule]
+             */
             itemScheduleBinding.itemSwitch.isChecked = true
             updateCareSchedule(
                 dialogBinding,

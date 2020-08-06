@@ -26,6 +26,7 @@
             app:srcCompat="@drawable/ic_outline_flower_24"
             android:layout_height="56dp"
             android:contentDescription="@{@string/content_description_image(plant.name)}"
+            app:imageFromUrl="@{plant.imageUrl}"
             tools:background="@tools:sample/backgrounds/scenic" />
 
         <LinearLayout
