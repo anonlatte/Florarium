@@ -25,8 +25,7 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/margin_normal">
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/plantImageView"
@@ -39,14 +38,18 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/gradient_creation_header"
-                        android:padding="@dimen/margin_extra_small">
+                        android:background="@drawable/gradient_creation_header">
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/titleInputLayout"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/margin_normal"
+                            android:layout_marginLeft="@dimen/margin_normal"
+                            android:layout_marginEnd="@dimen/margin_normal"
+                            android:layout_marginRight="@dimen/margin_normal"
+                            android:layout_marginBottom="@dimen/margin_extra_small"
                             android:hint="@string/hint_plant_title"
                             android:textColorHint="@color/edit_text_with_gradient_background"
                             app:boxStrokeColor="?attr/colorOnPrimarySurface"
@@ -73,6 +76,9 @@
                             android:layout_width="@dimen/size_image_button"
                             android:layout_height="@dimen/size_image_button"
                             android:layout_gravity="end|bottom"
+                            android:layout_marginEnd="@dimen/margin_normal"
+                            android:layout_marginRight="@dimen/margin_normal"
+                            android:layout_marginBottom="@dimen/margin_normal"
                             app:backgroundTint="@color/iconsColor"
                             app:icon="@drawable/ic_outline_camera_24"
                             app:iconTint="@color/colorSecondary"
@@ -85,7 +91,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingTop="@dimen/margin_normal">
 
                     <TextView
                         style="@style/TextAppearance.MaterialComponents.Headline6"
@@ -134,9 +141,9 @@
                     android:id="@+id/addPlantButton"
                     style="@style/Widget.MaterialComponents.Button"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
+                    android:layout_height="@dimen/button_plant_add_height"
                     android:layout_gravity="center_horizontal|bottom"
-                    android:layout_margin="@dimen/margin_small"
+                    android:layout_margin="@dimen/margin_normal"
                     android:gravity="center"
                     android:text="@string/content_plant_create_button"
                     app:icon="@drawable/ic_add_24"

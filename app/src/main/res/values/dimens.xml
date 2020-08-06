@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="margin_big">32dp</dimen>
     <dimen name="margin_normal">16dp</dimen>
     <dimen name="margin_small">8dp</dimen>
     <dimen name="margin_extra_small">4dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="size_plant_image_creation">256dp</dimen>
     <dimen name="size_image_button">40dp</dimen>
-    <dimen name="list_item_height">56dp</dimen>
+    <dimen name="list_item_height">72dp</dimen>
+    <dimen name="button_plant_add_height">56dp</dimen>
 </resources>
