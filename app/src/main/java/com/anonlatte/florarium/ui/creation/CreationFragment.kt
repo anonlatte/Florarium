@@ -194,7 +194,7 @@ class CreationFragment : Fragment() {
             itemScheduleBinding.itemSwitch.isChecked = true
             updateCareSchedule(
                 dialogBinding,
-                itemScheduleBinding.scheduleItemType
+                itemScheduleBinding
             )
             dialog.dismiss()
         }
@@ -281,14 +281,26 @@ class CreationFragment : Fragment() {
 
     private fun updateCareSchedule(
         dialogBinding: BottomSheetBinding,
-        scheduleTypeValue: Int?
+        itemScheduleBinding: ListItemScheduleBinding
     ) {
         val defaultIntervalValue = dialogBinding.defaultIntervalItem.daySlider.value.toInt()
+
+        if (defaultIntervalValue <= 0) {
+            itemScheduleBinding.itemSwitch.isChecked = false
+            return
+        }
+
         val winterIntervalValue = dialogBinding.winterIntervalItem.daySlider.value.toInt()
         val lastCareValue = dialogBinding.lastCareItem.daySlider.value.toInt()
 
+        itemScheduleBinding.scheduleValue = formattedScheduleValue(
+            defaultIntervalValue,
+            winterIntervalValue,
+            lastCareValue
+        )
+
         with(viewModel) {
-            when (ScheduleType.toScheduleType(scheduleTypeValue)) {
+            when (ScheduleType.toScheduleType(itemScheduleBinding.scheduleItemType)) {
                 ScheduleType.WATERING -> {
                     regularSchedule.wateringInterval = defaultIntervalValue
                     regularSchedule.wateredAt = getTimestampFromDaysAgo(lastCareValue)
@@ -311,6 +323,20 @@ class CreationFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun formattedScheduleValue(
+        defaultIntervalValue: Int,
+        winterIntervalValue: Int,
+        lastCareValue: Int
+    ): String = if (lastCareValue > 0 && winterIntervalValue > 0) {
+        "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
+    } else if (lastCareValue <= 0 && winterIntervalValue > 0) {
+        "$defaultIntervalValue/$winterIntervalValue"
+    } else if (lastCareValue > 0 && winterIntervalValue <= 0) {
+        "$lastCareValue $defaultIntervalValue"
+    } else {
+        defaultIntervalValue.toString()
     }
 
     private fun clearScheduleFields(scheduleTypeValue: Int?) {
