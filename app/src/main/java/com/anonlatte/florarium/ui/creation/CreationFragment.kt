@@ -204,19 +204,17 @@ class CreationFragment : Fragment() {
     }
 
     private fun addSliderListeners(dialogBinding: BottomSheetBinding) {
-        with(dialogBinding.defaultIntervalItem) {
-            daySlider.addOnChangeListener { _, value, _ ->
-                title = getString(R.string.title_interval_in_days, value.toInt())
+        with(dialogBinding) {
+            defaultIntervalItem.daySlider.addOnChangeListener { _, value, _ ->
+                defaultIntervalItem.title =
+                    getString(R.string.title_interval_in_days, value.toInt())
             }
-        }
-        with(dialogBinding.winterIntervalItem) {
-            daySlider.addOnChangeListener { _, value, _ ->
-                title = getString(R.string.title_interval_for_winter, value.toInt())
+            winterIntervalItem.daySlider.addOnChangeListener { _, value, _ ->
+                winterIntervalItem.title =
+                    getString(R.string.title_interval_for_winter, value.toInt())
             }
-        }
-        with(dialogBinding.lastCareItem) {
-            daySlider.addOnChangeListener { _, value, _ ->
-                title = getString(R.string.title_last_care, value.toInt())
+            lastCareItem.daySlider.addOnChangeListener { _, value, _ ->
+                lastCareItem.title = getString(R.string.title_last_care, value.toInt())
             }
         }
     }
