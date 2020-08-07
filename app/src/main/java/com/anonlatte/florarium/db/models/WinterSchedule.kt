@@ -20,8 +20,7 @@ import androidx.room.PrimaryKey
     indices = [Index("plantId")]
 )
 data class WinterSchedule(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id")
-    val scheduleId: Long? = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val scheduleId: Long = 0,
     var plantId: Long? = null,
     var wateringInterval: Int? = 10, // In days
     var sprayingInterval: Int? = null,

@@ -23,28 +23,20 @@ class MainRepository(application: Application) {
         winterScheduleDao = db.winterScheduleDao()
     }
 
-    fun createPlant(plant: Plant): Long = plantDao.createPlant(plant)
-
-    fun createPlants(plants: List<Plant>): List<Long> = plantDao.createPlants(plants)
-
-    fun getPlant(plantId: Long): LiveData<Plant> = plantDao.getPlant(plantId)
+    fun createPlant(plant: Plant): Long = plantDao.create(plant)
 
     fun getPlants(): LiveData<List<Plant>> = plantDao.getPlants()
-
-    fun updatePlant(plant: Plant): Int = plantDao.updatePlant(plant)
-
-    fun deletePlant(plant: Plant): Int = plantDao.deletePlant(plant)
-
-    fun deletePlants(plants: List<Plant>): Int = plantDao.deletePlants(plants)
 
     fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
         db.runInTransaction {
             if (regularSchedule?.plantId != null) {
-                regularScheduleDao.createSchedule(regularSchedule)
+                regularScheduleDao.create(regularSchedule)
             }
             if (winterSchedule?.plantId != null) {
-                winterScheduleDao.createSchedule(winterSchedule)
+                winterScheduleDao.create(winterSchedule)
             }
         }
     }
+
+    fun getRegularScheduleList() = regularScheduleDao.getSchedules()
 }

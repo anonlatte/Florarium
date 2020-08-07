@@ -35,8 +35,8 @@ class PlantDaoTest {
             AppDatabase::class.java
         ).build()
         plantDao = db.plantDao()
-        plantDao.createPlants(testPlants)
-        plantDao.createPlant(plant)
+        plantDao.createMultiple(testPlants)
+        plantDao.create(plant)
     }
 
     @After
@@ -60,19 +60,19 @@ class PlantDaoTest {
     @Test
     fun testUpdatePlant() {
         plant.name = "chamomile"
-        val updatedId = plantDao.updatePlant(plant)
+        val updatedId = plantDao.create(plant)
         assertThat(updatedId.toLong(), equalTo(plant.plantId))
     }
 
     @Test
     fun testDeletePlant() {
-        val deletedCounter = plantDao.deletePlant(plant)
+        val deletedCounter = plantDao.delete(plant)
         assertThat(deletedCounter, equalTo(1))
     }
 
     @Test
     fun testDeletePlants() {
-        val deletedCounter = plantDao.deletePlants(testPlants)
+        val deletedCounter = plantDao.deleteMultiple(testPlants)
         assertThat(deletedCounter, equalTo(testPlants.size))
     }
 }

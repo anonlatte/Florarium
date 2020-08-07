@@ -20,8 +20,7 @@ import androidx.room.PrimaryKey
     indices = [Index("plantId")]
 )
 data class RegularSchedule(
-    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id")
-    val scheduleId: Long? = 0,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val scheduleId: Long = 0,
     var plantId: Long? = null,
     var wateringInterval: Int? = 7, // In days
     var wateredAt: Long? = null,
