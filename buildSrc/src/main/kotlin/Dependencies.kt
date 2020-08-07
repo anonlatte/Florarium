@@ -3,7 +3,7 @@ private const val ktlintVersion = "9.3.0"
 private const val checkUpdatesPluginVersion = "1.0.209"
 
 // Compile dependencies
-private const val appCompatVersion = "1.1.0"
+private const val appCompatVersion = "1.2.0"
 private const val archCoreVersion = "2.1.0"
 private const val constraintLayoutVersion = "1.1.3"
 private const val coreVersion = "1.3.1"
