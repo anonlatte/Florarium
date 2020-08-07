@@ -9,7 +9,6 @@ import com.anonlatte.florarium.db.models.WinterSchedule
 import com.anonlatte.florarium.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.util.Date
 
 class CreationViewModel(application: Application) : AndroidViewModel(application) {
     var plant: Plant = Plant()
@@ -29,20 +28,5 @@ class CreationViewModel(application: Application) : AndroidViewModel(application
 
     private fun addSchedule() {
         mainRepository.addSchedule(regularSchedule, winterSchedule)
-    }
-
-    fun getTimestampFromDaysAgo(days: Int): Long =
-        Date(System.currentTimeMillis() - (days * DAY_IN_MILLIS)).time
-
-    fun getDaysFromTimestampAgo(timestamp: Long?): Int {
-        return if (timestamp != null) {
-            ((System.currentTimeMillis() - timestamp) / DAY_IN_MILLIS).toInt()
-        } else {
-            0
-        }
-    }
-
-    companion object {
-        const val DAY_IN_MILLIS = (1000 * 60 * 60 * 24).toLong()
     }
 }

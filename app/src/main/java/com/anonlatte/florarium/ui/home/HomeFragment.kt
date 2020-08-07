@@ -47,6 +47,12 @@ class HomeFragment : Fragment() {
                 plantsAdapter.setPlants(plants)
             }
         )
+        viewModel.regularSchedulesList.observe(
+            viewLifecycleOwner,
+            Observer { schedules ->
+                plantsAdapter.setSchedules(schedules)
+            }
+        )
     }
 
     private fun setupRecyclerView(plantsAdapter: PlantsAdapter) {

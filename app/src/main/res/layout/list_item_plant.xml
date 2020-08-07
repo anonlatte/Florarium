@@ -10,7 +10,7 @@
             type="com.anonlatte.florarium.db.models.Plant" />
 
         <variable
-            name="descriptionValue"
+            name="schedule"
             type="String" />
     </data>
 
@@ -52,7 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxLines="2"
-                android:text="@{descriptionValue}"
+                android:text="@{schedule}"
                 tools:text="@tools:sample/lorem/random" />
         </LinearLayout>
     </LinearLayout>

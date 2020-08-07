@@ -29,6 +29,8 @@ import com.anonlatte.florarium.db.models.ScheduleType
 import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_CAPTURE
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_SELECT
+import com.anonlatte.florarium.utilities.TimeStampHelper.getDaysFromTimestampAgo
+import com.anonlatte.florarium.utilities.TimeStampHelper.getTimestampFromDaysAgo
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
