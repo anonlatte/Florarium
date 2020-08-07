@@ -49,6 +49,7 @@
             tools:drawableLeft="@drawable/ic_outline_drop_24"
             tools:text="Bottom Sheet Title" />
 
+        <!--TODO change includes to custom views-->
         <include
             android:id="@+id/defaultIntervalItem"
             layout="@layout/list_item_bottom_sheet"

@@ -104,6 +104,7 @@
                         android:layout_marginBottom="@dimen/margin_normal"
                         android:text="@string/title_care_schedule" />
 
+                    <!--TODO change includes to custom views-->
                     <include
                         android:id="@+id/wateringListItem"
                         layout="@layout/list_item_schedule"
