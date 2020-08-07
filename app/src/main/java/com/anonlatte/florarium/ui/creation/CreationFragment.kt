@@ -86,11 +86,12 @@ class CreationFragment : Fragment() {
                             bitmap?.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
                             outputStream.flush()
                             outputStream.close()
+                            viewModel.plant.imageUrl = currentPhotoPath
+                            Timber.d("File ${imageFile.name} is created in $currentPhotoPath")
                         }
                         Glide.with(requireContext())
                             .load(uri)
                             .into(binding.plantImageView)
-                        viewModel.plant.imageUrl = currentPhotoPath
                     }
                 }
                 REQUEST_IMAGE_CAPTURE -> {
