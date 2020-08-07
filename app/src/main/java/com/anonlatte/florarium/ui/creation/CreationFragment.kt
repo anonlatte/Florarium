@@ -47,6 +47,10 @@ class CreationFragment : Fragment() {
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
     private lateinit var currentPhotoPath: String
+    private val imageFile: File by lazy {
+        createImageFile()
+    }
+    private var isPlantCreated = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -65,17 +69,18 @@ class CreationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        if (!isPlantCreated) {
+            imageFile.delete()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         super.onActivityResult(requestCode, resultCode, resultData)
         if (resultCode == RESULT_OK) {
-            // TODO saving and caching images for reusing
             when (requestCode) {
                 REQUEST_IMAGE_SELECT -> {
                     resultData?.data?.also { uri ->
                         lifecycleScope.launch(Dispatchers.IO) {
-                            val imageFile = createImageFile()
                             val inputStream = requireContext().contentResolver.openInputStream(uri)
                             val outputStream = FileOutputStream(imageFile)
                             var bitmap: Bitmap? = null
@@ -112,6 +117,7 @@ class CreationFragment : Fragment() {
             } else if (binding.titleInputLayout.error == null) {
                 binding.titleInputLayout.error = null
                 viewModel.addPlantToGarden()
+                isPlantCreated = true
                 Toast.makeText(
                     requireContext(),
                     getString(R.string.message_plant_is_added),
