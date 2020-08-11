@@ -25,6 +25,8 @@ import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.databinding.ListItemScheduleBinding
+import com.anonlatte.florarium.db.models.Plant
+import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.ScheduleType
 import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_CAPTURE
@@ -53,6 +55,12 @@ class CreationFragment : Fragment() {
         createImageFile()
     }
     private var isPlantCreated = false
+    private val passedPlant: Plant? by lazy {
+        arguments?.getParcelable<Plant>("plant")
+    }
+    private val passedSchedule: RegularSchedule? by lazy {
+        arguments?.getParcelable<RegularSchedule>("schedule")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,6 +69,14 @@ class CreationFragment : Fragment() {
     ): View? {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
         _binding!!.viewModel = viewModel
+
+        if (passedPlant != null) {
+            binding.viewModel!!.plant = passedPlant!!
+        }
+
+        if (passedSchedule != null) {
+            binding.viewModel!!.regularSchedule = passedSchedule!!
+        }
 
         setListeners()
         makeScheduleItemsClickable()

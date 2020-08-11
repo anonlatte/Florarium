@@ -2,7 +2,10 @@ package com.anonlatte.florarium.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
+import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
 import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.RegularSchedule
@@ -16,6 +19,15 @@ class PlantsAdapter :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListItemPlantBinding.inflate(inflater)
+        binding.root.setOnClickListener {
+            findNavController(binding.root).navigate(
+                R.id.action_homeFragment_to_creationFragment,
+                bundleOf(
+                    "plant" to binding.plant,
+                    "schedule" to scheduleList.firstOrNull { it.plantId == binding.plant!!.plantId }
+                )
+            )
+        }
         return PlantsViewHolder(binding)
     }
 

@@ -17,6 +17,7 @@ private const val leakCanaryVersion = "2.4"
 private const val lifeCycleVersion = "2.2.0"
 private const val materialVersion = "1.2.0"
 private const val navigationVersion = "2.3.0"
+private const val recyclerviewSelectionVersion = "1.0.0"
 private const val roomVersion = "2.2.5"
 private const val timberVersion = "4.7.1"
 private const val workVersion = "2.4.0"
@@ -57,6 +58,8 @@ object Config {
         const val navigationFragment =
             "androidx.navigation:navigation-fragment-ktx:${navigationVersion}"
         const val navigationUI = "androidx.navigation:navigation-ui-ktx:${navigationVersion}"
+        const val recyclerviewSelection =
+            "androidx.recyclerview:recyclerview-selection:${recyclerviewSelectionVersion}"
         const val room = "androidx.room:room-ktx:${roomVersion}"
         const val roomCompiler = "androidx.room:room-compiler:${roomVersion}"
         const val roomRuntime = "androidx.room:room-runtime:${roomVersion}"

@@ -29,6 +29,7 @@
 
                     <ImageView
                         android:id="@+id/plantImageView"
+                        imageFromUrl="@{viewModel.plant.imageUrl}"
                         android:layout_width="match_parent"
                         android:layout_height="336dp"
                         android:contentDescription="@string/description_chosen_plant_image"
