@@ -15,18 +15,34 @@ class CreationViewModel(application: Application) : AndroidViewModel(application
     var regularSchedule: RegularSchedule = RegularSchedule()
     var winterSchedule: WinterSchedule = WinterSchedule()
     private val mainRepository = MainRepository(application)
+    var isPlantExist = false
 
     fun addPlantToGarden() {
-        viewModelScope.launch(Dispatchers.IO) {
-            mainRepository.createPlant(plant).also { plantId ->
-                regularSchedule.plantId = plantId
-                winterSchedule.plantId = plantId
+        if (!isPlantExist) {
+            viewModelScope.launch(Dispatchers.IO) {
+                mainRepository.createPlant(plant).also { plantId ->
+                    regularSchedule.plantId = plantId
+                    winterSchedule.plantId = plantId
+                }
+                addSchedule()
             }
-            addSchedule()
+        } else {
+            updatePlant()
         }
     }
 
     private fun addSchedule() {
         mainRepository.addSchedule(regularSchedule, winterSchedule)
+    }
+
+    private fun updatePlant() {
+        viewModelScope.launch(Dispatchers.IO) {
+            mainRepository.updatePlant(plant)
+            updateSchedule()
+        }
+    }
+
+    private fun updateSchedule() {
+        mainRepository.updateSchedule(regularSchedule, winterSchedule)
     }
 }

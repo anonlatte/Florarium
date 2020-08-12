@@ -71,7 +71,8 @@ class CreationFragment : Fragment() {
         _binding!!.viewModel = viewModel
 
         if (passedPlant != null) {
-            binding.viewModel!!.plant = passedPlant!!
+            viewModel.plant = passedPlant!!
+            viewModel.isPlantExist = true
         }
 
         if (passedSchedule != null) {

@@ -27,6 +27,8 @@ class MainRepository(application: Application) {
 
     fun getPlants(): LiveData<List<Plant>> = plantDao.getPlants()
 
+    fun updatePlant(plant: Plant): Int = plantDao.update(plant)
+
     fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
         db.runInTransaction {
             if (regularSchedule?.plantId != null) {
@@ -34,6 +36,17 @@ class MainRepository(application: Application) {
             }
             if (winterSchedule?.plantId != null) {
                 winterScheduleDao.create(winterSchedule)
+            }
+        }
+    }
+
+    fun updateSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
+        db.runInTransaction {
+            if (regularSchedule?.plantId != null) {
+                regularScheduleDao.update(regularSchedule)
+            }
+            if (winterSchedule?.plantId != null) {
+                winterScheduleDao.update(winterSchedule)
             }
         }
     }
