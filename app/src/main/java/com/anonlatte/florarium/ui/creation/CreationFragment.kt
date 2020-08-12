@@ -103,7 +103,7 @@ class CreationFragment : Fragment() {
                             val inputStream = requireContext().contentResolver.openInputStream(uri)
                             val outputStream = FileOutputStream(imageFile)
                             var bitmap: Bitmap? = null
-                            inputStream?.let {
+                            if (inputStream != null) {
                                 bitmap = BitmapFactory.decodeStream(inputStream)
                                 inputStream.close()
                             }

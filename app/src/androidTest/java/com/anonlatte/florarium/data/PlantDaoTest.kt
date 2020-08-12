@@ -61,7 +61,7 @@ class PlantDaoTest {
     fun testUpdatePlant() {
         plant.name = "chamomile"
         val updatedId = plantDao.create(plant)
-        assertThat(updatedId.toLong(), equalTo(plant.plantId))
+        assertThat(updatedId, equalTo(plant.plantId))
     }
 
     @Test
