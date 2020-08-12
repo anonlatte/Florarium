@@ -4,6 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.navigation.Navigation.findNavController
+import androidx.recyclerview.selection.ItemDetailsLookup
+import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
@@ -15,10 +17,17 @@ class PlantsAdapter :
     RecyclerView.Adapter<PlantsAdapter.PlantsViewHolder>() {
     private var plantsList = emptyList<Plant>()
     private var scheduleList = emptyList<RegularSchedule>()
+    private var selectionTracker: SelectionTracker<Plant>? = null
+
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun getItemId(position: Int): Long = position.toLong()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ListItemPlantBinding.inflate(inflater)
+        val binding = ListItemPlantBinding.inflate(inflater, parent, false)
         binding.root.setOnClickListener {
             findNavController(binding.root).navigate(
                 R.id.action_homeFragment_to_creationFragment,
@@ -33,8 +42,15 @@ class PlantsAdapter :
 
     override fun getItemCount(): Int = plantsList.size
 
-    override fun onBindViewHolder(holder: PlantsViewHolder, position: Int) =
-        holder.bind(plantsList[position])
+    override fun onBindViewHolder(holder: PlantsViewHolder, position: Int) {
+        if (selectionTracker != null) {
+            holder.bind(plantsList[position], selectionTracker!!.isSelected(plantsList[position]))
+        }
+    }
+
+    internal fun setTracker(tracker: SelectionTracker<Plant>) {
+        selectionTracker = tracker
+    }
 
     internal fun setPlants(plants: List<Plant>) {
         plantsList = plants
@@ -47,14 +63,18 @@ class PlantsAdapter :
     }
 
     inner class PlantsViewHolder(private val binding: ListItemPlantBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(plant: Plant?) {
-            plant?.let {
+        RecyclerView.ViewHolder(binding.root), ViewHolderWithDetails<Plant> {
+        fun bind(plant: Plant?, isActivated: Boolean = false) {
+            if (plant != null) {
                 binding.plant = plant
                 binding.schedule = getFormattedSchedule(plant)
+                itemView.isActivated = isActivated
                 binding.executePendingBindings()
             }
         }
+
+        override fun getItemDetail(): ItemDetailsLookup.ItemDetails<Plant> =
+            PlantDetails(adapterPosition, plantsList.getOrNull(adapterPosition))
     }
 
     // TODO beatify, visualize and improve UX.

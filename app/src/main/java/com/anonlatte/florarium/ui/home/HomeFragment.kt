@@ -8,12 +8,19 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.anonlatte.florarium.R
+import com.anonlatte.florarium.adapters.PlantItemDetailsLookup
+import com.anonlatte.florarium.adapters.PlantKeyProvider
 import com.anonlatte.florarium.adapters.PlantsAdapter
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
+import com.anonlatte.florarium.db.models.Plant
 
 class HomeFragment : Fragment() {
+    private var tracker: SelectionTracker<Plant>? = null
     private val viewModel by viewModels<HomeViewModel>()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
@@ -38,6 +45,7 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        tracker = null
     }
 
     private fun subscribeUI(plantsAdapter: PlantsAdapter) {
@@ -45,6 +53,12 @@ class HomeFragment : Fragment() {
             viewLifecycleOwner,
             Observer { plants ->
                 plantsAdapter.setPlants(plants)
+                // FIXME Item change notification received for unknown item: Plant
+                tracker = setupSelectionTracker(plants).also { selectionTracker ->
+                    if (selectionTracker != null) {
+                        plantsAdapter.setTracker(selectionTracker)
+                    }
+                }
             }
         )
         viewModel.regularSchedulesList.observe(
@@ -61,5 +75,15 @@ class HomeFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = plantsAdapter
         }
+    }
+
+    private fun setupSelectionTracker(plants: List<Plant>): SelectionTracker<Plant>? {
+        return SelectionTracker.Builder<Plant>(
+            "plant-selection",
+            binding.plantsList,
+            PlantKeyProvider(plants),
+            PlantItemDetailsLookup(binding.plantsList),
+            StorageStrategy.createParcelableStorage(Plant::class.java)
+        ).withSelectionPredicate(SelectionPredicates.createSelectAnything()).build()
     }
 }

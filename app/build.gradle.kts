@@ -64,6 +64,7 @@ dependencies {
     implementation(Config.Libs.timber)
     implementation(Config.Libs.roomRuntime)
     implementation(Config.Libs.room)
+    implementation(Config.Libs.recyclerviewSelection)
     implementation(Config.Libs.navigationUI)
     implementation(Config.Libs.navigationFragment)
     implementation(Config.Libs.navigationDynamicFeatures)
