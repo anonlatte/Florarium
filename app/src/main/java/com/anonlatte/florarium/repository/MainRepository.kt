@@ -29,6 +29,8 @@ class MainRepository(application: Application) {
 
     fun updatePlant(plant: Plant): Int = plantDao.update(plant)
 
+    fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
+
     fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
         db.runInTransaction {
             if (regularSchedule?.plantId != null) {

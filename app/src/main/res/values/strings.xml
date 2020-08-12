@@ -26,4 +26,7 @@
     <string name="title_intent_image_select">Select from</string>
     <string name="error_long_plant_name">Too long name %d/40</string>
     <string name="title_menu_delete">Delete</string>
+    <string name="successful_single_deletion">%s is deleted!</string>
+    <string name="successful_multiple_deletion">Deleted successful!</string>
+    <string name="error_plant_deletion">Something went wrong</string>
 </resources>

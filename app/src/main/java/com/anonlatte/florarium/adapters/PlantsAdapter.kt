@@ -15,7 +15,7 @@ import com.anonlatte.florarium.utilities.TimeStampHelper
 
 class PlantsAdapter :
     RecyclerView.Adapter<PlantsAdapter.PlantsViewHolder>() {
-    private var plantsList = emptyList<Plant>()
+    var plantsList = emptyList<Plant>()
     private var scheduleList = emptyList<RegularSchedule>()
     private var selectionTracker: SelectionTracker<Plant>? = null
 
