@@ -1,6 +1,9 @@
 package com.anonlatte.florarium.ui.creation
 
 import android.app.Activity.RESULT_OK
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -22,6 +25,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anonlatte.florarium.R
+import com.anonlatte.florarium.alarms.PlantsNotificationReceiver
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.databinding.ListItemScheduleBinding
@@ -43,7 +47,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import timber.log.Timber
 
 class CreationFragment : Fragment() {
@@ -136,6 +142,8 @@ class CreationFragment : Fragment() {
             } else if (binding.titleInputLayout.error == null) {
                 binding.titleInputLayout.error = null
                 viewModel.addPlantToGarden()
+                // TODO visualize waiting without locking main thread
+                createAlarms()
                 isPlantCreated = true
                 Toast.makeText(
                     requireContext(),
@@ -169,6 +177,84 @@ class CreationFragment : Fragment() {
         setScheduleItemListener(binding.sprayingListItem)
         setScheduleItemListener(binding.fertilizingListItem)
         setScheduleItemListener(binding.rotatingListItem)
+    }
+
+    private fun createAlarms() {
+        val scheduleMap = getScheduleMap()
+        val alarmManager =
+            requireContext().getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        scheduleMap.keys.forEach {
+            setAlarm(
+                alarmManager,
+                it.name.toLowerCase(Locale.ROOT),
+                scheduleMap[it]!![0]!!.toLong(),
+                scheduleMap[it]!![1]
+            )
+        }
+    }
+
+    private fun setAlarm(
+        alarmManager: AlarmManager?,
+        eventTag: String,
+        interval: Long,
+        lastCare: Long?
+    ) = runBlocking {
+        // Delay to set an unique id from `System.currentTimeMillis()`
+        delay(1000)
+        val randomRequestId = (System.currentTimeMillis() / 1000).toInt()
+        val formattedInterval = interval * AlarmManager.INTERVAL_DAY
+        val careLeftDays = if (lastCare != null) {
+            val value =
+                formattedInterval - getDaysFromTimestampAgo(lastCare) * AlarmManager.INTERVAL_DAY
+            if (value < 1) {
+                System.currentTimeMillis()
+            } else {
+                value
+            }
+        } else {
+            System.currentTimeMillis() + formattedInterval
+        }
+        val plantsAlarmIntent =
+            Intent(requireContext(), PlantsNotificationReceiver::class.java).apply {
+                action = "PLANT_EVENT"
+                putExtra("event", eventTag)
+                putExtra("plant-name", viewModel.plant.name)
+            }
+        val pendingIntent = PendingIntent.getBroadcast(
+            requireContext(),
+            randomRequestId,
+            plantsAlarmIntent,
+            0
+        )
+        if (pendingIntent != null && alarmManager != null) {
+            alarmManager.cancel(pendingIntent)
+        }
+        alarmManager?.setInexactRepeating(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            careLeftDays,
+            formattedInterval,
+            pendingIntent
+        )
+        Timber.tag("alarm")
+            .d("${viewModel.plant.name} in $interval - $eventTag with id:$randomRequestId")
+    }
+
+    private fun getScheduleMap(): MutableMap<ScheduleType, List<Long?>> {
+        with(viewModel.regularSchedule) {
+            val schedule =
+                mutableMapOf(ScheduleType.WATERING to listOf(wateringInterval?.toLong(), wateredAt))
+            if (sprayingInterval != null) {
+                schedule[ScheduleType.SPRAYING] = listOf(sprayingInterval?.toLong(), sprayedAt)
+            }
+            if (fertilizingInterval != null) {
+                schedule[ScheduleType.FERTILIZING] =
+                    listOf(fertilizingInterval?.toLong(), fertilizedAt)
+            }
+            if (rotatingInterval != null) {
+                schedule[ScheduleType.ROTATING] = listOf(rotatingInterval?.toLong(), rotatedAt)
+            }
+            return schedule
+        }
     }
 
     private fun showIntentChooseDialog() {
