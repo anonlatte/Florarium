@@ -25,7 +25,7 @@ import com.anonlatte.florarium.db.models.Plant
 import kotlinx.coroutines.runBlocking
 
 class HomeFragment : Fragment() {
-    private lateinit var plantsAdapter: PlantsAdapter
+    private var plantsAdapter: PlantsAdapter? = null
     private var tracker: SelectionTracker<Plant>? = null
     private var actionMode: ActionMode? = null
     private val viewModel by viewModels<HomeViewModel>()
@@ -39,9 +39,10 @@ class HomeFragment : Fragment() {
     ): View? {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        plantsAdapter = PlantsAdapter()
-        setupRecyclerView(plantsAdapter)
-        subscribeUI(plantsAdapter)
+        plantsAdapter = PlantsAdapter().also {
+            setupRecyclerView(it)
+            subscribeUI(it)
+        }
 
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_creationFragment)
@@ -53,6 +54,7 @@ class HomeFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         tracker = null
+        plantsAdapter = null
     }
 
     private fun subscribeUI(plantsAdapter: PlantsAdapter) {
@@ -98,7 +100,7 @@ class HomeFragment : Fragment() {
                     when (item.itemId) {
                         R.id.delete -> {
                             val selectedPlants = tracker?.selection?.map {
-                                plantsAdapter.plantsList[plantsAdapter.plantsList.indexOf(it)]
+                                plantsAdapter!!.plantsList[plantsAdapter!!.plantsList.indexOf(it)]
                             }?.toList()
                             runBlocking {
                                 viewModel.deletePlants(selectedPlants)
