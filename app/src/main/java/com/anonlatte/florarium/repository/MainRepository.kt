@@ -1,23 +1,27 @@
 package com.anonlatte.florarium.repository
 
-import android.app.Application
+import android.content.Context
 import androidx.lifecycle.LiveData
 import com.anonlatte.florarium.db.AppDatabase
+import com.anonlatte.florarium.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.db.dao.PlantDao
 import com.anonlatte.florarium.db.dao.RegularScheduleDao
 import com.anonlatte.florarium.db.dao.WinterScheduleDao
 import com.anonlatte.florarium.db.models.Plant
+import com.anonlatte.florarium.db.models.PlantAlarm
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.WinterSchedule
 
-class MainRepository(application: Application) {
+class MainRepository(context: Context) {
 
+    private val plantAlarmDao: PlantAlarmDao
     private val plantDao: PlantDao
     private val regularScheduleDao: RegularScheduleDao
     private val winterScheduleDao: WinterScheduleDao
-    private val db = AppDatabase.getInstance(application)
+    private val db = AppDatabase.getInstance(context)
 
     init {
+        plantAlarmDao = db.plantAlarmDao()
         plantDao = db.plantDao()
         regularScheduleDao = db.regularScheduleDao()
         winterScheduleDao = db.winterScheduleDao()
@@ -54,4 +58,7 @@ class MainRepository(application: Application) {
     }
 
     fun getRegularScheduleList() = regularScheduleDao.getSchedules()
+
+    fun createPlantAlarm(plantAlarm: PlantAlarm): Long = plantAlarmDao.create(plantAlarm)
+    fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
 }

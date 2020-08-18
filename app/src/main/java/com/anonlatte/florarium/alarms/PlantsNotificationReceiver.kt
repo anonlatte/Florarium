@@ -8,19 +8,31 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.anonlatte.florarium.BuildConfig
 import com.anonlatte.florarium.R
+import com.anonlatte.florarium.db.models.PlantAlarm
 import timber.log.Timber
 
 class PlantsNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED ||
+            intent.action == "android.intent.action.QUICKBOOT_POWERON"
+        ) {
+            if (BuildConfig.DEBUG) {
+                Timber.plant(Timber.DebugTree())
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(Intent(context, RestartAlarmsService::class.java))
+            } else {
+                context.startService(Intent(context, RestartAlarmsService::class.java))
+            }
         }
         if (intent.action == "PLANT_EVENT") {
-            val eventTag = intent.extras?.getString("event")
-            val plantName = intent.extras?.getString("plant-name")
-            makeNotification(context, eventTag, plantName)
-            Timber.tag("alarm").d("notified $eventTag:$plantName")
+            intent.extras?.getParcelable<PlantAlarm>("alarm")?.run {
+                makeNotification(context, eventTag, plantName)
+                Timber.tag("alarm").d("notified $eventTag:$plantName")
+            }
         }
     }
 

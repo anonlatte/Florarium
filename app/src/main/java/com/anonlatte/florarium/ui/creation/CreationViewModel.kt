@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.db.models.Plant
+import com.anonlatte.florarium.db.models.PlantAlarm
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.WinterSchedule
 import com.anonlatte.florarium.repository.MainRepository
@@ -29,6 +30,10 @@ class CreationViewModel(application: Application) : AndroidViewModel(application
         } else {
             updatePlant()
         }
+    }
+
+    fun addPlantAlarm(plantAlarm: PlantAlarm) = viewModelScope.launch(Dispatchers.IO) {
+        mainRepository.createPlantAlarm(plantAlarm)
     }
 
     private fun addSchedule() {

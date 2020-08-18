@@ -14,6 +14,8 @@
       <w>ktlint</w>
       <w>leakcanary</w>
       <w>livedata</w>
+      <w>poweron</w>
+      <w>quickboot</w>
       <w>remal</w>
       <w>squareup</w>
       <w>vectordrawable</w>
