@@ -5,7 +5,7 @@
     android:id="@+id/scheduleItem"
     android:background="?attr/selectableItemBackground"
     android:focusable="true"
-    tools:parentTag="com.anonlatte.florarium.ui.custom.CareScheduleItem">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
     <ImageView
         android:id="@+id/wateringIcon"

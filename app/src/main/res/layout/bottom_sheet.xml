@@ -50,26 +50,26 @@
             tools:text="Bottom Sheet Title" />
 
         <!--TODO change includes to custom views-->
-        <include
+        <com.anonlatte.florarium.ui.custom.BottomSheetItem
             android:id="@+id/defaultIntervalItem"
-            layout="@layout/list_item_bottom_sheet"
-            app:icon="@{@drawable/ic_outline_drop_24}"
-            app:sliderValue="@{careIntervalValue}"
-            app:title="@{@string/title_interval_in_days(0)}" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_outline_drop_24"
+            app:title="@string/title_interval_in_days" />
 
-        <include
+        <com.anonlatte.florarium.ui.custom.BottomSheetItem
             android:id="@+id/winterIntervalItem"
-            layout="@layout/list_item_bottom_sheet"
-            app:icon="@{@drawable/ic_outline_snowflake_24}"
-            app:sliderValue="@{winterCareIntervalValue}"
-            app:title="@{@string/title_interval_for_winter(0)}" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_outline_snowflake_24"
+            app:title="@string/title_interval_for_winter" />
 
-        <include
+        <com.anonlatte.florarium.ui.custom.BottomSheetItem
             android:id="@+id/lastCareItem"
-            layout="@layout/list_item_bottom_sheet"
-            app:icon="@{@drawable/ic_outline_history_24}"
-            app:sliderValue="@{lastCareValue}"
-            app:title="@{@string/title_last_care(0)}" />
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_outline_history_24"
+            app:title="@string/title_last_care" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

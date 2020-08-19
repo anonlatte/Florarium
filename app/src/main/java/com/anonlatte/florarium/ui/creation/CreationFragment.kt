@@ -27,11 +27,11 @@ import com.anonlatte.florarium.R
 import com.anonlatte.florarium.alarms.PlantsNotificationReceiver
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
-import com.anonlatte.florarium.databinding.ListItemScheduleBinding
 import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.PlantAlarm
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.ScheduleType
+import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_CAPTURE
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_SELECT
@@ -46,6 +46,8 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.android.synthetic.main.list_item_bottom_sheet.view.*
+import kotlinx.android.synthetic.main.list_item_schedule.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -82,13 +84,41 @@ class CreationFragment : Fragment() {
         }
 
         if (passedSchedule != null) {
-            binding.viewModel!!.regularSchedule = passedSchedule!!
+            viewModel.regularSchedule = passedSchedule!!
+            restoreCareSchedule()
         }
 
         setListeners()
         makeScheduleItemsClickable()
 
         return binding.root
+    }
+
+    private fun restoreCareSchedule() {
+        binding.wateringListItem.wateringItemValue.text =
+            formattedScheduleValue(
+                viewModel.regularSchedule.wateringInterval,
+                viewModel.winterSchedule.wateringInterval,
+                getDaysFromTimestampAgo(viewModel.regularSchedule.wateredAt)
+            )
+        binding.sprayingListItem.wateringItemValue.text =
+            formattedScheduleValue(
+                viewModel.regularSchedule.sprayingInterval,
+                viewModel.winterSchedule.sprayingInterval,
+                getDaysFromTimestampAgo(viewModel.regularSchedule.sprayedAt)
+            )
+        binding.fertilizingListItem.wateringItemValue.text =
+            formattedScheduleValue(
+                viewModel.regularSchedule.fertilizingInterval,
+                viewModel.winterSchedule.fertilizingInterval,
+                getDaysFromTimestampAgo(viewModel.regularSchedule.fertilizedAt)
+            )
+        binding.rotatingListItem.wateringItemValue.text =
+            formattedScheduleValue(
+                viewModel.regularSchedule.rotatingInterval,
+                viewModel.winterSchedule.rotatingInterval,
+                getDaysFromTimestampAgo(viewModel.regularSchedule.rotatedAt)
+            )
     }
 
     override fun onDestroyView() {
@@ -301,8 +331,6 @@ class CreationFragment : Fragment() {
         restoreCareScheduleItem(dialogBinding, careScheduleItem)
         setDialogListeners(dialog, dialogBinding, careScheduleItem)
 
-        addSliderListeners(dialogBinding)
-
         dialog.show()
     }
 
@@ -328,26 +356,9 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun addSliderListeners(dialogBinding: BottomSheetBinding) {
-        with(dialogBinding) {
-            defaultIntervalItem.daySlider.addOnChangeListener { _, value, _ ->
-                defaultIntervalItem.title =
-                    getString(R.string.title_interval_in_days, value.toInt())
-            }
-            winterIntervalItem.daySlider.addOnChangeListener { _, value, _ ->
-                winterIntervalItem.title =
-                    getString(R.string.title_interval_for_winter, value.toInt())
-            }
-            lastCareItem.daySlider.addOnChangeListener { _, value, _ ->
-                lastCareItem.title = getString(R.string.title_last_care, value.toInt())
-            }
-        }
-    }
-
-    private fun setScheduleItemListener(itemScheduleBinding: ListItemScheduleBinding) {
-        with(itemScheduleBinding) {
-            executePendingBindings()
-            scheduleItem.setOnClickListener {
+    private fun setScheduleItemListener(careScheduleItem: CareScheduleItem) {
+        with(careScheduleItem) {
+            setOnClickListener {
                 onScheduleItemClickListener(
                     careScheduleItem,
                     title,
@@ -367,56 +378,67 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun restoreCareSchedule(dialogBinding: BottomSheetBinding, scheduleTypeValue: Int?) {
+    private fun restoreCareScheduleItem(
+        dialogBinding: BottomSheetBinding,
+        careScheduleItem: CareScheduleItem
+    ) {
+        var defaultIntervalValue = 0
+        var winterIntervalValue = 0
+        var lastCareIntervalValue = 0
         with(viewModel) {
-            when (ScheduleType.toScheduleType(scheduleTypeValue)) {
-                ScheduleType.WATERING -> {
-                    dialogBinding.careIntervalValue = regularSchedule.wateringInterval?.toFloat()
-                    dialogBinding.winterCareIntervalValue =
-                        winterSchedule.wateringInterval?.toFloat()
-                    dialogBinding.lastCareValue =
-                        getDaysFromTimestampAgo(regularSchedule.wateredAt).toFloat()
+            when (careScheduleItem) {
+                binding.wateringListItem -> {
+                    defaultIntervalValue = regularSchedule.wateringInterval ?: 0
+                    winterIntervalValue = winterSchedule.wateringInterval ?: 0
+                    lastCareIntervalValue =
+                        getDaysFromTimestampAgo(regularSchedule.wateredAt)
                 }
-                ScheduleType.SPRAYING -> {
-                    dialogBinding.careIntervalValue = regularSchedule.sprayingInterval?.toFloat()
-                    dialogBinding.winterCareIntervalValue =
-                        winterSchedule.sprayingInterval?.toFloat()
-                    dialogBinding.lastCareValue =
-                        getDaysFromTimestampAgo(regularSchedule.sprayedAt).toFloat()
+                binding.sprayingListItem -> {
+                    defaultIntervalValue = regularSchedule.sprayingInterval ?: 0
+                    winterIntervalValue = winterSchedule.sprayingInterval ?: 0
+                    lastCareIntervalValue =
+                        getDaysFromTimestampAgo(regularSchedule.sprayedAt)
                 }
-                ScheduleType.FERTILIZING -> {
-                    dialogBinding.careIntervalValue =
-                        regularSchedule.fertilizingInterval?.toFloat()
-                    dialogBinding.winterCareIntervalValue =
-                        winterSchedule.fertilizingInterval?.toFloat()
-                    dialogBinding.lastCareValue =
-                        getDaysFromTimestampAgo(regularSchedule.fertilizedAt).toFloat()
+                binding.fertilizingListItem -> {
+                    defaultIntervalValue = regularSchedule.fertilizingInterval ?: 0
+                    winterIntervalValue = winterSchedule.fertilizingInterval ?: 0
+                    lastCareIntervalValue =
+                        getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
                 }
-                ScheduleType.ROTATING -> {
-                    dialogBinding.careIntervalValue =
-                        regularSchedule.rotatingInterval?.toFloat()
-                    dialogBinding.winterCareIntervalValue =
-                        winterSchedule.rotatingInterval?.toFloat()
-                    dialogBinding.lastCareValue =
-                        getDaysFromTimestampAgo(regularSchedule.rotatedAt).toFloat()
+                binding.rotatingListItem -> {
+                    defaultIntervalValue = regularSchedule.rotatingInterval ?: 0
+                    winterIntervalValue = winterSchedule.rotatingInterval ?: 0
+                    lastCareIntervalValue =
+                        getDaysFromTimestampAgo(regularSchedule.rotatedAt)
                 }
             }
         }
+        dialogBinding.defaultIntervalItem.intervalTitle.text =
+            getString(R.string.title_interval_in_days, defaultIntervalValue)
+        dialogBinding.defaultIntervalItem.intervalSlider.value = defaultIntervalValue.toFloat()
+
+        dialogBinding.winterIntervalItem.intervalTitle.text =
+            getString(R.string.title_interval_for_winter, winterIntervalValue)
+        dialogBinding.winterIntervalItem.intervalSlider.value = winterIntervalValue.toFloat()
+
+        dialogBinding.lastCareItem.intervalTitle.text =
+            getString(R.string.title_last_care, lastCareIntervalValue)
+        dialogBinding.lastCareItem.intervalSlider.value = lastCareIntervalValue.toFloat()
     }
 
     private fun updateCareSchedule(
         dialogBinding: BottomSheetBinding,
         careScheduleItem: CareScheduleItem
     ) {
-        val defaultIntervalValue = dialogBinding.defaultIntervalItem.daySlider.value.toInt()
+        val defaultIntervalValue = dialogBinding.defaultIntervalItem.intervalSlider.value.toInt()
 
         if (defaultIntervalValue <= 0) {
             careScheduleItem.itemSwitch.isChecked = false
             return
         }
 
-        val winterIntervalValue = dialogBinding.winterIntervalItem.daySlider.value.toInt()
-        val lastCareValue = dialogBinding.lastCareItem.daySlider.value.toInt()
+        val winterIntervalValue = dialogBinding.winterIntervalItem.intervalSlider.value.toInt()
+        val lastCareValue = dialogBinding.lastCareItem.intervalSlider.value.toInt()
 
         careScheduleItem.wateringItemValue.text = formattedScheduleValue(
             defaultIntervalValue,
@@ -451,18 +473,21 @@ class CreationFragment : Fragment() {
     }
 
     private fun formattedScheduleValue(
-        defaultIntervalValue: Int,
-        winterIntervalValue: Int,
-        lastCareValue: Int
-    ): String = if (lastCareValue > 0 && winterIntervalValue > 0) {
-        "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
-    } else if (lastCareValue <= 0 && winterIntervalValue > 0) {
-        "$defaultIntervalValue/$winterIntervalValue"
-    } else if (lastCareValue > 0 && winterIntervalValue <= 0) {
-        "$lastCareValue $defaultIntervalValue"
-    } else {
-        defaultIntervalValue.toString()
-    }
+        defaultIntervalValue: Int?,
+        winterIntervalValue: Int?,
+        lastCareValue: Int?
+    ): String =
+        if (lastCareValue != null && lastCareValue > 0) {
+            if (winterIntervalValue != null && winterIntervalValue > 0) {
+                "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
+            } else {
+                "$lastCareValue $defaultIntervalValue"
+            }
+        } else if (winterIntervalValue != null && winterIntervalValue > 0) {
+            "$defaultIntervalValue/$winterIntervalValue"
+        } else {
+            defaultIntervalValue.toString()
+        }
 
     private fun clearScheduleFields(scheduleTypeValue: Int?) {
         with(viewModel) {
