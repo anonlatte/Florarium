@@ -287,7 +287,7 @@ class CreationFragment : Fragment() {
     }
 
     private fun onScheduleItemClickListener(
-        itemScheduleBinding: ListItemScheduleBinding,
+        careScheduleItem: CareScheduleItem,
         title: String?,
         icon: Drawable?
     ) {
@@ -298,8 +298,8 @@ class CreationFragment : Fragment() {
         dialogBinding.title = title
         dialogBinding.icon = icon
 
-        restoreCareSchedule(dialogBinding, itemScheduleBinding.scheduleItemType)
-        setDialogListeners(dialog, dialogBinding, itemScheduleBinding)
+        restoreCareScheduleItem(dialogBinding, careScheduleItem)
+        setDialogListeners(dialog, dialogBinding, careScheduleItem)
 
         addSliderListeners(dialogBinding)
 
@@ -309,17 +309,17 @@ class CreationFragment : Fragment() {
     private fun setDialogListeners(
         dialog: BottomSheetDialog,
         dialogBinding: BottomSheetBinding,
-        itemScheduleBinding: ListItemScheduleBinding
+        careScheduleItem: CareScheduleItem
     ) {
         dialogBinding.okButton.setOnClickListener {
             /**
              * TODO check if DefaultCareValue slider < 0 then don't execute
              *  move out checking condition from [updateCareSchedule]
              */
-            itemScheduleBinding.itemSwitch.isChecked = true
+            careScheduleItem.itemSwitch.isChecked = true
             updateCareSchedule(
                 dialogBinding,
-                itemScheduleBinding
+                careScheduleItem
             )
             dialog.dismiss()
         }
@@ -349,7 +349,7 @@ class CreationFragment : Fragment() {
             executePendingBindings()
             scheduleItem.setOnClickListener {
                 onScheduleItemClickListener(
-                    itemScheduleBinding,
+                    careScheduleItem,
                     title,
                     icon
                 )
@@ -357,10 +357,10 @@ class CreationFragment : Fragment() {
             /** Convert itemSwitch to View to avoid overriding [View.performClick] */
             (itemSwitch as View).setOnTouchListener { switchView, event ->
                 if (event.action == MotionEvent.ACTION_UP && !itemSwitch.isChecked) {
-                    onScheduleItemClickListener(itemScheduleBinding, title, icon)
+                    onScheduleItemClickListener(careScheduleItem, title, icon)
                     switchView.performClick()
                 } else if (event.action == MotionEvent.ACTION_UP && itemSwitch.isChecked) {
-                    clearScheduleFields(itemScheduleBinding.scheduleItemType)
+                    clearScheduleFields(careScheduleItem.scheduleItemType)
                 }
                 event.actionMasked == MotionEvent.ACTION_MOVE
             }
@@ -406,26 +406,26 @@ class CreationFragment : Fragment() {
 
     private fun updateCareSchedule(
         dialogBinding: BottomSheetBinding,
-        itemScheduleBinding: ListItemScheduleBinding
+        careScheduleItem: CareScheduleItem
     ) {
         val defaultIntervalValue = dialogBinding.defaultIntervalItem.daySlider.value.toInt()
 
         if (defaultIntervalValue <= 0) {
-            itemScheduleBinding.itemSwitch.isChecked = false
+            careScheduleItem.itemSwitch.isChecked = false
             return
         }
 
         val winterIntervalValue = dialogBinding.winterIntervalItem.daySlider.value.toInt()
         val lastCareValue = dialogBinding.lastCareItem.daySlider.value.toInt()
 
-        itemScheduleBinding.scheduleValue = formattedScheduleValue(
+        careScheduleItem.wateringItemValue.text = formattedScheduleValue(
             defaultIntervalValue,
             winterIntervalValue,
             lastCareValue
         )
 
         with(viewModel) {
-            when (ScheduleType.toScheduleType(itemScheduleBinding.scheduleItemType)) {
+            when (ScheduleType.toScheduleType(careScheduleItem.scheduleItemType)) {
                 ScheduleType.WATERING -> {
                     regularSchedule.wateringInterval = defaultIntervalValue
                     regularSchedule.wateredAt = getTimestampFromDaysAgo(lastCareValue)
@@ -493,19 +493,19 @@ class CreationFragment : Fragment() {
 
     private fun makeScheduleItemsClickable() {
         TooltipCompat.setTooltipText(
-            binding.wateringListItem.scheduleItem,
+            binding.wateringListItem,
             getString(R.string.tooltip_watering)
         )
         TooltipCompat.setTooltipText(
-            binding.sprayingListItem.scheduleItem,
+            binding.sprayingListItem,
             getString(R.string.tooltip_spraying)
         )
         TooltipCompat.setTooltipText(
-            binding.fertilizingListItem.scheduleItem,
+            binding.fertilizingListItem,
             getString(R.string.tooltip_fertilizing)
         )
         TooltipCompat.setTooltipText(
-            binding.rotatingListItem.scheduleItem,
+            binding.rotatingListItem,
             getString(R.string.tooltip_rotating)
         )
     }

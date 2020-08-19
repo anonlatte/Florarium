@@ -106,37 +106,42 @@
                         android:text="@string/title_care_schedule" />
 
                     <!--TODO change includes to custom views-->
-                    <include
+                    <com.anonlatte.florarium.ui.custom.CareScheduleItem
                         android:id="@+id/wateringListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_drop_24}"
-                        app:scheduleItemType="@{0}"
-                        app:scheduleValue="@{@string/value_not_set}"
-                        app:title="@{@string/title_watering}" />
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/list_item_height"
+                        app:icon="@drawable/ic_outline_drop_24"
+                        app:scheduleItemType="0"
+                        app:scheduleValue="@string/value_not_set"
+                        app:title="@string/title_watering" />
 
-                    <include
+                    <com.anonlatte.florarium.ui.custom.CareScheduleItem
                         android:id="@+id/sprayingListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_spray_24}"
-                        app:scheduleItemType="@{1}"
-                        app:scheduleValue="@{@string/value_not_set}"
-                        app:title="@{@string/title_spraying}" />
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/list_item_height"
+                        app:icon="@drawable/ic_outline_spray_24"
+                        app:scheduleItemType="1"
+                        app:scheduleValue="@string/value_not_set"
+                        app:title="@string/title_spraying" />
 
-                    <include
+                    <com.anonlatte.florarium.ui.custom.CareScheduleItem
                         android:id="@+id/fertilizingListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_fertilizing_24}"
-                        app:scheduleItemType="@{2}"
-                        app:scheduleValue="@{@string/value_not_set}"
-                        app:title="@{@string/title_fertilizing}" />
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/list_item_height"
+                        app:icon="@drawable/ic_outline_fertilizing_24"
+                        app:scheduleItemType="2"
+                        app:scheduleValue="@string/value_not_set"
+                        app:title="@string/title_fertilizing" />
 
-                    <include
+                    <com.anonlatte.florarium.ui.custom.CareScheduleItem
                         android:id="@+id/rotatingListItem"
-                        layout="@layout/list_item_schedule"
-                        app:icon="@{@drawable/ic_outline_rotate_right_24}"
-                        app:scheduleItemType="@{3}"
-                        app:scheduleValue="@{@string/value_not_set}"
-                        app:title="@{@string/title_rotating}" />
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/list_item_height"
+                        app:icon="@drawable/ic_outline_rotate_right_24"
+                        app:scheduleItemType="3"
+                        app:scheduleValue="@string/value_not_set"
+                        app:title="@string/title_rotating" />
+
                 </LinearLayout>
 
                 <Button
