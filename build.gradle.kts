@@ -9,7 +9,7 @@ buildscript {
     }
     dependencies {
         classpath(Config.BuildPlugins.androidGradle)
-        classpath(embeddedKotlin("gradle-plugin"))
+        classpath(kotlin("gradle-plugin", Config.kotlinVersion))
         classpath(Config.BuildPlugins.ktlint)
         classpath(Config.BuildPlugins.checkUpdatesPlugin)
 

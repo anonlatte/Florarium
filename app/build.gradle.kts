@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.config.KotlinCompilerVersion
+
 plugins {
     id("com.android.application")
     kotlin("android")
@@ -57,7 +59,7 @@ dependencies {
     implementation(fileTree("dir" to "libs", "include" to listOf("*.jar")))
     kapt(Config.Libs.roomCompiler)
     kapt(Config.Libs.glideCompiler)
-    implementation(embeddedKotlin("stdlib-jdk7"))
+    implementation(kotlin("stdlib-jdk7", KotlinCompilerVersion.VERSION))
     implementation(Config.Libs.workRuntime)
     implementation(Config.Libs.viewModel)
     implementation(Config.Libs.vectorDrawable)

@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
@@ -60,7 +59,7 @@ class HomeFragment : Fragment() {
     private fun subscribeUI(plantsAdapter: PlantsAdapter) {
         viewModel.plantsList.observe(
             viewLifecycleOwner,
-            Observer { plants ->
+            { plants ->
                 plantsAdapter.setPlants(plants)
                 // FIXME Item change notification received for unknown item: Plant
                 tracker = setupSelectionTracker(plants).also { selectionTracker ->
@@ -87,7 +86,7 @@ class HomeFragment : Fragment() {
         )
         viewModel.regularSchedulesList.observe(
             viewLifecycleOwner,
-            Observer { schedules ->
+            { schedules ->
                 plantsAdapter.setSchedules(schedules)
             }
         )
@@ -106,7 +105,7 @@ class HomeFragment : Fragment() {
                                 viewModel.deletePlants(selectedPlants)
                             }.observe(
                                 viewLifecycleOwner,
-                                Observer {
+                                {
                                     val toast =
                                         Toast.makeText(requireContext(), null, Toast.LENGTH_LONG)
                                     when {
@@ -162,7 +161,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupSelectionTracker(plants: List<Plant>): SelectionTracker<Plant>? {
-        return SelectionTracker.Builder<Plant>(
+        return SelectionTracker.Builder(
             "plant-selection",
             binding.plantsList,
             PlantKeyProvider(plants),

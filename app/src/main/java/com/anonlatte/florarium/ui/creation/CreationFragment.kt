@@ -62,10 +62,10 @@ class CreationFragment : Fragment() {
     }
     private var isPlantCreated = false
     private val passedPlant: Plant? by lazy {
-        arguments?.getParcelable<Plant>("plant")
+        arguments?.getParcelable("plant")
     }
     private val passedSchedule: RegularSchedule? by lazy {
-        arguments?.getParcelable<RegularSchedule>("schedule")
+        arguments?.getParcelable("schedule")
     }
 
     override fun onCreateView(

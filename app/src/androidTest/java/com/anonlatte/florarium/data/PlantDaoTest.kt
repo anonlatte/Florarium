@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.data
 
-import android.content.Context
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
@@ -31,7 +30,7 @@ class PlantDaoTest {
     @Before
     fun createDb() {
         db = Room.inMemoryDatabaseBuilder(
-            ApplicationProvider.getApplicationContext<Context>(),
+            ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
         ).build()
         plantDao = db.plantDao()

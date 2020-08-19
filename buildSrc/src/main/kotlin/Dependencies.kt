@@ -23,10 +23,13 @@ private const val timberVersion = "4.7.1"
 private const val workVersion = "2.4.0"
 
 object Config {
+    const val kotlinVersion = "1.4.0"
+
     object BuildPlugins {
         const val checkUpdatesPlugin = "name.remal:gradle-plugins:$checkUpdatesPluginVersion"
         const val androidGradle = "com.android.tools.build:gradle:$androidGradleVersion"
         const val ktlint = "org.jlleitschuh.gradle:ktlint-gradle:$ktlintVersion"
+        const val kotlinVersion = "1.4.0"
     }
 
     object App {
