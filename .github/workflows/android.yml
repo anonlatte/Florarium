@@ -30,8 +30,13 @@ jobs:
           java-version: 1.8
       - name: Ktlint check
         run: ./gradlew ktlintCheck --stacktrace
-      - name: Unit tests
+      - name: Tests
         run: ./gradlew test --stacktrace
+      - name: Android tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 16
+          script: ./gradlew connectedAndroidTest --stacktrace
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
       - name: Upload APK
