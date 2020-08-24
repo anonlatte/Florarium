@@ -17,7 +17,7 @@ class PlantsAdapter :
     RecyclerView.Adapter<PlantsAdapter.PlantsViewHolder>() {
     var plantsList = emptyList<Plant>()
     private var scheduleList = emptyList<RegularSchedule>()
-    private var selectionTracker: SelectionTracker<Plant>? = null
+    private var selectionTracker: SelectionTracker<Long>? = null
 
     init {
         setHasStableIds(true)
@@ -44,11 +44,11 @@ class PlantsAdapter :
 
     override fun onBindViewHolder(holder: PlantsViewHolder, position: Int) {
         if (selectionTracker != null) {
-            holder.bind(plantsList[position], selectionTracker!!.isSelected(plantsList[position]))
+            holder.bind(plantsList[position], selectionTracker!!.isSelected(position.toLong()))
         }
     }
 
-    internal fun setTracker(tracker: SelectionTracker<Plant>) {
+    internal fun setTracker(tracker: SelectionTracker<Long>) {
         selectionTracker = tracker
     }
 
@@ -63,7 +63,7 @@ class PlantsAdapter :
     }
 
     inner class PlantsViewHolder(private val binding: ListItemPlantBinding) :
-        RecyclerView.ViewHolder(binding.root), ViewHolderWithDetails<Plant> {
+        RecyclerView.ViewHolder(binding.root), ViewHolderWithDetails<Long> {
         fun bind(plant: Plant?, isActivated: Boolean = false) {
             if (plant != null) {
                 binding.plant = plant
@@ -73,8 +73,8 @@ class PlantsAdapter :
             }
         }
 
-        override fun getItemDetail(): ItemDetailsLookup.ItemDetails<Plant> =
-            PlantDetails(adapterPosition, plantsList.getOrNull(adapterPosition))
+        override fun getItemDetail(): ItemDetailsLookup.ItemDetails<Long> =
+            PlantDetails(adapterPosition, itemId)
     }
 
     // TODO beatify, visualize and improve UX.

@@ -105,7 +105,6 @@
                         android:layout_marginBottom="@dimen/margin_normal"
                         android:text="@string/title_care_schedule" />
 
-                    <!--TODO change includes to custom views-->
                     <com.anonlatte.florarium.ui.custom.CareScheduleItem
                         android:id="@+id/wateringListItem"
                         android:layout_width="match_parent"

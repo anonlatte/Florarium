@@ -21,15 +21,31 @@ import com.anonlatte.florarium.adapters.PlantKeyProvider
 import com.anonlatte.florarium.adapters.PlantsAdapter
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
 import com.anonlatte.florarium.db.models.Plant
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
     private var plantsAdapter: PlantsAdapter? = null
-    private var tracker: SelectionTracker<Plant>? = null
+    private var tracker: SelectionTracker<Long>? = null
     private var actionMode: ActionMode? = null
     private val viewModel by viewModels<HomeViewModel>()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+    private val trackerObserver = object : SelectionTracker.SelectionObserver<Plant>() {
+        override fun onSelectionChanged() {
+            super.onSelectionChanged()
+            if (tracker != null && tracker!!.hasSelection()) {
+                if (actionMode == null) {
+                    callActionMode()
+                }
+            } else {
+                if (actionMode != null) {
+                    callActionMode()
+                }
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,10 +58,12 @@ class HomeFragment : Fragment() {
             setupRecyclerView(it)
             subscribeUI(it)
         }
+        setupSelectionTracker()
 
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_creationFragment)
         }
+
         return binding.root
     }
 
@@ -57,38 +75,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun subscribeUI(plantsAdapter: PlantsAdapter) {
-        viewModel.plantsList.observe(
-            viewLifecycleOwner,
-            { plants ->
-                plantsAdapter.setPlants(plants)
-                // FIXME Item change notification received for unknown item: Plant
-                tracker = setupSelectionTracker(plants).also { selectionTracker ->
-                    if (selectionTracker != null) {
-                        plantsAdapter.setTracker(selectionTracker)
-                        selectionTracker.addObserver(object :
-                                SelectionTracker.SelectionObserver<Plant>() {
-                                override fun onSelectionChanged() {
-                                    super.onSelectionChanged()
-                                    if (selectionTracker.hasSelection()) {
-                                        if (actionMode == null) {
-                                            callActionMode()
-                                        }
-                                    } else {
-                                        if (actionMode != null) {
-                                            callActionMode()
-                                        }
-                                    }
-                                }
-                            })
-                    }
-                }
-            }
-        )
+        viewModel.plantsList.observe(viewLifecycleOwner, { plantsAdapter.setPlants(it) })
         viewModel.regularSchedulesList.observe(
             viewLifecycleOwner,
-            { schedules ->
-                plantsAdapter.setSchedules(schedules)
-            }
+            { plantsAdapter.setSchedules(it) }
         )
     }
 
@@ -98,36 +88,7 @@ class HomeFragment : Fragment() {
                 override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
                     when (item.itemId) {
                         R.id.delete -> {
-                            val selectedPlants = tracker?.selection?.map {
-                                plantsAdapter!!.plantsList[plantsAdapter!!.plantsList.indexOf(it)]
-                            }?.toList()
-                            runBlocking {
-                                viewModel.deletePlants(selectedPlants)
-                            }.observe(
-                                viewLifecycleOwner,
-                                {
-                                    val toast =
-                                        Toast.makeText(requireContext(), null, Toast.LENGTH_LONG)
-                                    when {
-                                        it <= 0 -> {
-                                            toast.setText(R.string.error_plant_deletion)
-                                        }
-                                        it > 1 -> {
-                                            toast.setText(R.string.successful_multiple_deletion)
-                                        }
-                                        else -> {
-                                            toast.setText(
-                                                getString(
-                                                    R.string.successful_single_deletion,
-                                                    selectedPlants?.get(0)?.name
-                                                )
-                                            )
-                                        }
-                                    }
-                                    toast.show()
-                                }
-                            )
-                            tracker?.clearSelection()
+                            deleteSelectedPlants()
                         }
                     }
                     return true
@@ -138,9 +99,7 @@ class HomeFragment : Fragment() {
                     return true
                 }
 
-                override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-                    return false
-                }
+                override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
 
                 override fun onDestroyActionMode(mode: ActionMode?) {
                     tracker?.clearSelection()
@@ -152,6 +111,32 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun deleteSelectedPlants() {
+        val selectedPlants: List<Plant>? = tracker?.selection?.map {
+            plantsAdapter!!.plantsList[it.toInt()]
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            viewModel.deletePlants(selectedPlants).observe(
+                viewLifecycleOwner,
+                {
+                    showToastDeleteInfo(selectedPlants, it)
+                    tracker?.clearSelection()
+                }
+            )
+        }
+    }
+
+    private fun showToastDeleteInfo(selectedPlants: List<Plant>?, deletedCounter: Int) {
+        val toastText = when {
+            deletedCounter == 1 -> {
+                getString(R.string.successful_single_deletion, selectedPlants?.get(0)?.name)
+            }
+            deletedCounter > 1 -> getString(R.string.successful_multiple_deletion)
+            else -> getString(R.string.error_plant_deletion)
+        }
+        Toast.makeText(requireContext(), toastText, Toast.LENGTH_LONG).show()
+    }
+
     private fun setupRecyclerView(plantsAdapter: PlantsAdapter) {
         binding.plantsList.apply {
             setHasFixedSize(true)
@@ -160,13 +145,16 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setupSelectionTracker(plants: List<Plant>): SelectionTracker<Plant>? {
-        return SelectionTracker.Builder(
+    private fun setupSelectionTracker() {
+        tracker = SelectionTracker.Builder(
             "plant-selection",
             binding.plantsList,
-            PlantKeyProvider(plants),
+            PlantKeyProvider(binding.plantsList),
             PlantItemDetailsLookup(binding.plantsList),
-            StorageStrategy.createParcelableStorage(Plant::class.java)
+            StorageStrategy.createLongStorage()
         ).withSelectionPredicate(SelectionPredicates.createSelectAnything()).build()
+
+        plantsAdapter!!.setTracker(tracker!!)
+        tracker!!.addObserver(trackerObserver)
     }
 }

@@ -49,7 +49,6 @@
             tools:drawableLeft="@drawable/ic_outline_drop_24"
             tools:text="Bottom Sheet Title" />
 
-        <!--TODO change includes to custom views-->
         <com.anonlatte.florarium.ui.custom.BottomSheetItem
             android:id="@+id/defaultIntervalItem"
             android:layout_width="match_parent"
