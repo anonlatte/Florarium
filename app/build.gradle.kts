@@ -53,6 +53,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    useLibrary("android.test.runner")
+    useLibrary("android.test.base")
+    useLibrary("android.test.mock")
 }
 
 dependencies {
@@ -79,12 +83,16 @@ dependencies {
     implementation(Config.Libs.core)
     implementation(Config.Libs.constraintLayout)
     implementation(Config.Libs.appcompat)
+    debugImplementation(Config.TestLibs.fragment)
     debugImplementation(Config.Libs.leakCanary)
 
     androidTestImplementation(Config.TestLibs.archCore)
+    androidTestImplementation(Config.TestLibs.core)
     androidTestImplementation(Config.TestLibs.espresso)
     androidTestImplementation(Config.TestLibs.junitExt)
     androidTestImplementation(Config.TestLibs.navigation)
+    androidTestImplementation(Config.TestLibs.rules)
+    androidTestImplementation(Config.TestLibs.runner)
     testImplementation(Config.TestLibs.hamcrest)
     testImplementation(Config.TestLibs.junit)
     testImplementation(Config.TestLibs.room)

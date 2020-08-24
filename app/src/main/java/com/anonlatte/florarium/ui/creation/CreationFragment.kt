@@ -188,7 +188,7 @@ class CreationFragment : Fragment() {
                 text.isNullOrEmpty() -> {
                     binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
                 }
-                text.length > 40 -> {
+                text.length > binding.titleInputLayout.counterMaxLength -> {
                     binding.titleInputLayout.error =
                         getString(
                             R.string.error_long_plant_name,
