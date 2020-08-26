@@ -215,7 +215,7 @@ class CreationFragment : Fragment() {
             requireContext().getSystemService(Context.ALARM_SERVICE) as? AlarmManager
 
         scheduleMap.keys.forEach { scheduleType ->
-            val randomRequestId = (System.currentTimeMillis() / 1000).toInt()
+            val randomRequestId = System.currentTimeMillis() / 1000
             val plantAlarm = PlantAlarm(
                 randomRequestId,
                 viewModel.plant.name!!,

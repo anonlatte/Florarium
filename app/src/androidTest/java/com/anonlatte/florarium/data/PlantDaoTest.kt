@@ -10,7 +10,6 @@ import com.anonlatte.florarium.utilities.getOrAwaitValue
 import com.anonlatte.florarium.utilities.testPlants
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.notNullValue
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -50,16 +49,9 @@ class PlantDaoTest {
     }
 
     @Test
-    fun testGetPlant() {
-        val loaded = plantDao.getPlant(plant.plantId)
-        assertThat(loaded.getOrAwaitValue(), notNullValue())
-        assertThat(loaded.getOrAwaitValue(), equalTo(plant))
-    }
-
-    @Test
     fun testUpdatePlant() {
         plant.name = "chamomile"
-        val updatedId = plantDao.create(plant)
+        val updatedId = plantDao.update(plant).toLong()
         assertThat(updatedId, equalTo(plant.plantId))
     }
 

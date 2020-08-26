@@ -1,9 +1,11 @@
 package com.anonlatte.florarium.adapters
 
 import androidx.recyclerview.selection.ItemKeyProvider
-import com.anonlatte.florarium.db.models.Plant
+import androidx.recyclerview.widget.RecyclerView
 
-class PlantKeyProvider(private val items: List<Plant>) : ItemKeyProvider<Plant>(SCOPE_MAPPED) {
-    override fun getKey(position: Int): Plant? = items.getOrNull(position)
-    override fun getPosition(key: Plant): Int = items.indexOf(key)
+class PlantKeyProvider(private val recyclerView: RecyclerView) :
+    ItemKeyProvider<Long>(SCOPE_MAPPED) {
+    override fun getKey(position: Int): Long? = recyclerView.adapter?.getItemId(position)
+    override fun getPosition(key: Long): Int =
+        recyclerView.findViewHolderForItemId(key)?.layoutPosition ?: RecyclerView.NO_POSITION
 }

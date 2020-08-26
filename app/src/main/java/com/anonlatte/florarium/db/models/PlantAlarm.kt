@@ -14,14 +14,14 @@ import com.anonlatte.florarium.utilities.TimeStampHelper
 @Entity(tableName = "plant_alarms")
 class PlantAlarm(
     @PrimaryKey @ColumnInfo(name = "id")
-    val requestId: Int,
-    val plantName: String,
-    val eventTag: String,
+    val requestId: Long = 0,
+    var plantName: String,
+    var eventTag: String,
     var interval: Long,
-    val lastCare: Long?
+    var lastCare: Long?
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
+        parcel.readLong(),
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readLong(),
@@ -45,7 +45,7 @@ class PlantAlarm(
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            requestId,
+            requestId.toInt(),
             intent,
             0
         )
@@ -61,7 +61,7 @@ class PlantAlarm(
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(requestId)
+        parcel.writeLong(requestId)
         parcel.writeString(plantName)
         parcel.writeString(eventTag)
         parcel.writeLong(interval)
