@@ -44,6 +44,7 @@
             android:layout_height="wrap_content"
             android:drawableStart="@{icon}"
             android:drawableLeft="@{icon}"
+            android:layout_marginBottom="@dimen/margin_normal"
             android:drawablePadding="@dimen/margin_small"
             android:text="@{title}"
             tools:drawableLeft="@drawable/ic_outline_drop_24"

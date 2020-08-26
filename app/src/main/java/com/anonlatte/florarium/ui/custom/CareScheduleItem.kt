@@ -21,9 +21,13 @@ class CareScheduleItem(context: Context, attrs: AttributeSet) : ConstraintLayout
         icon = typedArray.getDrawable(R.styleable.CareScheduleItem_icon)
         scheduleValue = typedArray.getString(R.styleable.CareScheduleItem_scheduleValue)
         scheduleItemType = typedArray.getInt(R.styleable.CareScheduleItem_scheduleItemType, 0)
-        wateringItemTitle.text = title
-        wateringIcon.setImageDrawable(icon)
-        wateringItemValue.text = scheduleValue
+        scheduleItemTitle.text = title
+        scheduleItemIcon.setImageDrawable(icon)
+        scheduleItemDescription.text = scheduleValue
         typedArray.recycle()
+    }
+
+    fun setItemDescription(value: String) {
+        scheduleItemDescription.text = value
     }
 }

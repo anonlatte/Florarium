@@ -46,7 +46,6 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlinx.android.synthetic.main.list_item_bottom_sheet.view.*
 import kotlinx.android.synthetic.main.list_item_schedule.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -96,30 +95,34 @@ class CreationFragment : Fragment() {
     }
 
     private fun restoreCareSchedule() {
-        binding.wateringListItem.wateringItemValue.text =
+        binding.wateringListItem.setItemDescription(
             formattedScheduleValue(
                 viewModel.regularSchedule.wateringInterval,
                 viewModel.winterSchedule.wateringInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.wateredAt)
             )
-        binding.sprayingListItem.wateringItemValue.text =
+        )
+        binding.sprayingListItem.setItemDescription(
             formattedScheduleValue(
                 viewModel.regularSchedule.sprayingInterval,
                 viewModel.winterSchedule.sprayingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.sprayedAt)
             )
-        binding.fertilizingListItem.wateringItemValue.text =
+        )
+        binding.fertilizingListItem.setItemDescription(
             formattedScheduleValue(
                 viewModel.regularSchedule.fertilizingInterval,
                 viewModel.winterSchedule.fertilizingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.fertilizedAt)
             )
-        binding.rotatingListItem.wateringItemValue.text =
+        )
+        binding.rotatingListItem.setItemDescription(
             formattedScheduleValue(
                 viewModel.regularSchedule.rotatingInterval,
                 viewModel.winterSchedule.rotatingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.rotatedAt)
             )
+        )
     }
 
     override fun onDestroyView() {
@@ -420,37 +423,42 @@ class CreationFragment : Fragment() {
                 }
             }
         }
-        dialogBinding.defaultIntervalItem.intervalTitle.text =
+        dialogBinding.defaultIntervalItem.setTitle(
             getString(R.string.title_interval_in_days, defaultIntervalValue)
-        dialogBinding.defaultIntervalItem.intervalSlider.value = defaultIntervalValue.toFloat()
+        )
+        dialogBinding.defaultIntervalItem.setSliderValue(defaultIntervalValue.toFloat())
 
-        dialogBinding.winterIntervalItem.intervalTitle.text =
+        dialogBinding.winterIntervalItem.setTitle(
             getString(R.string.title_interval_for_winter, winterIntervalValue)
-        dialogBinding.winterIntervalItem.intervalSlider.value = winterIntervalValue.toFloat()
+        )
+        dialogBinding.winterIntervalItem.setSliderValue(winterIntervalValue.toFloat())
 
-        dialogBinding.lastCareItem.intervalTitle.text =
+        dialogBinding.lastCareItem.setTitle(
             getString(R.string.title_last_care, lastCareIntervalValue)
-        dialogBinding.lastCareItem.intervalSlider.value = lastCareIntervalValue.toFloat()
+        )
+        dialogBinding.lastCareItem.setSliderValue(lastCareIntervalValue.toFloat())
     }
 
     private fun updateCareSchedule(
         dialogBinding: BottomSheetBinding,
         careScheduleItem: CareScheduleItem
     ) {
-        val defaultIntervalValue = dialogBinding.defaultIntervalItem.intervalSlider.value.toInt()
+        val defaultIntervalValue = dialogBinding.defaultIntervalItem.getSliderValue().toInt()
 
         if (defaultIntervalValue <= 0) {
             careScheduleItem.itemSwitch.isChecked = false
             return
         }
 
-        val winterIntervalValue = dialogBinding.winterIntervalItem.intervalSlider.value.toInt()
-        val lastCareValue = dialogBinding.lastCareItem.intervalSlider.value.toInt()
+        val winterIntervalValue = dialogBinding.winterIntervalItem.getSliderValue().toInt()
+        val lastCareValue = dialogBinding.lastCareItem.getSliderValue().toInt()
 
-        careScheduleItem.wateringItemValue.text = formattedScheduleValue(
-            defaultIntervalValue,
-            winterIntervalValue,
-            lastCareValue
+        careScheduleItem.setItemDescription(
+            formattedScheduleValue(
+                defaultIntervalValue,
+                winterIntervalValue,
+                lastCareValue
+            )
         )
 
         with(viewModel) {

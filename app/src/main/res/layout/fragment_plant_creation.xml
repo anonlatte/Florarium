@@ -57,10 +57,10 @@
                             app:boxStrokeColor="?attr/colorOnPrimarySurface"
                             app:boxStrokeWidth="0dp"
                             app:boxStrokeWidthFocused="0dp"
+                            app:counterMaxLength="40"
                             app:hintTextColor="@color/edit_text_with_gradient_background"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toStartOf="@id/loadImage"
-                            app:counterMaxLength="40"
                             app:layout_constraintStart_toStartOf="parent">
 
                             <com.google.android.material.textfield.TextInputEditText

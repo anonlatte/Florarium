@@ -36,4 +36,14 @@ class BottomSheetItem(context: Context, attrs: AttributeSet) : LinearLayout(cont
         }
         typedArray.recycle()
     }
+
+    fun setTitle(value: String) {
+        intervalTitle.text = value
+    }
+
+    fun setSliderValue(value: Float) {
+        intervalSlider.value = value
+    }
+
+    fun getSliderValue(): Float = intervalSlider.value
 }

@@ -14,7 +14,6 @@
     <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
     <string name="title_interval_in_days">Interval (in days) - %d</string>
     <string name="title_last_care">Last care (days ago) - %d</string>
-    <string name="title_main_info">Main info</string>
     <string name="title_rotating">Rotating</string>
     <string name="title_spraying">Spraying</string>
     <string name="title_watering">Watering</string>
