@@ -84,6 +84,7 @@ class CreationFragment : Fragment() {
         }
 
         if (passedSchedule != null) {
+            // TODO if field is null then hide/show 'not set'
             viewModel.regularSchedule = passedSchedule!!
             restoreCareSchedule()
         }
@@ -136,16 +137,7 @@ class CreationFragment : Fragment() {
                 REQUEST_IMAGE_SELECT -> {
                     resultData?.data?.also { uri ->
                         lifecycleScope.launch(Dispatchers.IO) {
-                            val inputStream = requireContext().contentResolver.openInputStream(uri)
-                            val outputStream = FileOutputStream(imageFile)
-                            var bitmap: Bitmap? = null
-                            if (inputStream != null) {
-                                bitmap = BitmapFactory.decodeStream(inputStream)
-                                inputStream.close()
-                            }
-                            bitmap?.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
-                            outputStream.flush()
-                            outputStream.close()
+                            storeBitmapFromUri(uri)
                             viewModel.plant.imageUrl = currentPhotoPath
                             Timber.d("File ${imageFile.name} is created in $currentPhotoPath")
                         }
@@ -161,6 +153,21 @@ class CreationFragment : Fragment() {
                     viewModel.plant.imageUrl = currentPhotoPath
                 }
             }
+        }
+    }
+
+    private fun storeBitmapFromUri(uri: Uri): Bitmap? {
+        val inputStream = requireContext().contentResolver.openInputStream(uri)
+        return if (inputStream != null) {
+            val outputStream = FileOutputStream(imageFile)
+            BitmapFactory.decodeStream(inputStream).also {
+                inputStream.close()
+                it.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
+                outputStream.flush()
+                outputStream.close()
+            }
+        } else {
+            null
         }
     }
 
