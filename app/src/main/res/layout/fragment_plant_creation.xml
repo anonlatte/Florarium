@@ -5,9 +5,15 @@
 
     <data>
 
+        <import type="android.view.View" />
+
         <variable
             name="viewModel"
             type="com.anonlatte.florarium.ui.creation.CreationViewModel" />
+
+        <variable
+            name="isPlantCreationInProgress"
+            type="Boolean" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -160,6 +166,13 @@
             </LinearLayout>
 
         </ScrollView>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="@{isPlantCreationInProgress ? View.VISIBLE : View.GONE}"
+            tools:visibility="gone" />
 
         <include
             android:id="@+id/bottomSheet"

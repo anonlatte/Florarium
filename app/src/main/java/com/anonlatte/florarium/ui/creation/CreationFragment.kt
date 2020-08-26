@@ -50,7 +50,7 @@ import kotlinx.android.synthetic.main.list_item_schedule.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class CreationFragment : Fragment() {
@@ -61,7 +61,6 @@ class CreationFragment : Fragment() {
     private val imageFile: File by lazy {
         createImageFile()
     }
-    private var isPlantCreated = false
     private val passedPlant: Plant? by lazy {
         arguments?.getParcelable("plant")
     }
@@ -88,10 +87,27 @@ class CreationFragment : Fragment() {
             restoreCareSchedule()
         }
 
+        subscribeUi()
         setListeners()
         makeScheduleItemsClickable()
 
         return binding.root
+    }
+
+    private fun subscribeUi() {
+        viewModel.isPlantCreated.observe(
+            viewLifecycleOwner,
+            {
+                if (it) {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.message_plant_is_added),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().navigateUp()
+                }
+            }
+        )
     }
 
     private fun restoreCareSchedule() {
@@ -128,7 +144,7 @@ class CreationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        if (!isPlantCreated) {
+        if (!viewModel.isPlantCreated.value!!) {
             imageFile.delete()
         }
     }
@@ -182,15 +198,11 @@ class CreationFragment : Fragment() {
             } else if (binding.titleInputLayout.error == null) {
                 binding.titleInputLayout.error = null
                 viewModel.addPlantToGarden()
-                // TODO visualize waiting without locking main thread
-                createAlarms()
-                isPlantCreated = true
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.message_plant_is_added),
-                    Toast.LENGTH_SHORT
-                ).show()
-                findNavController().navigateUp()
+                binding.isPlantCreationInProgress = true
+                lifecycleScope.launch {
+                    createAlarms()
+                    viewModel.isPlantCreated.postValue(true)
+                }
             }
         }
         binding.titleEditText.doOnTextChanged { text, _, _, _ ->
@@ -219,7 +231,7 @@ class CreationFragment : Fragment() {
         setScheduleItemListener(binding.rotatingListItem)
     }
 
-    private fun createAlarms() = runBlocking {
+    private suspend fun createAlarms() = withContext(Dispatchers.IO) {
         val scheduleMap = getScheduleMap()
         val alarmManager =
             requireContext().getSystemService(Context.ALARM_SERVICE) as? AlarmManager

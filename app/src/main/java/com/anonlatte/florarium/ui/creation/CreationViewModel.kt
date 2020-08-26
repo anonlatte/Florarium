@@ -2,6 +2,7 @@ package com.anonlatte.florarium.ui.creation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.PlantAlarm
@@ -17,6 +18,7 @@ class CreationViewModel(application: Application) : AndroidViewModel(application
     var winterSchedule: WinterSchedule = WinterSchedule()
     private val mainRepository = MainRepository(application)
     var isPlantExist = false
+    var isPlantCreated = MutableLiveData(false)
 
     fun addPlantToGarden() {
         if (!isPlantExist) {
