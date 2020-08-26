@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="plant"
+            type="com.anonlatte.florarium.db.models.Plant" />
+
+        <variable
+            name="schedule"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/activated_color_selector"
+        android:orientation="horizontal"
+        android:padding="@dimen/margin_normal">
+
+        <ImageView
+            android:id="@+id/plantImage"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="@{@string/content_description_image(plant.name)}"
+            android:scaleType="centerCrop"
+            app:imageFromUrl="@{plant.imageUrl}"
+            app:srcCompat="@drawable/ic_outline_flower_24"
+            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginLeft="@dimen/margin_normal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/plantName"
+                style="@style/TextAppearance.MaterialComponents.Subtitle1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="1"
+                android:text="@{plant.name}"
+                tools:text="@tools:sample/lorem/random" />
+
+            <TextView
+                android:id="@+id/plantDescription"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:text="@{schedule}"
+                tools:text="@tools:sample/lorem/random" />
+        </LinearLayout>
+    </LinearLayout>
+</layout>
