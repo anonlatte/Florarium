@@ -79,12 +79,8 @@ class CreationFragmentTest {
         fragment.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
         }
-        var maxFieldLength = 0
-        fragment.onFragment {
-            maxFieldLength = it.titleInputLayout.counterMaxLength
-        }
         onView(withId(R.id.titleEditText)).perform(
-            typeText(getRandomString(maxFieldLength)),
+            typeText(getRandomString()),
             closeSoftKeyboard()
         )
         onView(withId(R.id.homeScrollView)).perform(swipeUp())
@@ -95,7 +91,7 @@ class CreationFragmentTest {
         )
     }
 
-    private fun getRandomString(length: Int = 40): String {
+    private fun getRandomString(length: Int = 8): String {
         return (1..length).map { ('a'..'z').random() }.joinToString("")
     }
 }
