@@ -4,8 +4,8 @@ import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.PlantAlarm
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.WinterSchedule
-import java.util.Date
 import org.jetbrains.annotations.TestOnly
+import java.util.Date
 
 @TestOnly
 val testPlants = arrayListOf(
@@ -46,5 +46,5 @@ val testWinterSchedules = arrayListOf(
 val testPlantAlarm = arrayListOf(
     PlantAlarm(1, "rose", "tag_1", 7, System.currentTimeMillis()),
     PlantAlarm(2, "lavender", "tag_2", 7, System.currentTimeMillis()),
-    PlantAlarm(3, "cactus", "tag_3", 7, System.currentTimeMillis()),
+    PlantAlarm(3, "cactus", "tag_3", 7, System.currentTimeMillis())
 )
