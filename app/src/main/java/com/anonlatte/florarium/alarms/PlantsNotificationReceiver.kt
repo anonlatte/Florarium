@@ -22,11 +22,6 @@ class PlantsNotificationReceiver : BroadcastReceiver() {
             if (BuildConfig.DEBUG) {
                 Timber.plant(Timber.DebugTree())
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(Intent(context, RestartAlarmsService::class.java))
-            } else {
-                context.startService(Intent(context, RestartAlarmsService::class.java))
-            }
         }
         if (intent.action == "PLANT_EVENT") {
             intent.extras?.getParcelable<PlantAlarm>("alarm")?.run {
