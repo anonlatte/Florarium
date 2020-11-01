@@ -3,34 +3,44 @@ package com.anonlatte.florarium.ui.custom
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.core.content.res.getStringOrThrow
 import com.anonlatte.florarium.R
-import kotlinx.android.synthetic.main.bottom_sheet.view.*
-import kotlinx.android.synthetic.main.list_item_bottom_sheet.view.*
+import com.anonlatte.florarium.databinding.ListItemBottomSheetBinding
 
 class BottomSheetItem(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
     private val typedArray = context.obtainStyledAttributes(attrs, R.styleable.BottomSheetItem)
     val title: String?
     val icon: Drawable?
+    val itemType: Int
+
+    val binding = ListItemBottomSheetBinding.inflate(LayoutInflater.from(context), this, true)
 
     init {
         inflate(context, R.layout.list_item_bottom_sheet, this)
         title = typedArray.getStringOrThrow(R.styleable.BottomSheetItem_title)
         icon = typedArray.getDrawable(R.styleable.BottomSheetItem_icon)
-        intervalTitle.text = title
-        intervalIcon.setImageDrawable(icon)
-        intervalSlider.addOnChangeListener { _, value, _ ->
-            intervalTitle.text = when (this) {
-                defaultIntervalItem -> context.getString(
+        itemType = typedArray.getInt(
+            R.styleable.BottomSheetItem_item_type,
+            BottomSheetItemType.DEFAULT.value
+        )
+        binding.intervalTitle.text = title
+        binding.intervalIcon.setImageDrawable(icon)
+        binding.intervalSlider.addOnChangeListener { _, value, _ ->
+            binding.intervalTitle.text = when (itemType) {
+                BottomSheetItemType.DEFAULT.value -> context.getString(
                     R.string.title_interval_in_days,
                     value.toInt()
                 )
-                winterIntervalItem -> context.getString(
+                BottomSheetItemType.WINTER.value -> context.getString(
                     R.string.title_interval_for_winter,
                     value.toInt()
                 )
-                lastCareItem -> context.getString(R.string.title_last_care, value.toInt())
+                BottomSheetItemType.LAST_CARE.value -> context.getString(
+                    R.string.title_last_care,
+                    value.toInt()
+                )
                 else -> null
             }
         }
@@ -38,12 +48,16 @@ class BottomSheetItem(context: Context, attrs: AttributeSet) : LinearLayout(cont
     }
 
     fun setTitle(value: String) {
-        intervalTitle.text = value
+        binding.intervalTitle.text = value
     }
 
     fun setSliderValue(value: Float) {
-        intervalSlider.value = value
+        binding.intervalSlider.value = value
     }
 
-    fun getSliderValue(): Float = intervalSlider.value
+    fun getSliderValue(): Float = binding.intervalSlider.value
+
+    private enum class BottomSheetItemType(val value: Int) {
+        DEFAULT(0), WINTER(1), LAST_CARE(2)
+    }
 }

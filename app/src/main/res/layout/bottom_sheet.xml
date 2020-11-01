@@ -31,7 +31,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
         app:behavior_hideable="false"
         app:behavior_peekHeight="0dp"
         app:layout_behavior="@string/bottom_sheet_behavior"
@@ -49,9 +48,10 @@
             style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_normal"
             android:drawableStart="@{icon}"
             android:drawableLeft="@{icon}"
-            android:layout_marginBottom="@dimen/margin_normal"
             android:drawablePadding="@dimen/margin_small"
             android:text="@{title}"
             tools:drawableLeft="@drawable/ic_outline_drop_24"
@@ -62,6 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_outline_drop_24"
+            app:item_type="item_type_deafult"
             app:title="@string/title_interval_in_days" />
 
         <com.anonlatte.florarium.ui.custom.BottomSheetItem
@@ -69,6 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_outline_snowflake_24"
+            app:item_type="item_type_winter"
             app:title="@string/title_interval_for_winter" />
 
         <com.anonlatte.florarium.ui.custom.BottomSheetItem
@@ -76,12 +78,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_outline_history_24"
+            app:item_type="item_type_last_care"
             app:title="@string/title_last_care" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_small"
+            android:layout_margin="@dimen/margin_normal"
             android:gravity="center"
             android:orientation="horizontal">
 
