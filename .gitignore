@@ -30,3 +30,4 @@ google-services.json
 local.properties
 out/
 vcs.xml
+app/release/
