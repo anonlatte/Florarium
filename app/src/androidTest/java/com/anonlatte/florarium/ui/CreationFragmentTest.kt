@@ -20,7 +20,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.ui.creation.CreationFragment
-import kotlinx.android.synthetic.main.fragment_plant_creation.*
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -50,7 +49,7 @@ class CreationFragmentTest {
     fun testLongPlantNameValidation() {
         var maxFieldLength = 0
         fragment.onFragment {
-            maxFieldLength = it.titleInputLayout.counterMaxLength
+            maxFieldLength = it.binding.titleInputLayout.counterMaxLength
         }
         val invalidLength = maxFieldLength + 1
         onView(withId(R.id.titleEditText)).perform(

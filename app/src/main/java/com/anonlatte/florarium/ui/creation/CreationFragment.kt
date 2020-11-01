@@ -40,23 +40,22 @@ import com.anonlatte.florarium.utilities.TimeStampHelper.getTimestampFromDaysAgo
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlinx.android.synthetic.main.list_item_schedule.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 class CreationFragment : Fragment() {
     private val viewModel by viewModels<CreationViewModel>()
     private var _binding: FragmentPlantCreationBinding? = null
-    private val binding get() = _binding!!
+    val binding get() = _binding!!
     private lateinit var currentPhotoPath: String
     private val imageFile: File by lazy {
         createImageFile()
@@ -366,7 +365,7 @@ class CreationFragment : Fragment() {
              * TODO check if DefaultCareValue slider < 0 then don't execute
              *  move out checking condition from [updateCareSchedule]
              */
-            careScheduleItem.itemSwitch.isChecked = true
+            careScheduleItem.binding.itemSwitch.isChecked = true
             updateCareSchedule(
                 dialogBinding,
                 careScheduleItem
@@ -388,11 +387,11 @@ class CreationFragment : Fragment() {
                 )
             }
             /** Convert itemSwitch to View to avoid overriding [View.performClick] */
-            (itemSwitch as View).setOnTouchListener { switchView, event ->
-                if (event.action == MotionEvent.ACTION_UP && !itemSwitch.isChecked) {
+            (binding.itemSwitch as View).setOnTouchListener { switchView, event ->
+                if (event.action == MotionEvent.ACTION_UP && !binding.itemSwitch.isChecked) {
                     onScheduleItemClickListener(careScheduleItem, title, icon)
                     switchView.performClick()
-                } else if (event.action == MotionEvent.ACTION_UP && itemSwitch.isChecked) {
+                } else if (event.action == MotionEvent.ACTION_UP && binding.itemSwitch.isChecked) {
                     clearScheduleFields(careScheduleItem.scheduleItemType)
                 }
                 event.actionMasked == MotionEvent.ACTION_MOVE
@@ -458,7 +457,7 @@ class CreationFragment : Fragment() {
         val defaultIntervalValue = dialogBinding.defaultIntervalItem.getSliderValue().toInt()
 
         if (defaultIntervalValue <= 0) {
-            careScheduleItem.itemSwitch.isChecked = false
+            careScheduleItem.binding.itemSwitch.isChecked = false
             return
         }
 
