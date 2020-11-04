@@ -32,6 +32,7 @@ import com.anonlatte.florarium.db.models.PlantAlarm
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.ScheduleType
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
+import com.anonlatte.florarium.utilities.PLANT_NOTIFICATION_EVENT
 import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_CAPTURE
 import com.anonlatte.florarium.utilities.REQUEST_IMAGE_SELECT
@@ -52,6 +53,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+// TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
     private val viewModel by viewModels<CreationViewModel>()
     private var _binding: FragmentPlantCreationBinding? = null
@@ -246,7 +248,7 @@ class CreationFragment : Fragment() {
             ).also { plantAlarm ->
                 val plantsAlarmIntent =
                     Intent(context, PlantsNotificationReceiver::class.java).apply {
-                        action = "PLANT_EVENT"
+                        action = PLANT_NOTIFICATION_EVENT
                         putExtra("alarm", plantAlarm)
                     }
                 plantAlarm.setAlarm(

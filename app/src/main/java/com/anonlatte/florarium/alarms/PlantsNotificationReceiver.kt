@@ -11,22 +11,18 @@ import androidx.core.app.NotificationManagerCompat
 import com.anonlatte.florarium.BuildConfig
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.db.models.PlantAlarm
+import com.anonlatte.florarium.utilities.PLANT_NOTIFICATION_EVENT
 import timber.log.Timber
 
 class PlantsNotificationReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_BOOT_COMPLETED ||
-            intent.action == "android.intent.action.QUICKBOOT_POWERON"
-        ) {
+        if (intent.action == PLANT_NOTIFICATION_EVENT) {
             if (BuildConfig.DEBUG) {
                 Timber.plant(Timber.DebugTree())
             }
-        }
-        if (intent.action == "PLANT_EVENT") {
-            intent.extras?.getParcelable<PlantAlarm>("alarm")?.run {
-                makeNotification(context, eventTag, plantName)
-                Timber.tag("alarm").d("notified $eventTag:$plantName")
+            intent.extras?.getParcelable<PlantAlarm>("alarm")?.let { alarm ->
+                makeNotification(context, alarm.eventTag, alarm.plantName)
             }
         }
     }
@@ -38,7 +34,7 @@ class PlantsNotificationReceiver : BroadcastReceiver() {
             .setContentTitle("Don't forget!")
             .setGroup(NOTIFICATION_GROUP + eventTag)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.sunflower)
             .build()
         NotificationManagerCompat.from(context).notify(0, notificationBuilder)
     }

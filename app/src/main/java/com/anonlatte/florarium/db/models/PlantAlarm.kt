@@ -29,14 +29,13 @@ class PlantAlarm(
     )
 
     fun setAlarm(context: Context, intent: Intent, alarmManager: AlarmManager?) {
-        // Delay to set an unique id from `System.currentTimeMillis()`
         val formattedInterval = interval * AlarmManager.INTERVAL_DAY
         val careLeftDays = if (lastCare != null) {
             val value =
                 formattedInterval -
                     TimeStampHelper.getDaysFromTimestampAgo(lastCare) * AlarmManager.INTERVAL_DAY
             if (value < 1) {
-                System.currentTimeMillis()
+                0
             } else {
                 value
             }
