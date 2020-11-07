@@ -33,14 +33,14 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/scheduleItemTitle"
+            android:id="@+id/text_schedule_item_title"
             style="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Watering" />
 
         <TextView
-            android:id="@+id/scheduleItemDescription"
+            android:id="@+id/text_schedule_item_description"
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
     </LinearLayout>
 
     <com.google.android.material.switchmaterial.SwitchMaterial
-        android:id="@+id/itemSwitch"
+        android:id="@+id/switch_schedule_item"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/margin_normal"

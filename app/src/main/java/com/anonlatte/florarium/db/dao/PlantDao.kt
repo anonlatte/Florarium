@@ -9,7 +9,4 @@ import com.anonlatte.florarium.db.models.Plant
 interface PlantDao : BaseDao<Plant> {
     @Query("SELECT * FROM plants ORDER BY name")
     fun getPlants(): LiveData<List<Plant>>
-
-    @Query("SELECT * FROM plants ORDER BY updated_at")
-    fun getRecentPlants(): LiveData<List<Plant>>
 }

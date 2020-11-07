@@ -23,13 +23,13 @@ class CareScheduleItem(context: Context, attrs: AttributeSet) : ConstraintLayout
         icon = typedArray.getDrawable(R.styleable.CareScheduleItem_icon)
         scheduleValue = typedArray.getString(R.styleable.CareScheduleItem_scheduleValue)
         scheduleItemType = typedArray.getInt(R.styleable.CareScheduleItem_scheduleItemType, 0)
-        binding.scheduleItemTitle.text = title
+        binding.textScheduleItemTitle.text = title
         binding.scheduleItemIcon.setImageDrawable(icon)
-        binding.scheduleItemDescription.text = scheduleValue
+        binding.textScheduleItemDescription.text = scheduleValue
         typedArray.recycle()
     }
 
     fun setItemDescription(value: String) {
-        binding.scheduleItemDescription.text = value
+        binding.textScheduleItemDescription.text = value
     }
 }

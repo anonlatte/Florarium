@@ -367,7 +367,7 @@ class CreationFragment : Fragment() {
              * TODO check if DefaultCareValue slider < 0 then don't execute
              *  move out checking condition from [updateCareSchedule]
              */
-            careScheduleItem.binding.itemSwitch.isChecked = true
+            careScheduleItem.binding.switchScheduleItem.isChecked = true
             updateCareSchedule(
                 dialogBinding,
                 careScheduleItem
@@ -388,12 +388,12 @@ class CreationFragment : Fragment() {
                     icon
                 )
             }
-            /** Convert itemSwitch to View to avoid overriding [View.performClick] */
-            (binding.itemSwitch as View).setOnTouchListener { switchView, event ->
-                if (event.action == MotionEvent.ACTION_UP && !binding.itemSwitch.isChecked) {
+            /** Convert switchScheduleItem to View to avoid overriding [View.performClick] */
+            (binding.switchScheduleItem as View).setOnTouchListener { switchView, event ->
+                if (event.action == MotionEvent.ACTION_UP && !binding.switchScheduleItem.isChecked) {
                     onScheduleItemClickListener(careScheduleItem, title, icon)
                     switchView.performClick()
-                } else if (event.action == MotionEvent.ACTION_UP && binding.itemSwitch.isChecked) {
+                } else if (event.action == MotionEvent.ACTION_UP && binding.switchScheduleItem.isChecked) {
                     clearScheduleFields(careScheduleItem.scheduleItemType)
                 }
                 event.actionMasked == MotionEvent.ACTION_MOVE
@@ -459,7 +459,7 @@ class CreationFragment : Fragment() {
         val defaultIntervalValue = dialogBinding.defaultIntervalItem.getSliderValue().toInt()
 
         if (defaultIntervalValue <= 0) {
-            careScheduleItem.binding.itemSwitch.isChecked = false
+            careScheduleItem.binding.switchScheduleItem.isChecked = false
             return
         }
 

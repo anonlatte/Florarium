@@ -21,6 +21,13 @@
                 android:defaultValue="@null"
                 app:argType="com.anonlatte.florarium.db.models.Plant" />
         </action>
+        <action
+            android:id="@+id/action_homeFragment_to_plantsListFragment"
+            app:destination="@id/plantsListFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     </fragment>
 
     <fragment
@@ -28,5 +35,19 @@
         android:name="com.anonlatte.florarium.ui.creation.CreationFragment"
         android:label="@string/label_fragment_plant_creation"
         tools:layout="@layout/fragment_plant_creation" />
+
+    <fragment
+        android:id="@+id/plantsListFragment"
+        android:name="com.anonlatte.florarium.ui.plants.PlantsFragment"
+        android:label="@string/label_fragment_your_plants"
+        tools:layout="@layout/fragment_plants">
+        <action
+            android:id="@+id/action_plantsListFragment_to_creationFragment"
+            app:destination="@id/creationFragment"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    </fragment>
 
 </navigation>

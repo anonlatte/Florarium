@@ -9,7 +9,7 @@
     tools:parentTag="com.anonlatte.florarium.ui.custom.BottomSheetItem">
 
     <TextView
-        android:id="@+id/intervalTitle"
+        android:id="@+id/text_interval_title"
         style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +24,7 @@
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/intervalIcon"
+            android:id="@+id/image_icon_interval"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/margin_small"
@@ -34,7 +34,7 @@
 
         <!-- FIXME two-way binding for slider when it'll be supported -->
         <com.google.android.material.slider.Slider
-            android:id="@+id/intervalSlider"
+            android:id="@+id/slider_interval"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@string/slider_description"

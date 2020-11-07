@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="content_description_image">Изображение %s</string>
+    <string name="content_plant_create_button">Добавить к моим растениям</string>
+    <string name="description_chosen_plant_image">Выбранное изображение</string>
+    <string name="error_empty_plant_name">Название не может быть пустым</string>
+    <string name="hint_plant_title">Введите название растения</string>
+    <string name="label_fragment_home">Растения</string>
+    <string name="label_fragment_plant_creation">Добавить растение</string>
+    <string name="message_plant_is_added">Растение добавлено!</string>
+    <string name="slider_description">Слайдер для установки значения в днях</string>
+    <string name="title_care_schedule">Режим ухода</string>
+    <string name="title_fertilizing">Удобрения</string>
+    <string name="title_interval_for_winter">Интервал зимой (в днях) - %d</string>
+    <string name="title_interval_in_days">Интервал (в днях) - %d</string>
+    <string name="title_last_care">Последний уход (дней назад) - %d</string>
+    <string name="title_rotating">Поворот</string>
+    <string name="title_spraying">Опрыскивание</string>
+    <string name="title_watering">Полив</string>
+    <string name="tooltip_fertilizing">Удобрение</string>
+    <string name="tooltip_rotating">Поворот</string>
+    <string name="tooltip_spraying">Опрыскивание</string>
+    <string name="tooltip_watering">Полив</string>
+    <string name="value_not_set">Не установлено</string>
+    <string name="title_intent_image_select">Выбрать в</string>
+    <string name="error_long_plant_name">Слишком длинное название %d/40</string>
+    <string name="title_menu_delete">Удалить</string>
+    <string name="successful_single_deletion">%s удалено!</string>
+    <string name="successful_multiple_deletion">Успешно удалено!</string>
+    <string name="error_plant_deletion">Что-то пошло не так</string>
+    <string name="description_add_plant">Добавить растение</string>
+    <string name="content_recent_plants">Недавние растения</string>
+    <string name="content_your_plants">Ваши растения</string>
+    <string name="label_fragment_your_plants">Ваши растения</string>
+    <string name="content_view_all_plants">Посмотреть все</string>
+</resources>

@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">Florarium</string>
+    <string name="app_name" translatable="false">Florarium</string>
     <string name="content_description_image">Image of the %s</string>
     <string name="content_plant_create_button">Add to my plants</string>
     <string name="description_chosen_plant_image">Chosen plant image</string>
     <string name="error_empty_plant_name">Name can\'t be empty</string>
     <string name="hint_plant_title">Enter plant name</string>
     <string name="label_fragment_home">Plants</string>
-    <string name="label_fragment_plant_creation">Create plant</string>
+    <string name="label_fragment_plant_creation">Add plant</string>
     <string name="message_plant_is_added">Plant is added!</string>
     <string name="slider_description">Slider for setting value in days</string>
     <string name="title_care_schedule">Care schedule</string>
@@ -31,4 +31,6 @@
     <string name="description_add_plant">Add plant</string>
     <string name="content_recent_plants">Recent plants</string>
     <string name="content_your_plants">Your plants</string>
+    <string name="label_fragment_your_plants">Your plants</string>
+    <string name="content_view_all_plants">View all</string>
 </resources>

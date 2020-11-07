@@ -25,10 +25,10 @@ class BottomSheetItem(context: Context, attrs: AttributeSet) : LinearLayout(cont
             R.styleable.BottomSheetItem_item_type,
             BottomSheetItemType.DEFAULT.value
         )
-        binding.intervalTitle.text = title
-        binding.intervalIcon.setImageDrawable(icon)
-        binding.intervalSlider.addOnChangeListener { _, value, _ ->
-            binding.intervalTitle.text = when (itemType) {
+        binding.textIntervalTitle.text = title
+        binding.imageIconInterval.setImageDrawable(icon)
+        binding.sliderInterval.addOnChangeListener { _, value, _ ->
+            binding.textIntervalTitle.text = when (itemType) {
                 BottomSheetItemType.DEFAULT.value -> context.getString(
                     R.string.title_interval_in_days,
                     value.toInt()
@@ -48,14 +48,14 @@ class BottomSheetItem(context: Context, attrs: AttributeSet) : LinearLayout(cont
     }
 
     fun setTitle(value: String) {
-        binding.intervalTitle.text = value
+        binding.textIntervalTitle.text = value
     }
 
     fun setSliderValue(value: Float) {
-        binding.intervalSlider.value = value
+        binding.sliderInterval.value = value
     }
 
-    fun getSliderValue(): Float = binding.intervalSlider.value
+    fun getSliderValue(): Float = binding.sliderInterval.value
 
     private enum class BottomSheetItemType(val value: Int) {
         DEFAULT(0), WINTER(1), LAST_CARE(2)

@@ -30,7 +30,13 @@ class HomeFragment : Fragment() {
         plantsAdapter = PlantsAdapter().also { setupPlantsRecyclerView(it) }
         recentPlantsAdapter = PlantsAdapter().also { setupRecentPlantsRecyclerView(it) }
 
-        binding.plantAddButton.setOnClickListener {
+        with(navigateToPlantsList()) {
+            binding.textInYourPlantsShowAll.setOnClickListener(this)
+            binding.textInRecentShowAll.setOnClickListener(this)
+            binding.textYourPlants.setOnClickListener(this)
+        }
+
+        binding.buttonAddPlant.setOnClickListener {
             findNavController().navigate(R.id.action_homeFragment_to_creationFragment)
         }
 
@@ -47,18 +53,28 @@ class HomeFragment : Fragment() {
     }
 
     private fun subscribeUI() {
-        viewModel.plantsList.observe(viewLifecycleOwner, {
-            plantsAdapter!!.setPlants(it)
+        viewModel.plantsList.observe(viewLifecycleOwner, { plants ->
+            if (plants.isNotEmpty()) {
+                binding.textInRecentShowAll.visibility = View.VISIBLE
+                binding.textInYourPlantsShowAll.visibility = View.VISIBLE
+                val sublistAmount = if (plants.size > 5) {
+                    5
+                } else {
+                    plants.size
+                }
+                plantsAdapter!!.setPlants(plants.subList(0, sublistAmount))
+                recentPlantsAdapter!!.setPlants(
+                    plants.sortedByDescending { it.updatedAt }.subList(0, sublistAmount)
+                )
+            } else {
+                binding.textInRecentShowAll.visibility = View.GONE
+                binding.textInYourPlantsShowAll.visibility = View.GONE
+            }
         })
-        viewModel.recentPlantsList.observe(viewLifecycleOwner, {
-            recentPlantsAdapter!!.setPlants(it)
-        })
-        viewModel.regularSchedulesList.observe(viewLifecycleOwner, {
-            plantsAdapter!!.setSchedules(it)
-        })
-        viewModel.regularSchedulesList.observe(viewLifecycleOwner, {
-            recentPlantsAdapter!!.setSchedules(it)
-        })
+    }
+
+    private fun navigateToPlantsList() = View.OnClickListener {
+        findNavController().navigate(R.id.action_homeFragment_to_plantsListFragment)
     }
 
     private fun setupRecentPlantsRecyclerView(plantsAdapter: PlantsAdapter) {

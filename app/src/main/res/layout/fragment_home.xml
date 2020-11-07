@@ -8,10 +8,11 @@
 
     <TextView
         android:id="@+id/text_recent_plants"
-        style="@style/TextAppearance.MaterialComponents.Subtitle1"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_normal"
+        android:padding="@dimen/margin_normal"
         android:text="@string/content_recent_plants"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -20,40 +21,56 @@
         android:id="@+id/scroll_recent_plants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_normal"
-        android:layout_marginLeft="@dimen/margin_normal"
-        android:layout_marginTop="@dimen/margin_normal"
         android:scrollbars="none"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_recent_plants">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_recent_plants"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:layout_marginRight="@dimen/margin_normal"
                 android:clipToPadding="false"
                 android:orientation="horizontal"
                 android:padding="@dimen/margin_normal"
-                tools:itemCount="5"
                 tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/list_item_plant" />
+
+            <TextView
+                android:id="@+id/text_in_recent_show_all"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_marginRight="@dimen/margin_normal"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="@dimen/margin_extra_small"
+                android:focusable="true"
+                android:padding="@dimen/margin_normal"
+                android:text="@string/content_view_all_plants"
+                android:visibility="gone"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_forward_24"
+                app:drawableRightCompat="@drawable/ic_baseline_arrow_forward_24"
+                app:drawableTint="#EAD2A9"
+                tools:visibility="visible" />
+
         </LinearLayout>
     </HorizontalScrollView>
 
     <TextView
         android:id="@+id/text_your_plants"
-        style="@style/TextAppearance.MaterialComponents.Subtitle1"
+        style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_normal"
         android:layout_marginLeft="@dimen/margin_normal"
-        android:layout_marginTop="@dimen/margin_extra_large"
+        android:layout_marginTop="@dimen/margin_large"
         android:background="?attr/selectableItemBackground"
         android:clickable="true"
         android:drawablePadding="@dimen/margin_extra_small"
@@ -69,19 +86,18 @@
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin_normal"
-        android:layout_marginLeft="@dimen/margin_normal"
-        android:layout_marginTop="@dimen/margin_normal"
         android:scrollbars="none"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/text_your_plants">
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginLeft="@dimen/margin_normal">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/plantAddButton"
+                android:id="@+id/button_add_plant"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_gravity="center"
@@ -100,6 +116,26 @@
                 android:padding="@dimen/margin_normal"
                 tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/list_item_plant" />
+
+            <TextView
+                android:id="@+id/text_in_your_plants_show_all"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="@dimen/margin_normal"
+                android:layout_marginRight="@dimen/margin_normal"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="@dimen/margin_extra_small"
+                android:focusable="true"
+                android:padding="@dimen/margin_normal"
+                android:text="@string/content_view_all_plants"
+                android:visibility="gone"
+                app:drawableEndCompat="@drawable/ic_baseline_arrow_forward_24"
+                app:drawableRightCompat="@drawable/ic_baseline_arrow_forward_24"
+                app:drawableTint="#EAD2A9"
+                tools:visibility="visible" />
         </LinearLayout>
     </HorizontalScrollView>
 
