@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.navigation.Navigation.findNavController
 import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
@@ -17,7 +16,6 @@ class PlantsAdapter :
     RecyclerView.Adapter<PlantsAdapter.PlantsViewHolder>() {
     var plantsList = emptyList<Plant>()
     private var scheduleList = emptyList<RegularSchedule>()
-    private var selectionTracker: SelectionTracker<Long>? = null
 
     init {
         setHasStableIds(true)
@@ -43,13 +41,7 @@ class PlantsAdapter :
     override fun getItemCount(): Int = plantsList.size
 
     override fun onBindViewHolder(holder: PlantsViewHolder, position: Int) {
-        if (selectionTracker != null) {
-            holder.bind(plantsList[position], selectionTracker!!.isSelected(position.toLong()))
-        }
-    }
-
-    internal fun setTracker(tracker: SelectionTracker<Long>) {
-        selectionTracker = tracker
+        holder.bind(plantsList[position])
     }
 
     internal fun setPlants(plants: List<Plant>) {

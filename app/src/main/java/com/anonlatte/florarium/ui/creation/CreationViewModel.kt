@@ -23,6 +23,7 @@ class CreationViewModel(application: Application) : AndroidViewModel(application
     fun addPlantToGarden() {
         if (!isPlantExist) {
             viewModelScope.launch(Dispatchers.IO) {
+                plant.updatedAt = System.currentTimeMillis()
                 mainRepository.createPlant(plant).also { plantId ->
                     regularSchedule.plantId = plantId
                     winterSchedule.plantId = plantId
@@ -44,6 +45,7 @@ class CreationViewModel(application: Application) : AndroidViewModel(application
 
     private fun updatePlant() {
         viewModelScope.launch(Dispatchers.IO) {
+            plant.updatedAt = System.currentTimeMillis()
             mainRepository.updatePlant(plant)
             updateSchedule()
         }

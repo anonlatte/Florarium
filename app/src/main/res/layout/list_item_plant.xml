@@ -14,47 +14,46 @@
             type="String" />
     </data>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:layout_marginEnd="@dimen/margin_normal"
+        android:layout_marginRight="@dimen/margin_small"
         android:background="@drawable/activated_color_selector"
-        android:orientation="horizontal"
-        android:padding="@dimen/margin_normal">
-
-        <ImageView
-            android:id="@+id/plantImage"
-            android:layout_width="56dp"
-            android:layout_height="56dp"
-            android:contentDescription="@{@string/content_description_image(plant.name)}"
-            android:scaleType="centerCrop"
-            app:imageFromUrl="@{plant.imageUrl}"
-            app:srcCompat="@drawable/ic_outline_flower_24"
-            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+        app:cardCornerRadius="32dp"
+        app:cardElevation="@dimen/margin_small">
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_normal"
-            android:layout_marginLeft="@dimen/margin_normal"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="@dimen/margin_normal">
+
+            <ImageView
+                android:id="@+id/plantImage"
+                android:layout_width="46dp"
+                android:layout_height="46dp"
+                android:layout_margin="@dimen/margin_small"
+                android:contentDescription="@{@string/content_description_image(plant.name)}"
+                android:scaleType="centerCrop"
+                app:imageFromUrl="@{plant.imageUrl}"
+                app:srcCompat="@drawable/ic_outline_flower_24"
+                tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
             <TextView
                 android:id="@+id/plantName"
-                style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:text="@{plant.name}"
-                tools:text="@tools:sample/lorem/random" />
-
-            <TextView
-                android:id="@+id/plantDescription"
                 style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:maxLines="2"
-                android:text="@{schedule}"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/margin_extra_small"
+                android:layout_marginEnd="@dimen/margin_extra_small"
+                android:maxLines="1"
+                android:text="@{plant.name}"
+                android:textAlignment="center"
                 tools:text="@tools:sample/lorem/random" />
+
         </LinearLayout>
-    </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

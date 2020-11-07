@@ -28,11 +28,9 @@ class MainRepository(context: Context) {
     }
 
     fun createPlant(plant: Plant): Long = plantDao.create(plant)
-
     fun getPlants(): LiveData<List<Plant>> = plantDao.getPlants()
-
+    fun getRecentPlants(): LiveData<List<Plant>> = plantDao.getRecentPlants()
     fun updatePlant(plant: Plant): Int = plantDao.update(plant)
-
     fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
 
     fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {

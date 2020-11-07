@@ -13,9 +13,13 @@ data class Plant(
     var imageUrl: String? = null,
     var temperature: Double? = null, // In celsius
     var humidity: Double? = null, // In percents
+    @ColumnInfo(name = "soil_acidity")
     var soilAcidity: Double? = null, // pH
     var lighting: Double? = null, // Lumen
-    var plantedAt: Long? = null
+    @ColumnInfo(name = "planted_at")
+    var plantedAt: Long? = null,
+    @ColumnInfo(name = "updated_at")
+    var updatedAt: Long? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readLong(),
