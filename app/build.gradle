@@ -28,7 +28,11 @@ android {
     buildTypes {
         applicationVariants.all { variant ->
             variant.outputs.all { output ->
-                outputFileName = "Florarium-${versionName}-${variant.buildType.name}.apk"
+                if (variant.buildType.name == "debug") {
+                    outputFileName = "app-debug.apk"
+                } else {
+                    outputFileName = "Florarium-${versionName}-${variant.buildType.name}.apk"
+                }
             }
         }
         debug {
