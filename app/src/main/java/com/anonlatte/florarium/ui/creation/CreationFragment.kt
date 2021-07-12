@@ -22,7 +22,6 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anonlatte.florarium.R
@@ -36,6 +35,7 @@ import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
+import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.load
 import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
@@ -48,13 +48,13 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.UUID
+import java.util.*
+import javax.inject.Inject
 
 // TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
-    private val viewModel by viewModels<CreationViewModel>()
+    @Inject
+    lateinit var viewModel: CreationViewModel
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
     private lateinit var currentPhotoPath: String
@@ -81,6 +81,11 @@ class CreationFragment : Fragment() {
             binding.plantImageView.load(currentPhotoPath)
             viewModel.updatePlantImage(currentPhotoPath)
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        context.appComponent.inject(this)
     }
 
     override fun onCreateView(
