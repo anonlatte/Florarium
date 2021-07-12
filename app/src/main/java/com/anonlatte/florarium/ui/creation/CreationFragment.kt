@@ -71,7 +71,7 @@ class CreationFragment : Fragment() {
     private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
         lifecycleScope.launch {
             storeBitmapFromUri(uri)
-            viewModel.updatePlantImage(uri.path)
+            viewModel.updatePlantImage(imageFile.path)
             Timber.d("File ${imageFile.name} is created in ${uri.path}")
         }
         binding.plantImageView.load(uri)

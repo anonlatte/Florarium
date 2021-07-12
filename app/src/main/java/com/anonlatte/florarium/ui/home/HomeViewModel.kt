@@ -19,7 +19,7 @@ class HomeViewModel @Inject constructor(
         plantsListFlow, regularSchedulesListFlow
     ) { plantsList, schedulesList ->
         plantsList.map { plant ->
-            val associatedSchedule = schedulesList.first { it.plantId == plant.plantId }
+            val associatedSchedule = schedulesList.firstOrNull { it.plantId == plant.plantId }
             PlantWithSchedule(plant, associatedSchedule)
         }
     }
