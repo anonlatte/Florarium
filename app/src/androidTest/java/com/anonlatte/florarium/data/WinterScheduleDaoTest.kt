@@ -24,7 +24,7 @@ class WinterScheduleDaoTest {
 
     private lateinit var scheduleDao: WinterScheduleDao
     private lateinit var db: AppDatabase
-    private val schedule = testWinterSchedules[0]
+    private var schedule = testWinterSchedules[0]
 
     @Before
     @Throws(Exception::class)
@@ -55,7 +55,7 @@ class WinterScheduleDaoTest {
 
     @Test
     fun update() {
-        schedule.wateringInterval = 4
+        schedule = schedule.copy(wateringInterval = 4)
         val updatedId = scheduleDao.update(schedule).toLong()
         MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.scheduleId))
     }

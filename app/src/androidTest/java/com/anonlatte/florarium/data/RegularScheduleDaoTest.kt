@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.anonlatte.florarium.app.utils.testRegularSchedules
 import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.RegularScheduleDao
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.After
@@ -23,7 +24,7 @@ class RegularScheduleDaoTest {
 
     private lateinit var scheduleDao: RegularScheduleDao
     private lateinit var db: AppDatabase
-    private val schedule = testRegularSchedules[0]
+    private var schedule = testRegularSchedules[0]
 
     @Before
     @Throws(Exception::class)
@@ -44,17 +45,17 @@ class RegularScheduleDaoTest {
     }
 
     @Test
-    fun getSchedules() {
+    fun getSchedules() = runBlocking {
         val loaded = scheduleDao.getSchedules()
         MatcherAssert.assertThat(
-            loaded.getOrAwaitValue().size,
+            loaded.size,
             Matchers.equalTo(testRegularSchedules.size)
         )
     }
 
     @Test
     fun update() {
-        schedule.wateringInterval = 4
+        schedule = schedule.copy(wateringInterval = 4)
         val updatedId = scheduleDao.update(schedule).toLong()
         MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.scheduleId))
     }

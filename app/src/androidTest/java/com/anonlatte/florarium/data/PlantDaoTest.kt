@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.anonlatte.florarium.app.utils.testPlants
 import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.PlantDao
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
@@ -42,9 +43,9 @@ class PlantDaoTest {
     }
 
     @Test
-    fun testGetPlants() {
+    fun testGetPlants() = runBlocking {
         val loaded = plantDao.getPlants()
-        assertThat(loaded.getOrAwaitValue().size, equalTo(testPlants.size))
+        assertThat(loaded.size, equalTo(testPlants.size))
     }
 
     @Test
