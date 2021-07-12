@@ -116,4 +116,8 @@ class CreationViewModel @Inject constructor(
     fun updateIsPlantCreated(isCreated: Boolean) {
         isPlantCreatedData.value = isCreated
     }
+
+    fun setPlantName(text: CharSequence?) {
+        plant = plant.copy(name = text.toString())
+    }
 }

@@ -198,6 +198,7 @@ class CreationFragment : Fragment() {
                 binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
             } else if (binding.titleInputLayout.error == null) {
                 binding.titleInputLayout.error = null
+                viewModel.setPlantName(binding.titleEditText.text)
                 viewModel.addPlantToGarden()
                 binding.progressCreation.isVisible = true
                 lifecycleScope.launch {
