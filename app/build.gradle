@@ -63,25 +63,37 @@ android {
 dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
-    implementation "com.jakewharton.timber:timber:$timberVersion"
-    implementation "com.google.android.material:material:$materialVersion"
-    implementation "com.github.bumptech.glide:glide:$glideVersion"
-    implementation "androidx.work:work-runtime-ktx:$workVersion"
-    implementation "androidx.room:room-runtime:$roomVersion"
-    implementation "androidx.room:room-ktx:$roomVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation "androidx.recyclerview:recyclerview-selection:$recyclerViewSelectionVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVersion"
-    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifeCycleVersion"
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifeCycleVersion"
-    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
-    implementation "androidx.core:core-ktx:$coreVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
+    implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+    implementation "androidx.core:core-ktx:$coreVersion"
+    implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
+
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifeCycleVersion"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifeCycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVersion"
+
+    implementation "androidx.navigation:navigation-dynamic-features-fragment:$navigationVersion"
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
+
+    implementation "androidx.recyclerview:recyclerview-selection:$recyclerViewSelectionVersion"
+
+    implementation "androidx.room:room-ktx:$roomVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
+
+    implementation "androidx.work:work-runtime-ktx:$workVersion"
+
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+
+    implementation "com.google.android.material:material:$materialVersion"
+    implementation "com.google.dagger:dagger:$daggerVersion"
+
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
 
     androidTestImplementation "androidx.arch.core:core-testing:$archCoreVersion"
     androidTestImplementation "androidx.navigation:navigation-testing:$navigationVersion"

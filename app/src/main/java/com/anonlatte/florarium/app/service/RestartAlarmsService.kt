@@ -9,8 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 class RestartAlarmsService : BroadcastReceiver() {
+
+    @Inject
+    lateinit var mainRepository: MainRepository
 
     companion object {
         const val ACTION_NAME = "PLANT_EVENT"
@@ -23,9 +27,8 @@ class RestartAlarmsService : BroadcastReceiver() {
             if (context == null) {
                 return
             }
-            val alarmManager =
-                context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-            val mainRepository = MainRepository(context)
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 val plantsAlarms = mainRepository.getPlantsAlarms()
                 plantsAlarms.forEach { plantAlarm ->
@@ -41,6 +44,7 @@ class RestartAlarmsService : BroadcastReceiver() {
                     )
                 }
                 Timber.tag("alarm").d("had been set ${plantsAlarms.size} alarms.")
+                pendingResult.finish()
             }
         }
     }

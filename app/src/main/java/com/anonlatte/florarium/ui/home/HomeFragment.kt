@@ -1,16 +1,11 @@
 package com.anonlatte.florarium.ui.home
 
+import android.content.Context
 import android.os.Bundle
-import android.view.ActionMode
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.SelectionPredicates
@@ -21,17 +16,21 @@ import com.anonlatte.florarium.R
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
+import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.launchWhenStarted
 import com.anonlatte.florarium.ui.home.adapters.PlantItemDetailsLookup
 import com.anonlatte.florarium.ui.home.adapters.PlantKeyProvider
 import com.anonlatte.florarium.ui.home.adapters.PlantsAdapter
 import kotlinx.coroutines.flow.onEach
+import javax.inject.Inject
 
 class HomeFragment : Fragment() {
     private lateinit var plantsAdapter: PlantsAdapter
     private lateinit var tracker: SelectionTracker<Long>
     private var actionMode: ActionMode? = null
-    private val viewModel by viewModels<HomeViewModel>()
+
+    @Inject
+    lateinit var viewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val trackerObserver = object : SelectionTracker.SelectionObserver<Long>() {
@@ -47,6 +46,11 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        context.appComponent.inject(this)
     }
 
     override fun onCreateView(

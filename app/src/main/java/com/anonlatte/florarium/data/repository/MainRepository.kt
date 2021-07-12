@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.data.repository
 
-import android.content.Context
 import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.data.db.dao.PlantDao
@@ -10,21 +9,15 @@ import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.WinterSchedule
+import javax.inject.Inject
 
-class MainRepository(context: Context) {
-
-    private val plantAlarmDao: PlantAlarmDao
-    private val plantDao: PlantDao
-    private val regularScheduleDao: RegularScheduleDao
+class MainRepository @Inject constructor(
+    private val db: AppDatabase,
+    private val plantAlarmDao: PlantAlarmDao,
+    private val plantDao: PlantDao,
+    private val regularScheduleDao: RegularScheduleDao,
     private val winterScheduleDao: WinterScheduleDao
-    private val db = AppDatabase.getInstance(context)
-
-    init {
-        plantAlarmDao = db.plantAlarmDao()
-        plantDao = db.plantDao()
-        regularScheduleDao = db.regularScheduleDao()
-        winterScheduleDao = db.winterScheduleDao()
-    }
+) {
 
     fun createPlant(plant: Plant): Long = plantDao.create(plant)
     suspend fun getPlants(): List<Plant> = plantDao.getPlants()

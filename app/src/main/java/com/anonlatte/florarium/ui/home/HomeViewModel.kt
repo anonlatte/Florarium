@@ -1,15 +1,16 @@
 package com.anonlatte.florarium.ui.home
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.data.repository.MainRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
-    private val mainRepository = MainRepository(application)
+class HomeViewModel @Inject constructor(
+    private val mainRepository: MainRepository
+) : ViewModel() {
 
     private val plantsListFlow = flow { emit(mainRepository.getPlants()) }
     private val regularSchedulesListFlow = flow { emit(mainRepository.getRegularScheduleList()) }

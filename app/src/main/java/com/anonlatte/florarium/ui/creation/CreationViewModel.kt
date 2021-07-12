@@ -1,28 +1,25 @@
 package com.anonlatte.florarium.ui.creation
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.app.utils.getTimestampFromDaysAgo
-import com.anonlatte.florarium.data.model.Plant
-import com.anonlatte.florarium.data.model.PlantAlarm
-import com.anonlatte.florarium.data.model.RegularSchedule
-import com.anonlatte.florarium.data.model.ScheduleType
-import com.anonlatte.florarium.data.model.WinterSchedule
+import com.anonlatte.florarium.data.model.*
 import com.anonlatte.florarium.data.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CreationViewModel(application: Application) : AndroidViewModel(application) {
+class CreationViewModel @Inject constructor(
+    private val mainRepository: MainRepository
+) : ViewModel() {
     var plant: Plant = Plant()
         private set
     var regularSchedule: RegularSchedule = RegularSchedule()
         private set
     var winterSchedule: WinterSchedule = WinterSchedule()
         private set
-    private val mainRepository = MainRepository(application)
     private var isPlantExist = false
 
     private var isPlantCreatedData = MutableLiveData(false)

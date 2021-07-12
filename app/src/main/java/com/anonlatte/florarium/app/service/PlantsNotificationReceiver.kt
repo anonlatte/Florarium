@@ -41,8 +41,9 @@ class PlantsNotificationReceiver : BroadcastReceiver() {
 
     private fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager = context.getSystemService(
+                Context.NOTIFICATION_SERVICE
+            ) as NotificationManager
             val name = "Plant Events"
             val descriptionText = "Alarm event reminder"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
