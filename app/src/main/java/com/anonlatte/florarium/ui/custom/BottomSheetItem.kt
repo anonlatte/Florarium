@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
+import androidx.annotation.StringRes
 import androidx.core.content.res.getStringOrThrow
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.ListItemBottomSheetBinding
@@ -51,8 +52,8 @@ class BottomSheetItem @JvmOverloads constructor(
         typedArray.recycle()
     }
 
-    fun setTitle(value: String) {
-        binding.intervalTitle.text = value
+    fun setTitle(@StringRes titleRes: Int, interval: Int) {
+        binding.intervalTitle.text = context.getString(titleRes, interval)
     }
 
     fun setSliderValue(value: Float) {
@@ -60,7 +61,6 @@ class BottomSheetItem @JvmOverloads constructor(
     }
 
     fun getSliderValue(): Float = binding.intervalSlider.value
-
     private enum class BottomSheetItemType(val value: Int) {
         DEFAULT(0), WINTER(1), LAST_CARE(2)
     }

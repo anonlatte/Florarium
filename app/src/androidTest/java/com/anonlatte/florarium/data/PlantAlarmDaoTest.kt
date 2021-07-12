@@ -4,9 +4,9 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.anonlatte.florarium.db.AppDatabase
-import com.anonlatte.florarium.db.dao.PlantAlarmDao
-import com.anonlatte.florarium.utilities.testPlantAlarm
+import com.anonlatte.florarium.app.utils.testPlantAlarm
+import com.anonlatte.florarium.data.db.AppDatabase
+import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.After

@@ -4,10 +4,10 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.anonlatte.florarium.db.AppDatabase
-import com.anonlatte.florarium.db.dao.WinterScheduleDao
-import com.anonlatte.florarium.utilities.getOrAwaitValue
-import com.anonlatte.florarium.utilities.testWinterSchedules
+import com.anonlatte.florarium.app.utils.getOrAwaitValue
+import com.anonlatte.florarium.app.utils.testWinterSchedules
+import com.anonlatte.florarium.data.db.AppDatabase
+import com.anonlatte.florarium.data.db.dao.WinterScheduleDao
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.After

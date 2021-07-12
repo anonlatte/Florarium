@@ -26,26 +26,23 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.alarms.PlantsNotificationReceiver
+import com.anonlatte.florarium.app.service.PlantsNotificationReceiver
+import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
+import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
+import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
+import com.anonlatte.florarium.data.model.Plant
+import com.anonlatte.florarium.data.model.PlantAlarm
+import com.anonlatte.florarium.data.model.RegularSchedule
+import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
-import com.anonlatte.florarium.db.models.Plant
-import com.anonlatte.florarium.db.models.PlantAlarm
-import com.anonlatte.florarium.db.models.RegularSchedule
-import com.anonlatte.florarium.db.models.ScheduleType
+import com.anonlatte.florarium.extensions.load
 import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
-import com.anonlatte.florarium.utilities.PLANT_NOTIFICATION_EVENT
-import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
-import com.anonlatte.florarium.utilities.TimeStampHelper.getDaysFromTimestampAgo
-import com.anonlatte.florarium.utilities.TimeStampHelper.getTimestampFromDaysAgo
-import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
 import java.io.File
@@ -74,19 +71,15 @@ class CreationFragment : Fragment() {
     private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
         lifecycleScope.launch {
             storeBitmapFromUri(uri)
-            viewModel.plant.imageUrl = uri.path
+            viewModel.updatePlantImage(uri.path)
             Timber.d("File ${imageFile.name} is created in ${uri.path}")
         }
-        Glide.with(requireContext())
-            .load(uri)
-            .into(binding.plantImageView)
+        binding.plantImageView.load(uri)
     }
     private val takePictureAction = registerForActivityResult(TakePicture()) { imageTaken ->
         if (imageTaken) {
-            Glide.with(requireContext())
-                .load(currentPhotoPath)
-                .into(binding.plantImageView)
-            viewModel.plant.imageUrl = currentPhotoPath
+            binding.plantImageView.load(currentPhotoPath)
+            viewModel.updatePlantImage(currentPhotoPath)
         }
     }
 
@@ -96,15 +89,14 @@ class CreationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
-
-        if (passedPlant != null) {
-            viewModel.plant = passedPlant!!
-            viewModel.isPlantExist = true
+        passedPlant?.let {
+            viewModel.setPlant(it)
+            viewModel.updatePlantExistence(true)
         }
 
-        if (passedSchedule != null) {
+        passedSchedule?.let {
             // TODO if field is null then hide/show 'not set'
-            viewModel.regularSchedule = passedSchedule!!
+            viewModel.setSchedule(it)
             restoreCareSchedule()
         }
 
@@ -174,7 +166,7 @@ class CreationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        if (!viewModel.isPlantCreated.value!!) {
+        if (viewModel.isPlantCreated.value == false) {
             imageFile.delete()
         }
     }
@@ -206,7 +198,7 @@ class CreationFragment : Fragment() {
                 binding.progressCreation.isVisible = true
                 lifecycleScope.launch {
                     createAlarms()
-                    viewModel.isPlantCreated.postValue(true)
+                    viewModel.updateIsPlantCreated(true)
                 }
             }
         }
@@ -236,49 +228,58 @@ class CreationFragment : Fragment() {
         setScheduleItemListener(binding.rotatingListItem)
     }
 
-    private suspend fun createAlarms() = withContext(Dispatchers.IO) {
+    private suspend fun createAlarms() = lifecycleScope.launch {
         val scheduleMap = getScheduleMap()
-        val alarmManager =
-            requireContext().getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        val alarmManager = requireContext().getSystemService(
+            Context.ALARM_SERVICE
+        ) as? AlarmManager
 
         scheduleMap.keys.forEach { scheduleType ->
-            val randomRequestId = System.currentTimeMillis() / 1000
-            val plantAlarm = PlantAlarm(
-                randomRequestId,
-                viewModel.plant.name ?: UUID.randomUUID().toString(),
-                scheduleType.name.lowercase(),
-                scheduleMap[scheduleType]!![0]!!.toLong(), // interval
-                scheduleMap[scheduleType]!![1] // last care
-            ).also { plantAlarm ->
-                val plantsAlarmIntent =
-                    Intent(context, PlantsNotificationReceiver::class.java).apply {
+            val interval = scheduleMap[scheduleType]?.get(0)
+            interval?.let {
+                val lastCare = scheduleMap[scheduleType]?.get(1)
+                val randomRequestId = System.currentTimeMillis() / 1000
+                val plantAlarm = PlantAlarm(
+                    randomRequestId,
+                    viewModel.plant.name ?: UUID.randomUUID().toString(),
+                    scheduleType.name.lowercase(),
+                    it,
+                    lastCare
+                ).also { plantAlarm ->
+                    val plantsAlarmIntent = Intent(
+                        context, PlantsNotificationReceiver::class.java
+                    ).apply {
                         action = PLANT_NOTIFICATION_EVENT
                         putExtra("alarm", plantAlarm)
                     }
-                plantAlarm.setAlarm(
-                    requireContext(),
-                    plantsAlarmIntent,
-                    alarmManager
-                )
+                    plantAlarm.setAlarm(
+                        requireContext(),
+                        plantsAlarmIntent,
+                        alarmManager
+                    )
+                }
+
+                viewModel.addPlantAlarm(plantAlarm)
+                delay(1000)
             }
-            viewModel.addPlantAlarm(plantAlarm)
-            delay(1000)
         }
     }
 
     private fun getScheduleMap(): MutableMap<ScheduleType, List<Long?>> {
         with(viewModel.regularSchedule) {
-            val schedule =
-                mutableMapOf(ScheduleType.WATERING to listOf(wateringInterval?.toLong(), wateredAt))
+            val schedule = mutableMapOf(
+                ScheduleType.WATERING to listOf(wateringInterval?.toLong(), wateredAt)
+            )
             if (sprayingInterval != null) {
-                schedule[ScheduleType.SPRAYING] = listOf(sprayingInterval?.toLong(), sprayedAt)
+                schedule[ScheduleType.SPRAYING] = listOf(sprayingInterval.toLong(), sprayedAt)
             }
             if (fertilizingInterval != null) {
-                schedule[ScheduleType.FERTILIZING] =
-                    listOf(fertilizingInterval?.toLong(), fertilizedAt)
+                schedule[ScheduleType.FERTILIZING] = listOf(
+                    fertilizingInterval.toLong(), fertilizedAt
+                )
             }
             if (rotatingInterval != null) {
-                schedule[ScheduleType.ROTATING] = listOf(rotatingInterval?.toLong(), rotatedAt)
+                schedule[ScheduleType.ROTATING] = listOf(rotatingInterval.toLong(), rotatedAt)
             }
             return schedule
         }
@@ -428,18 +429,18 @@ class CreationFragment : Fragment() {
             }
         }
         dialogBinding.defaultIntervalItem.setTitle(
-            getString(R.string.title_interval_in_days, defaultIntervalValue)
+            R.string.title_interval_in_days,
+            defaultIntervalValue
         )
         dialogBinding.defaultIntervalItem.setSliderValue(defaultIntervalValue.toFloat())
 
         dialogBinding.winterIntervalItem.setTitle(
-            getString(R.string.title_interval_for_winter, winterIntervalValue)
+            R.string.title_interval_for_winter,
+            winterIntervalValue
         )
         dialogBinding.winterIntervalItem.setSliderValue(winterIntervalValue.toFloat())
 
-        dialogBinding.lastCareItem.setTitle(
-            getString(R.string.title_last_care, lastCareIntervalValue)
-        )
+        dialogBinding.lastCareItem.setTitle(R.string.title_last_care, lastCareIntervalValue)
         dialogBinding.lastCareItem.setSliderValue(lastCareIntervalValue.toFloat())
     }
 
@@ -464,75 +465,32 @@ class CreationFragment : Fragment() {
                 lastCareValue
             )
         )
-
-        with(viewModel) {
-            when (ScheduleType.toScheduleType(careScheduleItem.scheduleItemType)) {
-                ScheduleType.WATERING -> {
-                    regularSchedule.wateringInterval = defaultIntervalValue
-                    regularSchedule.wateredAt = getTimestampFromDaysAgo(lastCareValue)
-                    winterSchedule.wateringInterval = winterIntervalValue
-                }
-                ScheduleType.SPRAYING -> {
-                    regularSchedule.sprayingInterval = defaultIntervalValue
-                    regularSchedule.sprayedAt = getTimestampFromDaysAgo(lastCareValue)
-                    winterSchedule.sprayingInterval = winterIntervalValue
-                }
-                ScheduleType.FERTILIZING -> {
-                    regularSchedule.fertilizingInterval = defaultIntervalValue
-                    regularSchedule.fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
-                    winterSchedule.fertilizingInterval = winterIntervalValue
-                }
-                ScheduleType.ROTATING -> {
-                    regularSchedule.rotatingInterval = defaultIntervalValue
-                    regularSchedule.rotatedAt = getTimestampFromDaysAgo(lastCareValue)
-                    winterSchedule.rotatingInterval = winterIntervalValue
-                }
-            }
-        }
+        viewModel.updateSchedule(
+            scheduleItemType = ScheduleType.toScheduleType(careScheduleItem.scheduleItemType),
+            defaultIntervalValue = defaultIntervalValue,
+            winterIntervalValue = winterIntervalValue,
+            lastCareValue = lastCareValue
+        )
     }
 
     private fun formattedScheduleValue(
         defaultIntervalValue: Int?,
         winterIntervalValue: Int?,
         lastCareValue: Int?
-    ): String =
-        if (lastCareValue != null && lastCareValue > 0) {
-            if (winterIntervalValue != null && winterIntervalValue > 0) {
-                "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
-            } else {
-                "$lastCareValue $defaultIntervalValue"
-            }
-        } else if (winterIntervalValue != null && winterIntervalValue > 0) {
-            "$defaultIntervalValue/$winterIntervalValue"
+    ): String = if (lastCareValue != null && lastCareValue > 0) {
+        if (winterIntervalValue != null && winterIntervalValue > 0) {
+            "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
         } else {
-            defaultIntervalValue.toString()
+            "$lastCareValue $defaultIntervalValue"
         }
+    } else if (winterIntervalValue != null && winterIntervalValue > 0) {
+        "$defaultIntervalValue/$winterIntervalValue"
+    } else {
+        defaultIntervalValue.toString()
+    }
 
     private fun clearScheduleFields(scheduleTypeValue: Int?) {
-        with(viewModel) {
-            when (ScheduleType.toScheduleType(scheduleTypeValue)) {
-                ScheduleType.WATERING -> {
-                    regularSchedule.wateringInterval = null
-                    winterSchedule.wateringInterval = null
-                    regularSchedule.wateredAt = null
-                }
-                ScheduleType.SPRAYING -> {
-                    regularSchedule.sprayingInterval = null
-                    winterSchedule.sprayingInterval = null
-                    regularSchedule.sprayedAt = null
-                }
-                ScheduleType.FERTILIZING -> {
-                    regularSchedule.fertilizingInterval = null
-                    winterSchedule.fertilizingInterval = null
-                    regularSchedule.fertilizedAt = null
-                }
-                ScheduleType.ROTATING -> {
-                    regularSchedule.rotatingInterval = null
-                    winterSchedule.rotatingInterval = null
-                    regularSchedule.rotatedAt = null
-                }
-            }
-        }
+        viewModel.clearScheduleField(ScheduleType.toScheduleType(scheduleTypeValue))
     }
 
     private fun makeScheduleItemsClickable() {

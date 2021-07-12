@@ -30,6 +30,7 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toTopOf="@id/plantDescription"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/plantImage"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/lorem/random" />
@@ -44,6 +45,7 @@
         app:layout_constrainedWidth="true"
         app:layout_constraintBottom_toBottomOf="@id/plantName"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toEndOf="@id/plantImage"
         app:layout_constraintTop_toBottomOf="@id/plantName"
         tools:text="@tools:sample/lorem/random" />

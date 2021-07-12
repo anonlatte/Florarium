@@ -14,7 +14,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".FlorariumApp"
+        android:name=".app.FlorariumApp"
         android:theme="@style/AppTheme">
         <uses-library
             android:name="android.test.runner"
@@ -39,11 +39,11 @@
         </provider>
 
         <receiver
-            android:name=".alarms.PlantsNotificationReceiver"
+            android:name="com.anonlatte.florarium.app.service.PlantsNotificationReceiver"
             android:enabled="true" />
 
         <receiver
-            android:name=".alarms.RestartAlarmsService"
+            android:name="com.anonlatte.florarium.app.service.RestartAlarmsService"
             android:enabled="true"
             android:exported="true">
             <intent-filter>

@@ -19,7 +19,7 @@
             <argument
                 android:name="plant"
                 android:defaultValue="@null"
-                app:argType="com.anonlatte.florarium.db.models.Plant" />
+                app:argType="com.anonlatte.florarium.data.model.Plant" />
         </action>
     </fragment>
 

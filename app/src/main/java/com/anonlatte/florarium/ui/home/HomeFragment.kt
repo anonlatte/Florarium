@@ -18,13 +18,13 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.adapters.PlantItemDetailsLookup
-import com.anonlatte.florarium.adapters.PlantKeyProvider
-import com.anonlatte.florarium.adapters.PlantsAdapter
+import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
-import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.extensions.launchWhenStarted
+import com.anonlatte.florarium.ui.home.adapters.PlantItemDetailsLookup
+import com.anonlatte.florarium.ui.home.adapters.PlantKeyProvider
+import com.anonlatte.florarium.ui.home.adapters.PlantsAdapter
 import kotlinx.coroutines.flow.onEach
 
 class HomeFragment : Fragment() {
@@ -34,7 +34,7 @@ class HomeFragment : Fragment() {
     private val viewModel by viewModels<HomeViewModel>()
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val trackerObserver = object : SelectionTracker.SelectionObserver<Plant>() {
+    private val trackerObserver = object : SelectionTracker.SelectionObserver<Long>() {
         override fun onSelectionChanged() {
             super.onSelectionChanged()
             if (tracker.hasSelection()) {
@@ -108,12 +108,12 @@ class HomeFragment : Fragment() {
 
                 override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
                 override fun onDestroyActionMode(mode: ActionMode?) {
-                    tracker?.clearSelection()
+                    tracker.clearSelection()
                     actionMode = null
                 }
             })
         } else {
-            actionMode!!.finish()
+            actionMode?.finish()
         }
     }
 
@@ -156,6 +156,7 @@ class HomeFragment : Fragment() {
         ).withSelectionPredicate(
             SelectionPredicates.createSelectAnything()
         ).build().let {
+            // FIXME: g.proshunin | 12.07.2021-5:52 PM
             // it.addObserver(trackerObserver)
             tracker = it
             plantsAdapter.setTracker(tracker)

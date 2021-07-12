@@ -3,7 +3,7 @@ package com.anonlatte.florarium.ui.home
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.anonlatte.florarium.data.model.PlantWithSchedule
-import com.anonlatte.florarium.repository.MainRepository
+import com.anonlatte.florarium.data.repository.MainRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
