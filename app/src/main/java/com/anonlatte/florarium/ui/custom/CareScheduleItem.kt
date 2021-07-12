@@ -9,7 +9,9 @@ import androidx.core.content.res.getStringOrThrow
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.ListItemCareScheduleBinding
 
-class CareScheduleItem(context: Context, attrs: AttributeSet) : ConstraintLayout(context, attrs) {
+class CareScheduleItem @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null
+) : ConstraintLayout(context, attrs) {
     private val typedArray = context.obtainStyledAttributes(attrs, R.styleable.CareScheduleItem)
     val title: String?
     val icon: Drawable?

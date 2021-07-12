@@ -34,7 +34,7 @@ class PlantsNotificationReceiver : BroadcastReceiver() {
             .setContentTitle("Don't forget!")
             .setGroup(NOTIFICATION_GROUP + eventTag)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setSmallIcon(R.drawable.sunflower)
+            .setSmallIcon(R.drawable.ic_flower)
             .build()
         NotificationManagerCompat.from(context).notify(0, notificationBuilder)
     }

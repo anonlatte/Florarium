@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:clipToPadding="false"
     android:layout_height="wrap_content"
-    android:padding="@dimen/margin_normal"
-    android:orientation="vertical"
-    tools:parentTag="com.anonlatte.florarium.ui.custom.BottomSheetItem">
+    android:padding="@dimen/margin_normal">
 
     <TextView
         android:id="@+id/intervalTitle"
@@ -14,33 +13,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_small"
+        app:layout_constraintBottom_toTopOf="@id/intervalSlider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="@string/title_interval_in_days" />
 
-    <LinearLayout
+    <ImageView
+        android:id="@+id/intervalIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/margin_small"
+        android:contentDescription="@null"
+        app:layout_constraintBottom_toBottomOf="@id/intervalSlider"
+        app:layout_constraintEnd_toStartOf="@id/intervalSlider"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/intervalSlider"
+        tools:src="@drawable/ic_outline_drop_24" />
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/intervalSlider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_normal"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:contentDescription="@string/slider_description"
+        android:stepSize="1"
+        android:valueFrom="0"
+        android:valueTo="30"
+        app:labelStyle="@style/Tooltip"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintBottom_toBottomOf="@id/intervalIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/intervalIcon"
+        app:layout_constraintTop_toBottomOf="@id/intervalTitle" />
 
-        <ImageView
-            android:id="@+id/intervalIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/margin_small"
-            android:contentDescription="@null"
-            tools:src="@drawable/ic_outline_drop_24" />
-
-        <!-- FIXME two-way binding for slider when it'll be supported -->
-        <com.google.android.material.slider.Slider
-            android:id="@+id/intervalSlider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/slider_description"
-            android:stepSize="1"
-            android:valueFrom="0"
-            android:valueTo="30"
-            app:labelStyle="@style/Tooltip" />
-
-    </LinearLayout>
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

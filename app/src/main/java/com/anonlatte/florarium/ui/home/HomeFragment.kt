@@ -8,8 +8,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
@@ -19,15 +21,15 @@ import com.anonlatte.florarium.R
 import com.anonlatte.florarium.adapters.PlantItemDetailsLookup
 import com.anonlatte.florarium.adapters.PlantKeyProvider
 import com.anonlatte.florarium.adapters.PlantsAdapter
+import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
 import com.anonlatte.florarium.db.models.Plant
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.anonlatte.florarium.extensions.launchWhenStarted
+import kotlinx.coroutines.flow.onEach
 
 class HomeFragment : Fragment() {
-    private var plantsAdapter: PlantsAdapter? = null
-    private var tracker: SelectionTracker<Long>? = null
+    private lateinit var plantsAdapter: PlantsAdapter
+    private lateinit var tracker: SelectionTracker<Long>
     private var actionMode: ActionMode? = null
     private val viewModel by viewModels<HomeViewModel>()
     private var _binding: FragmentHomeBinding? = null
@@ -35,7 +37,7 @@ class HomeFragment : Fragment() {
     private val trackerObserver = object : SelectionTracker.SelectionObserver<Plant>() {
         override fun onSelectionChanged() {
             super.onSelectionChanged()
-            if (tracker != null && tracker!!.hasSelection()) {
+            if (tracker.hasSelection()) {
                 if (actionMode == null) {
                     callActionMode()
                 }
@@ -54,7 +56,15 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
-        plantsAdapter = PlantsAdapter().also {
+        plantsAdapter = PlantsAdapter { plant, schedule ->
+            findNavController().navigate(
+                R.id.action_homeFragment_to_creationFragment,
+                bundleOf(
+                    "plant" to plant,
+                    "schedule" to schedule
+                )
+            )
+        }.also {
             setupRecyclerView(it)
             subscribeUI(it)
         }
@@ -69,17 +79,14 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.plantsList.adapter = null
         _binding = null
-        tracker = null
-        plantsAdapter = null
     }
 
     private fun subscribeUI(plantsAdapter: PlantsAdapter) {
-        viewModel.plantsList.observe(viewLifecycleOwner, { plantsAdapter.setPlants(it) })
-        viewModel.regularSchedulesList.observe(
-            viewLifecycleOwner,
-            { plantsAdapter.setSchedules(it) }
-        )
+        viewModel.plantsToSchedules.onEach {
+            plantsAdapter.submitList(it)
+        }.launchWhenStarted(lifecycleScope)
     }
 
     private fun callActionMode() {
@@ -100,7 +107,6 @@ class HomeFragment : Fragment() {
                 }
 
                 override fun onPrepareActionMode(mode: ActionMode, menu: Menu) = false
-
                 override fun onDestroyActionMode(mode: ActionMode?) {
                     tracker?.clearSelection()
                     actionMode = null
@@ -112,18 +118,13 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteSelectedPlants() {
-        val selectedPlants: List<Plant>? = tracker?.selection?.map {
-            plantsAdapter!!.plantsList[it.toInt()]
+        val selectedPlants: List<PlantWithSchedule> = tracker.selection.map {
+            plantsAdapter.currentList[it.toInt()]
         }
-        CoroutineScope(Dispatchers.Main).launch {
-            viewModel.deletePlants(selectedPlants).observe(
-                viewLifecycleOwner,
-                {
-                    showToastDeleteInfo(selectedPlants, it)
-                    tracker?.clearSelection()
-                }
-            )
-        }
+        viewModel.deletePlants(selectedPlants).onEach { amount ->
+            showToastDeleteInfo(selectedPlants.map { it.plant }, amount)
+            tracker.clearSelection()
+        }.launchWhenStarted(lifecycleScope)
     }
 
     private fun showToastDeleteInfo(selectedPlants: List<Plant>?, deletedCounter: Int) {
@@ -146,15 +147,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupSelectionTracker() {
-        tracker = SelectionTracker.Builder(
+        SelectionTracker.Builder(
             "plant-selection",
             binding.plantsList,
             PlantKeyProvider(binding.plantsList),
             PlantItemDetailsLookup(binding.plantsList),
             StorageStrategy.createLongStorage()
-        ).withSelectionPredicate(SelectionPredicates.createSelectAnything()).build()
-
-        plantsAdapter!!.setTracker(tracker!!)
-        tracker!!.addObserver(trackerObserver)
+        ).withSelectionPredicate(
+            SelectionPredicates.createSelectAnything()
+        ).build().let {
+            // it.addObserver(trackerObserver)
+            tracker = it
+            plantsAdapter.setTracker(tracker)
+        }
     }
 }
+

@@ -1,7 +1,6 @@
 package com.anonlatte.florarium.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import com.anonlatte.florarium.db.AppDatabase
 import com.anonlatte.florarium.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.db.dao.PlantDao
@@ -28,13 +27,9 @@ class MainRepository(context: Context) {
     }
 
     fun createPlant(plant: Plant): Long = plantDao.create(plant)
-
-    fun getPlants(): LiveData<List<Plant>> = plantDao.getPlants()
-
+    suspend fun getPlants(): List<Plant> = plantDao.getPlants()
     fun updatePlant(plant: Plant): Int = plantDao.update(plant)
-
     fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
-
     fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
         db.runInTransaction {
             if (regularSchedule?.plantId != null) {
@@ -57,8 +52,7 @@ class MainRepository(context: Context) {
         }
     }
 
-    fun getRegularScheduleList() = regularScheduleDao.getSchedules()
-
+    suspend fun getRegularScheduleList() = regularScheduleDao.getSchedules()
     fun createPlantAlarm(plantAlarm: PlantAlarm): Long = plantAlarmDao.create(plantAlarm)
     fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
 }

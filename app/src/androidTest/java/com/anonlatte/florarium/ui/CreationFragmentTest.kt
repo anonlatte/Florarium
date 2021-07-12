@@ -49,7 +49,7 @@ class CreationFragmentTest {
     fun testLongPlantNameValidation() {
         var maxFieldLength = 0
         fragment.onFragment {
-            maxFieldLength = it.binding.titleInputLayout.counterMaxLength
+            maxFieldLength = it.getTitleInputLayoutMaxLength()
         }
         val invalidLength = maxFieldLength + 1
         onView(withId(R.id.titleEditText)).perform(

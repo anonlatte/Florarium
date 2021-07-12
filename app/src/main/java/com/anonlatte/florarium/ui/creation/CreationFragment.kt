@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.ui.creation
 
-import android.app.Activity.RESULT_OK
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
@@ -8,16 +7,19 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.GetContent
+import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.FileProvider
+import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -31,11 +33,10 @@ import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.PlantAlarm
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.db.models.ScheduleType
+import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.anonlatte.florarium.utilities.PLANT_NOTIFICATION_EVENT
 import com.anonlatte.florarium.utilities.PROVIDER_AUTHORITY
-import com.anonlatte.florarium.utilities.REQUEST_IMAGE_CAPTURE
-import com.anonlatte.florarium.utilities.REQUEST_IMAGE_SELECT
 import com.anonlatte.florarium.utilities.TimeStampHelper.getDaysFromTimestampAgo
 import com.anonlatte.florarium.utilities.TimeStampHelper.getTimestampFromDaysAgo
 import com.bumptech.glide.Glide
@@ -45,19 +46,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 // TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
     private val viewModel by viewModels<CreationViewModel>()
     private var _binding: FragmentPlantCreationBinding? = null
-    val binding get() = _binding!!
+    private val binding get() = _binding!!
     private lateinit var currentPhotoPath: String
     private val imageFile: File by lazy {
         createImageFile()
@@ -69,13 +71,31 @@ class CreationFragment : Fragment() {
         arguments?.getParcelable("schedule")
     }
 
+    private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
+        lifecycleScope.launch {
+            storeBitmapFromUri(uri)
+            viewModel.plant.imageUrl = uri.path
+            Timber.d("File ${imageFile.name} is created in ${uri.path}")
+        }
+        Glide.with(requireContext())
+            .load(uri)
+            .into(binding.plantImageView)
+    }
+    private val takePictureAction = registerForActivityResult(TakePicture()) { imageTaken ->
+        if (imageTaken) {
+            Glide.with(requireContext())
+                .load(currentPhotoPath)
+                .into(binding.plantImageView)
+            viewModel.plant.imageUrl = currentPhotoPath
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
-        _binding!!.viewModel = viewModel
 
         if (passedPlant != null) {
             viewModel.plant = passedPlant!!
@@ -93,6 +113,15 @@ class CreationFragment : Fragment() {
         makeScheduleItemsClickable()
 
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.plant.name?.let { plantName ->
+            if (plantName.isNotEmpty()) {
+                binding.titleEditText.setText(plantName)
+            }
+        }
     }
 
     private fun subscribeUi() {
@@ -150,44 +179,19 @@ class CreationFragment : Fragment() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        super.onActivityResult(requestCode, resultCode, resultData)
-        if (resultCode == RESULT_OK) {
-            when (requestCode) {
-                REQUEST_IMAGE_SELECT -> {
-                    resultData?.data?.also { uri ->
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            storeBitmapFromUri(uri)
-                            viewModel.plant.imageUrl = currentPhotoPath
-                            Timber.d("File ${imageFile.name} is created in $currentPhotoPath")
-                        }
-                        Glide.with(requireContext())
-                            .load(uri)
-                            .into(binding.plantImageView)
-                    }
-                }
-                REQUEST_IMAGE_CAPTURE -> {
-                    Glide.with(requireContext())
-                        .load(currentPhotoPath)
-                        .into(binding.plantImageView)
-                    viewModel.plant.imageUrl = currentPhotoPath
-                }
-            }
-        }
-    }
-
     private fun storeBitmapFromUri(uri: Uri): Bitmap? {
-        val inputStream = requireContext().contentResolver.openInputStream(uri)
-        return if (inputStream != null) {
+        return requireContext().contentResolver.openInputStream(uri)?.let { inputStream ->
             val outputStream = FileOutputStream(imageFile)
-            BitmapFactory.decodeStream(inputStream).also {
+            BitmapFactory.decodeStream(inputStream).also { bitmap ->
                 inputStream.close()
-                it.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 85, outputStream)
+                } else {
+                    bitmap.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
+                }
                 outputStream.flush()
                 outputStream.close()
             }
-        } else {
-            null
         }
     }
 
@@ -199,7 +203,7 @@ class CreationFragment : Fragment() {
             } else if (binding.titleInputLayout.error == null) {
                 binding.titleInputLayout.error = null
                 viewModel.addPlantToGarden()
-                binding.isPlantCreationInProgress = true
+                binding.progressCreation.isVisible = true
                 lifecycleScope.launch {
                     createAlarms()
                     viewModel.isPlantCreated.postValue(true)
@@ -241,7 +245,7 @@ class CreationFragment : Fragment() {
             val randomRequestId = System.currentTimeMillis() / 1000
             val plantAlarm = PlantAlarm(
                 randomRequestId,
-                viewModel.plant.name!!,
+                viewModel.plant.name ?: UUID.randomUUID().toString(),
                 scheduleType.name.lowercase(),
                 scheduleMap[scheduleType]!![0]!!.toLong(), // interval
                 scheduleMap[scheduleType]!![1] // last care
@@ -297,41 +301,27 @@ class CreationFragment : Fragment() {
     }
 
     private fun openImageSelectIntent() {
-        Intent(
-            Intent.ACTION_PICK,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        ).also { selectPictureIntent ->
-            startActivityForResult(selectPictureIntent, REQUEST_IMAGE_SELECT)
-        }
+        imageSelectAction.launch("image/*")
     }
 
     private fun openImageCaptureIntent() {
-        // FIXME: g.proshunin | 12.07.2021-1:37 PM migrate to activity result api
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-            takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
-                val photoFile = try {
-                    createImageFile()
-                } catch (exception: IOException) {
-                    Timber.e(exception)
-                    null
-                }
-                photoFile?.also {
-                    val photoURI: Uri = FileProvider.getUriForFile(
-                        requireContext(),
-                        PROVIDER_AUTHORITY,
-                        it
-                    )
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                }
-            }
+        runCatching {
+            createImageFile()
+        }.onFailure {
+            Timber.e(it)
+        }.getOrNull()?.also {
+            val photoUri: Uri = FileProvider.getUriForFile(
+                requireContext(),
+                PROVIDER_AUTHORITY,
+                it
+            )
+            takePictureAction.launch(photoUri)
         }
     }
 
     private fun getFormattedTimeStamp(): String =
         SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
 
-    @Throws(IOException::class)
     private fun createImageFile(): File {
         val timeStamp = getFormattedTimeStamp()
         val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -349,8 +339,8 @@ class CreationFragment : Fragment() {
         val dialogBinding = BottomSheetBinding.inflate(LayoutInflater.from(requireContext()))
         dialog.setContentView(dialogBinding.root)
 
-        dialogBinding.title = title
-        dialogBinding.icon = icon
+        dialogBinding.bottomSheetTitle.text = title
+        dialogBinding.bottomSheetTitle.setIcon(left = icon)
 
         restoreCareScheduleItem(dialogBinding, careScheduleItem)
         setDialogListeners(dialog, dialogBinding, careScheduleItem)
@@ -563,4 +553,8 @@ class CreationFragment : Fragment() {
             getString(R.string.tooltip_rotating)
         )
     }
+
+    @TestOnly
+    fun getTitleInputLayoutMaxLength(): Int = binding.titleInputLayout.counterMaxLength
 }
+

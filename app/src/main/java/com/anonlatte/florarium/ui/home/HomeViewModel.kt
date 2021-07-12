@@ -2,36 +2,33 @@ package com.anonlatte.florarium.ui.home
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
-import com.anonlatte.florarium.db.models.Plant
-import com.anonlatte.florarium.db.models.RegularSchedule
+import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.repository.MainRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
     private val mainRepository = MainRepository(application)
 
-    val plantsList: LiveData<List<Plant>> = liveData {
-        val data = mainRepository.getPlants()
-        emitSource(data)
+    private val plantsListFlow = flow { emit(mainRepository.getPlants()) }
+    private val regularSchedulesListFlow = flow { emit(mainRepository.getRegularScheduleList()) }
+
+    val plantsToSchedules: Flow<List<PlantWithSchedule>> = combine(
+        plantsListFlow, regularSchedulesListFlow
+    ) { plantsList, schedulesList ->
+        plantsList.map { plant ->
+            val associatedSchedule = schedulesList.first { it.plantId == plant.plantId }
+            PlantWithSchedule(plant, associatedSchedule)
+        }
     }
 
-    val regularSchedulesList: LiveData<List<RegularSchedule>> = liveData {
-        val data = mainRepository.getRegularScheduleList()
-        emitSource(data)
-    }
-
-    suspend fun deletePlants(plants: List<Plant>?): LiveData<Int> {
-        return if (plants != null) {
-            withContext(viewModelScope.coroutineContext + Dispatchers.IO) {
-                MutableLiveData(mainRepository.deletePlants(plants))
-            }
+    fun deletePlants(plants: List<PlantWithSchedule>): Flow<Int> = flow {
+        if (plants.isEmpty()) {
+            emit(0)
         } else {
-            MutableLiveData(0)
+            val deletedAmount = mainRepository.deletePlants(plants.map { it.plant })
+            emit(deletedAmount)
         }
     }
 }

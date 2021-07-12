@@ -29,4 +29,5 @@
     <string name="successful_multiple_deletion">Deleted successful!</string>
     <string name="error_plant_deletion">Something went wrong</string>
     <string name="btn_add_plant">Add plant</string>
+    <string name="btn_add_photo">Add photo</string>
 </resources>
