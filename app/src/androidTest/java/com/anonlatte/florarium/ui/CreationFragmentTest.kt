@@ -34,7 +34,7 @@ class CreationFragmentTest {
 
     @Before
     fun launchFragment() {
-        fragment = launchFragmentInContainer<CreationFragment>(themeResId = R.style.AppTheme)
+        fragment = launchFragmentInContainer(themeResId = R.style.AppTheme)
     }
 
     @Test

@@ -50,11 +50,11 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin_normal"
             android:layout_marginBottom="@dimen/margin_normal"
-            android:drawableStart="@{icon}"
-            android:drawableLeft="@{icon}"
             android:drawablePadding="@dimen/margin_small"
             android:text="@{title}"
             tools:drawableLeft="@drawable/ic_outline_drop_24"
+            app:drawableLeftCompat="@{icon}"
+            app:drawableStartCompat="@{icon}"
             tools:text="Bottom Sheet Title" />
 
         <com.anonlatte.florarium.ui.custom.BottomSheetItem
@@ -62,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:icon="@drawable/ic_outline_drop_24"
-            app:item_type="item_type_deafult"
+            app:item_type="item_type_default"
             app:title="@string/title_interval_in_days" />
 
         <com.anonlatte.florarium.ui.custom.BottomSheetItem
@@ -94,7 +94,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/margin_small"
-                android:layout_marginRight="@dimen/margin_small"
                 android:text="@android:string/cancel"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/okButton"
@@ -106,7 +105,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin_small"
-                android:layout_marginLeft="@dimen/margin_small"
                 android:text="@android:string/ok"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -13,6 +13,7 @@ import com.anonlatte.florarium.db.models.Plant
 import com.anonlatte.florarium.db.models.RegularSchedule
 import com.anonlatte.florarium.utilities.TimeStampHelper
 
+// FIXME: g.proshunin | 12.07.2021-1:38 PM migrate to listAdapter
 class PlantsAdapter :
     RecyclerView.Adapter<PlantsAdapter.PlantsViewHolder>() {
     var plantsList = emptyList<Plant>()
@@ -24,7 +25,6 @@ class PlantsAdapter :
     }
 
     override fun getItemId(position: Int): Long = position.toLong()
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlantsViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListItemPlantBinding.inflate(inflater, parent, false)
@@ -41,7 +41,6 @@ class PlantsAdapter :
     }
 
     override fun getItemCount(): Int = plantsList.size
-
     override fun onBindViewHolder(holder: PlantsViewHolder, position: Int) {
         if (selectionTracker != null) {
             holder.bind(plantsList[position], selectionTracker!!.isSelected(position.toLong()))

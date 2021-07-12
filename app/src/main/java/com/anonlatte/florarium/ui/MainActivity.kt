@@ -1,4 +1,4 @@
-package com.anonlatte.florarium
+package com.anonlatte.florarium.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -6,6 +6,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import com.anonlatte.florarium.R
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {

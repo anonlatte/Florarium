@@ -86,7 +86,6 @@
                             android:layout_height="@dimen/size_image_button"
                             android:layout_gravity="end|bottom"
                             android:layout_marginEnd="@dimen/margin_normal"
-                            android:layout_marginRight="@dimen/margin_normal"
                             android:layout_marginBottom="@dimen/margin_normal"
                             app:backgroundTint="@color/iconsColor"
                             app:icon="@drawable/ic_outline_camera_24"
@@ -109,7 +108,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="start"
                         android:layout_marginStart="@dimen/margin_normal"
-                        android:layout_marginLeft="@dimen/margin_normal"
                         android:layout_marginBottom="@dimen/margin_normal"
                         android:text="@string/title_care_schedule" />
 

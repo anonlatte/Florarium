@@ -28,4 +28,5 @@
     <string name="successful_single_deletion">%s is deleted!</string>
     <string name="successful_multiple_deletion">Deleted successful!</string>
     <string name="error_plant_deletion">Something went wrong</string>
+    <string name="btn_add_plant">Add plant</string>
 </resources>

@@ -73,7 +73,7 @@ class CreationFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
         _binding!!.viewModel = viewModel
 
@@ -242,7 +242,7 @@ class CreationFragment : Fragment() {
             val plantAlarm = PlantAlarm(
                 randomRequestId,
                 viewModel.plant.name!!,
-                scheduleType.name.toLowerCase(Locale.ROOT),
+                scheduleType.name.lowercase(),
                 scheduleMap[scheduleType]!![0]!!.toLong(), // interval
                 scheduleMap[scheduleType]!![1] // last care
             ).also { plantAlarm ->
@@ -306,6 +306,7 @@ class CreationFragment : Fragment() {
     }
 
     private fun openImageCaptureIntent() {
+        // FIXME: g.proshunin | 12.07.2021-1:37 PM migrate to activity result api
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
             takePictureIntent.resolveActivity(requireContext().packageManager)?.also {
                 val photoFile = try {
