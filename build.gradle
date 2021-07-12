@@ -10,7 +10,6 @@ buildscript {
         versionName = "1.0"
         // App dependencies
         appCompatVersion = '1.3.0'
-        archCoreVersion = "2.1.0"
         constraintLayoutVersion = '2.0.4'
         coreVersion = '1.6.0'
         coilVersion = "1.0.0"

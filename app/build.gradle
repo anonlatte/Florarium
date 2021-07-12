@@ -95,7 +95,6 @@ dependencies {
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
 
-    androidTestImplementation "androidx.arch.core:core-testing:$archCoreVersion"
     androidTestImplementation "androidx.navigation:navigation-testing:$navigationVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.test.ext:junit:$junitExtVersion"

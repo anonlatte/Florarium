@@ -36,12 +36,14 @@ import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.extensions.appComponent
+import com.anonlatte.florarium.extensions.launchWhenStarted
 import com.anonlatte.florarium.extensions.load
 import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
@@ -122,19 +124,16 @@ class CreationFragment : Fragment() {
     }
 
     private fun subscribeUi() {
-        viewModel.isPlantCreated.observe(
-            viewLifecycleOwner,
-            {
-                if (it) {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.message_plant_is_added),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    findNavController().navigateUp()
-                }
+        viewModel.isPlantCreated.onEach {
+            if (it) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.message_plant_is_added),
+                    Toast.LENGTH_SHORT
+                ).show()
+                findNavController().navigateUp()
             }
-        )
+        }.launchWhenStarted(lifecycleScope)
     }
 
     private fun restoreCareSchedule() {

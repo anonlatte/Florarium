@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.data
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,15 +11,11 @@ import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PlantAlarmDaoTest {
-
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var scheduleDao: PlantAlarmDao
     private lateinit var db: AppDatabase

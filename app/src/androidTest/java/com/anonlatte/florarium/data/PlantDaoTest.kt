@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.data
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -12,29 +11,27 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PlantDaoTest {
 
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     private lateinit var plantDao: PlantDao
     private lateinit var db: AppDatabase
     private val plant = testPlants[0]
 
     @Before
-    fun createDb() = runBlocking {
+    fun createDb() {
         db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
         ).build()
         plantDao = db.plantDao()
-        plantDao.createMultiple(testPlants)
-        plantDao.create(plant)
+        runBlocking {
+            plantDao.createMultiple(testPlants)
+            plantDao.create(plant)
+        }
     }
 
     @After

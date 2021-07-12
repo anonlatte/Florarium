@@ -1,13 +1,13 @@
 package com.anonlatte.florarium.ui.creation
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.app.utils.getTimestampFromDaysAgo
 import com.anonlatte.florarium.data.model.*
 import com.anonlatte.florarium.data.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,8 +22,9 @@ class CreationViewModel @Inject constructor(
         private set
     private var isPlantExist = false
 
-    private var isPlantCreatedData = MutableLiveData(false)
-    var isPlantCreated: LiveData<Boolean> = isPlantCreatedData
+    private var isPlantCreatedData = MutableStateFlow(false)
+    var isPlantCreated = isPlantCreatedData.asStateFlow()
+
     fun addPlantToGarden() {
         if (!isPlantExist) {
             viewModelScope.launch {
