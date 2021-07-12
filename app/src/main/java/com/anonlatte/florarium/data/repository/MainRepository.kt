@@ -18,13 +18,16 @@ class MainRepository @Inject constructor(
     private val plantDao: PlantDao,
     private val regularScheduleDao: RegularScheduleDao,
     private val winterScheduleDao: WinterScheduleDao
-) {
+) : IMainRepository {
 
-    suspend fun createPlant(plant: Plant): Long = plantDao.create(plant)
-    suspend fun getPlants(): List<Plant> = plantDao.getPlants()
-    suspend fun updatePlant(plant: Plant): Int = plantDao.update(plant)
-    suspend fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
-    suspend fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
+    override suspend fun createPlant(plant: Plant): Long = plantDao.create(plant)
+    override suspend fun getPlants(): List<Plant> = plantDao.getPlants()
+    override suspend fun updatePlant(plant: Plant): Int = plantDao.update(plant)
+    override suspend fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
+    override suspend fun addSchedule(
+        regularSchedule: RegularSchedule?,
+        winterSchedule: WinterSchedule?
+    ) {
         db.withTransaction {
             if (regularSchedule?.plantId != null) {
                 regularScheduleDao.create(regularSchedule)
@@ -35,7 +38,10 @@ class MainRepository @Inject constructor(
         }
     }
 
-    suspend fun updateSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
+    override suspend fun updateSchedule(
+        regularSchedule: RegularSchedule?,
+        winterSchedule: WinterSchedule?
+    ) {
         db.withTransaction {
             if (regularSchedule?.plantId != null) {
                 regularScheduleDao.update(regularSchedule)
@@ -46,7 +52,10 @@ class MainRepository @Inject constructor(
         }
     }
 
-    suspend fun getRegularScheduleList() = regularScheduleDao.getSchedules()
-    suspend fun createPlantAlarm(plantAlarm: PlantAlarm): Long = plantAlarmDao.create(plantAlarm)
-    suspend fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
+    override suspend fun getRegularScheduleList() = regularScheduleDao.getSchedules()
+    override suspend fun createPlantAlarm(plantAlarm: PlantAlarm): Long {
+        return plantAlarmDao.create(plantAlarm)
+    }
+
+    override suspend fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
 }
