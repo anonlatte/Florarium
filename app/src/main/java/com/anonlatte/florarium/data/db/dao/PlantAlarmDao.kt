@@ -7,5 +7,5 @@ import com.anonlatte.florarium.data.model.PlantAlarm
 @Dao
 interface PlantAlarmDao : BaseDao<PlantAlarm> {
     @Query("SELECT * FROM plant_alarms")
-    fun getPlantsAlarms(): List<PlantAlarm>
+    suspend fun getPlantsAlarms(): List<PlantAlarm>
 }

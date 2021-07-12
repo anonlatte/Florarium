@@ -27,7 +27,7 @@ class PlantDaoTest {
     private val plant = testPlants[0]
 
     @Before
-    fun createDb() {
+    fun createDb() = runBlocking {
         db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
@@ -49,20 +49,20 @@ class PlantDaoTest {
     }
 
     @Test
-    fun testUpdatePlant() {
+    fun testUpdatePlant() = runBlocking {
         plant.name = "chamomile"
         val updatedId = plantDao.update(plant).toLong()
         assertThat(updatedId, equalTo(plant.plantId))
     }
 
     @Test
-    fun testDeletePlant() {
+    fun testDeletePlant() = runBlocking {
         val deletedCounter = plantDao.delete(plant)
         assertThat(deletedCounter, equalTo(1))
     }
 
     @Test
-    fun testDeletePlants() {
+    fun testDeletePlants() = runBlocking {
         val deletedCounter = plantDao.deleteMultiple(testPlants)
         assertThat(deletedCounter, equalTo(testPlants.size))
     }

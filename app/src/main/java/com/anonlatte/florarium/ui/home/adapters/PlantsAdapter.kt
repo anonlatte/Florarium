@@ -61,6 +61,7 @@ class PlantsAdapter(
             return oldItem == newItem
         }
     }
+
     class PlantsViewHolder(private val binding: ListItemPlantBinding) :
         RecyclerView.ViewHolder(binding.root), ViewHolderWithDetails<Long> {
         fun bind(plantWithSchedule: PlantWithSchedule, isActivated: Boolean = false) {
@@ -69,7 +70,9 @@ class PlantsAdapter(
                 plantImage.load(plantWithSchedule.plant.imageUrl)
                 plantImage.contentDescription = plantWithSchedule.plant.name
                 plantName.text = plantWithSchedule.plant.name
-                plantDescription.text = getFormattedSchedule(plantWithSchedule.schedule)
+                plantWithSchedule.schedule?.let { schedule ->
+                    plantDescription.text = getFormattedSchedule(schedule)
+                }
             }
         }
 

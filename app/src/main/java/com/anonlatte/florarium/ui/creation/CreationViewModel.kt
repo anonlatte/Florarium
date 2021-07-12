@@ -42,7 +42,7 @@ class CreationViewModel @Inject constructor(
         mainRepository.createPlantAlarm(plantAlarm)
     }
 
-    private fun addSchedule() {
+    private suspend fun addSchedule() {
         mainRepository.addSchedule(regularSchedule, winterSchedule)
     }
 
@@ -53,7 +53,7 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    private fun updateSchedule() {
+    private suspend fun updateSchedule() {
         mainRepository.updateSchedule(regularSchedule, winterSchedule)
     }
 

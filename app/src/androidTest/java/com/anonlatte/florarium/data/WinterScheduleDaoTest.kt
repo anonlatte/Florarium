@@ -8,6 +8,7 @@ import com.anonlatte.florarium.app.utils.getOrAwaitValue
 import com.anonlatte.florarium.app.utils.testWinterSchedules
 import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.WinterScheduleDao
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers
 import org.junit.After
@@ -27,8 +28,7 @@ class WinterScheduleDaoTest {
     private var schedule = testWinterSchedules[0]
 
     @Before
-    @Throws(Exception::class)
-    fun setUp() {
+    fun setUp() = runBlocking {
         db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
@@ -39,7 +39,6 @@ class WinterScheduleDaoTest {
     }
 
     @After
-    @Throws(Exception::class)
     fun tearDown() {
         db.close()
     }
@@ -54,20 +53,20 @@ class WinterScheduleDaoTest {
     }
 
     @Test
-    fun update() {
+    fun update() = runBlocking {
         schedule = schedule.copy(wateringInterval = 4)
         val updatedId = scheduleDao.update(schedule).toLong()
         MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.scheduleId))
     }
 
     @Test
-    fun delete() {
+    fun delete() = runBlocking {
         val deletedCounter = scheduleDao.delete(schedule)
         MatcherAssert.assertThat(deletedCounter, Matchers.equalTo(1))
     }
 
     @Test
-    fun deleteMultiple() {
+    fun deleteMultiple() = runBlocking {
         val deletedCounter = scheduleDao.deleteMultiple(testWinterSchedules)
         MatcherAssert.assertThat(deletedCounter, Matchers.equalTo(testWinterSchedules.size))
     }

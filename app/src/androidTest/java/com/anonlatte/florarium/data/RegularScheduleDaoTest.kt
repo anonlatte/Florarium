@@ -27,8 +27,7 @@ class RegularScheduleDaoTest {
     private var schedule = testRegularSchedules[0]
 
     @Before
-    @Throws(Exception::class)
-    fun setUp() {
+    fun setUp() = runBlocking {
         db = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             AppDatabase::class.java
@@ -39,7 +38,6 @@ class RegularScheduleDaoTest {
     }
 
     @After
-    @Throws(Exception::class)
     fun tearDown() {
         db.close()
     }
@@ -54,20 +52,20 @@ class RegularScheduleDaoTest {
     }
 
     @Test
-    fun update() {
+    fun update() = runBlocking {
         schedule = schedule.copy(wateringInterval = 4)
         val updatedId = scheduleDao.update(schedule).toLong()
         MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.scheduleId))
     }
 
     @Test
-    fun delete() {
+    fun delete() = runBlocking {
         val deletedCounter = scheduleDao.delete(schedule)
         MatcherAssert.assertThat(deletedCounter, Matchers.equalTo(1))
     }
 
     @Test
-    fun deleteMultiple() {
+    fun deleteMultiple() = runBlocking {
         val deletedCounter = scheduleDao.deleteMultiple(testRegularSchedules)
         MatcherAssert.assertThat(deletedCounter, Matchers.equalTo(testRegularSchedules.size))
     }

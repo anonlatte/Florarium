@@ -1,5 +1,6 @@
 package com.anonlatte.florarium.data.repository
 
+import androidx.room.withTransaction
 import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.data.db.dao.PlantDao
@@ -19,12 +20,12 @@ class MainRepository @Inject constructor(
     private val winterScheduleDao: WinterScheduleDao
 ) {
 
-    fun createPlant(plant: Plant): Long = plantDao.create(plant)
+    suspend fun createPlant(plant: Plant): Long = plantDao.create(plant)
     suspend fun getPlants(): List<Plant> = plantDao.getPlants()
-    fun updatePlant(plant: Plant): Int = plantDao.update(plant)
-    fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
-    fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
-        db.runInTransaction {
+    suspend fun updatePlant(plant: Plant): Int = plantDao.update(plant)
+    suspend fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
+    suspend fun addSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
+        db.withTransaction {
             if (regularSchedule?.plantId != null) {
                 regularScheduleDao.create(regularSchedule)
             }
@@ -34,8 +35,8 @@ class MainRepository @Inject constructor(
         }
     }
 
-    fun updateSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
-        db.runInTransaction {
+    suspend fun updateSchedule(regularSchedule: RegularSchedule?, winterSchedule: WinterSchedule?) {
+        db.withTransaction {
             if (regularSchedule?.plantId != null) {
                 regularScheduleDao.update(regularSchedule)
             }
@@ -46,6 +47,6 @@ class MainRepository @Inject constructor(
     }
 
     suspend fun getRegularScheduleList() = regularScheduleDao.getSchedules()
-    fun createPlantAlarm(plantAlarm: PlantAlarm): Long = plantAlarmDao.create(plantAlarm)
-    fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
+    suspend fun createPlantAlarm(plantAlarm: PlantAlarm): Long = plantAlarmDao.create(plantAlarm)
+    suspend fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
 }

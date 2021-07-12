@@ -7,17 +7,17 @@ import androidx.room.Update
 
 interface BaseDao<T> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun create(data: T): Long
+    suspend fun create(data: T): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun createMultiple(data: List<T>): List<Long>
+    suspend fun createMultiple(data: List<T>): List<Long>
 
     @Update
-    fun update(data: T): Int
+    suspend fun update(data: T): Int
 
     @Delete
-    fun delete(data: T): Int
+    suspend fun delete(data: T): Int
 
     @Delete
-    fun deleteMultiple(data: List<T>): Int
+    suspend fun deleteMultiple(data: List<T>): Int
 }
