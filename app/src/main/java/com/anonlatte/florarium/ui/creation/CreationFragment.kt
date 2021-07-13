@@ -24,6 +24,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.app.service.PlantsNotificationReceiver
 import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
@@ -60,15 +61,10 @@ class CreationFragment : Fragment() {
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
     private lateinit var currentPhotoPath: String
-    private val imageFile: File by lazy {
-        createImageFile()
-    }
-    private val passedPlant: Plant? by lazy {
-        arguments?.getParcelable("plant")
-    }
-    private val passedSchedule: RegularSchedule? by lazy {
-        arguments?.getParcelable("schedule")
-    }
+    private val imageFile: File by lazy { createImageFile() }
+    private val navArgs by navArgs<CreationFragmentArgs>()
+    private val passedPlant: Plant? by lazy { navArgs.plant }
+    private val passedSchedule: RegularSchedule? by lazy { navArgs.schedule }
 
     private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
         lifecycleScope.launch {
@@ -78,6 +74,7 @@ class CreationFragment : Fragment() {
         }
         binding.plantImageView.load(uri)
     }
+
     private val takePictureAction = registerForActivityResult(TakePicture()) { imageTaken ->
         if (imageTaken) {
             binding.plantImageView.load(currentPhotoPath)

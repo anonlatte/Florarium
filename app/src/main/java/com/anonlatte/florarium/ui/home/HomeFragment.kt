@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -61,13 +60,8 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
         plantsAdapter = PlantsAdapter { plant, schedule ->
-            findNavController().navigate(
-                R.id.action_homeFragment_to_creationFragment,
-                bundleOf(
-                    "plant" to plant,
-                    "schedule" to schedule
-                )
-            )
+            val actionHomeToCreation = HomeFragmentDirections.actionHomeToCreation(plant, schedule)
+            findNavController().navigate(actionHomeToCreation)
         }.also {
             setupRecyclerView(it)
             subscribeUI(it)
@@ -75,7 +69,7 @@ class HomeFragment : Fragment() {
         setupSelectionTracker()
 
         binding.plantAddButton.setOnClickListener {
-            findNavController().navigate(R.id.action_homeFragment_to_creationFragment)
+            findNavController().navigate(R.id.action_home_to_creation)
         }
 
         return binding.root
@@ -98,9 +92,7 @@ class HomeFragment : Fragment() {
             actionMode = requireActivity().startActionMode(object : ActionMode.Callback {
                 override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
                     when (item.itemId) {
-                        R.id.delete -> {
-                            deleteSelectedPlants()
-                        }
+                        R.id.delete -> deleteSelectedPlants()
                     }
                     return true
                 }
@@ -151,20 +143,17 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupSelectionTracker() {
-        SelectionTracker.Builder(
+        tracker = SelectionTracker.Builder(
             "plant-selection",
             binding.plantsList,
-            PlantKeyProvider(binding.plantsList),
+            PlantKeyProvider(plantsAdapter),
             PlantItemDetailsLookup(binding.plantsList),
             StorageStrategy.createLongStorage()
         ).withSelectionPredicate(
             SelectionPredicates.createSelectAnything()
-        ).build().let {
-            // FIXME: g.proshunin | 12.07.2021-5:52 PM
-            // it.addObserver(trackerObserver)
-            tracker = it
-            plantsAdapter.setTracker(tracker)
-        }
+        ).build()
+        tracker.addObserver(trackerObserver)
+        plantsAdapter.setTracker(tracker)
     }
 }
 

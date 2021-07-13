@@ -1,14 +1,12 @@
 package com.anonlatte.florarium.ui.home.adapters
 
 import androidx.recyclerview.selection.ItemKeyProvider
-import androidx.recyclerview.widget.RecyclerView
 
-class PlantKeyProvider(private val recyclerView: RecyclerView) :
-    ItemKeyProvider<Long>(SCOPE_MAPPED) {
-    override fun getKey(position: Int): Long? = recyclerView.adapter?.getItemId(position)
+class PlantKeyProvider(
+    private val adapter: PlantsAdapter
+) : ItemKeyProvider<Long>(SCOPE_MAPPED) {
+    override fun getKey(position: Int): Long = adapter.currentList[position].plant.plantId
     override fun getPosition(key: Long): Int {
-        return recyclerView.findViewHolderForItemId(
-            key
-        )?.layoutPosition ?: RecyclerView.NO_POSITION
+        return adapter.currentList.indexOfFirst { it.plant.plantId == key }
     }
 }

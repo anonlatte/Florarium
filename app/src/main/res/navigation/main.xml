@@ -10,7 +10,7 @@
         android:label="@string/label_fragment_home"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_homeFragment_to_creationFragment"
+            android:id="@+id/action_home_to_creation"
             app:destination="@id/creationFragment"
             app:enterAnim="@anim/nav_default_pop_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
@@ -20,6 +20,10 @@
                 android:name="plant"
                 android:defaultValue="@null"
                 app:argType="com.anonlatte.florarium.data.model.Plant" />
+            <argument
+                android:name="schedule"
+                android:defaultValue="@null"
+                app:argType="com.anonlatte.florarium.data.model.RegularSchedule" />
         </action>
     </fragment>
 
@@ -27,6 +31,15 @@
         android:id="@+id/creationFragment"
         android:name="com.anonlatte.florarium.ui.creation.CreationFragment"
         android:label="@string/label_fragment_plant_creation"
-        tools:layout="@layout/fragment_plant_creation" />
+        tools:layout="@layout/fragment_plant_creation">
+        <argument
+            android:name="plant"
+            android:defaultValue="@null"
+            app:argType="com.anonlatte.florarium.data.model.Plant" />
+        <argument
+            android:name="schedule"
+            android:defaultValue="@null"
+            app:argType="com.anonlatte.florarium.data.model.RegularSchedule" />
+    </fragment>
 
 </navigation>
