@@ -30,4 +30,6 @@
     <string name="error_plant_deletion">Something went wrong</string>
     <string name="btn_add_plant">Add plant</string>
     <string name="btn_add_photo">Add photo</string>
+    <string name="btn_save">Save</string>
+    <string name="label_fragment_plant_update">Update plant</string>
 </resources>

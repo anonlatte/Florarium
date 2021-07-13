@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.widget.TooltipCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
@@ -30,9 +31,7 @@ import com.anonlatte.florarium.app.service.PlantsNotificationReceiver
 import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
 import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
-import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
-import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
@@ -40,6 +39,7 @@ import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.launchWhenStarted
 import com.anonlatte.florarium.extensions.load
 import com.anonlatte.florarium.extensions.setIcon
+import com.anonlatte.florarium.ui.MainActivity
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -62,9 +62,9 @@ class CreationFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var currentPhotoPath: String
     private val imageFile: File by lazy { createImageFile() }
-    private val navArgs by navArgs<CreationFragmentArgs>()
-    private val passedPlant: Plant? by lazy { navArgs.plant }
-    private val passedSchedule: RegularSchedule? by lazy { navArgs.schedule }
+    private val navArgs: CreationFragmentArgs by navArgs()
+    // private val passedPlant: Plant? = navArgs?.plant
+    // private val passedSchedule: RegularSchedule? = navArgs?.schedule
 
     private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
         lifecycleScope.launch {
@@ -93,17 +93,18 @@ class CreationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
-        passedPlant?.let {
-            viewModel.setPlant(it)
+        navArgs.plant?.let { plant ->
+            viewModel.setPlant(plant)
             viewModel.updatePlantExistence(true)
+            navArgs.schedule?.let { schedule ->
+                // TODO if field is null then hide/show 'not set'
+                viewModel.setSchedule(schedule)
+                restoreCareSchedule()
+            }
+            (requireActivity() as MainActivity).supportActionBar?.title = getString(
+                R.string.label_fragment_plant_update
+            )
         }
-
-        passedSchedule?.let {
-            // TODO if field is null then hide/show 'not set'
-            viewModel.setSchedule(it)
-            restoreCareSchedule()
-        }
-
         subscribeUi()
         setListeners()
         makeScheduleItemsClickable()
@@ -113,6 +114,12 @@ class CreationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (navArgs.plant != null) {
+            binding.btnAddPlant.apply {
+                setText(R.string.btn_save)
+                icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_outline_save_24)
+            }
+        }
         viewModel.plant.name?.let { plantName ->
             if (plantName.isNotEmpty()) {
                 binding.titleEditText.setText(plantName)
@@ -190,7 +197,7 @@ class CreationFragment : Fragment() {
 
     // TODO add extended validation
     private fun setListeners() {
-        binding.addPlantButton.setOnClickListener {
+        binding.btnAddPlant.setOnClickListener {
             if (binding.titleEditText.text.isNullOrEmpty()) {
                 binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
             } else if (binding.titleInputLayout.error == null) {

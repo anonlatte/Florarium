@@ -7,15 +7,9 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.closeSoftKeyboard
-import androidx.test.espresso.action.ViewActions.scrollTo
-import androidx.test.espresso.action.ViewActions.swipeUp
-import androidx.test.espresso.action.ViewActions.typeText
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.anonlatte.florarium.R
@@ -39,7 +33,7 @@ class CreationFragmentTest {
 
     @Test
     fun testEmptyPlantNameValidation() {
-        onView(withId(R.id.addPlantButton)).perform(scrollTo(), click())
+        onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
         onView(withId(R.id.titleInputLayout)).check(
             matches(hasDescendant(withText(R.string.error_empty_plant_name)))
         )
@@ -56,7 +50,7 @@ class CreationFragmentTest {
             typeText(getRandomString(invalidLength)),
             closeSoftKeyboard()
         )
-        onView(withId(R.id.addPlantButton)).perform(scrollTo(), click())
+        onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
         onView(withId(R.id.titleInputLayout)).check(
             matches(
                 hasDescendant(
@@ -83,7 +77,7 @@ class CreationFragmentTest {
             closeSoftKeyboard()
         )
         onView(withId(R.id.homeScrollView)).perform(swipeUp())
-        onView(withId(R.id.addPlantButton)).perform(scrollTo(), click())
+        onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
         assertThat(
             navController.currentDestination?.id,
             equalTo(R.id.homeFragment)

@@ -59,13 +59,13 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         subscribeUI()
-        setupSelectionTracker()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupSelectionTracker()
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_creation)
         }

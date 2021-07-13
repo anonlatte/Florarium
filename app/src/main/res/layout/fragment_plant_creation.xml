@@ -118,8 +118,8 @@
                 app:scheduleValue="@string/value_not_set"
                 app:title="@string/title_rotating" />
 
-            <Button
-                android:id="@+id/addPlantButton"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_add_plant"
                 style="@style/Widget.MaterialComponents.Button"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/button_plant_add_height"
