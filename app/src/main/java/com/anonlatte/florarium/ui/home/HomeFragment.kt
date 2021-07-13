@@ -58,21 +58,17 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-
-        plantsAdapter = PlantsAdapter { plant, schedule ->
-            val actionHomeToCreation = HomeFragmentDirections.actionHomeToCreation(plant, schedule)
-            findNavController().navigate(actionHomeToCreation)
-        }.also {
-            setupRecyclerView(it)
-            subscribeUI(it)
-        }
+        subscribeUI()
         setupSelectionTracker()
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_creation)
         }
-
-        return binding.root
     }
 
     override fun onDestroyView() {
@@ -81,7 +77,7 @@ class HomeFragment : Fragment() {
         _binding = null
     }
 
-    private fun subscribeUI(plantsAdapter: PlantsAdapter) {
+    private fun subscribeUI() {
         viewModel.plantsToSchedules.onEach {
             plantsAdapter.submitList(it)
         }.launchWhenStarted(lifecycleScope)
@@ -134,10 +130,14 @@ class HomeFragment : Fragment() {
         Toast.makeText(requireContext(), toastText, Toast.LENGTH_LONG).show()
     }
 
-    private fun setupRecyclerView(plantsAdapter: PlantsAdapter) {
+    private fun setupRecyclerView() {
+        plantsAdapter = PlantsAdapter { plant, schedule ->
+            val actionHomeToCreation = HomeFragmentDirections.actionHomeToCreation(plant, schedule)
+            findNavController().navigate(actionHomeToCreation)
+        }
         binding.plantsList.apply {
             setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(requireContext())
+            layoutManager = LinearLayoutManager(context)
             adapter = plantsAdapter
         }
     }
