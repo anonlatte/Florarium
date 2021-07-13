@@ -19,11 +19,13 @@
             <argument
                 android:name="plant"
                 android:defaultValue="@null"
-                app:argType="com.anonlatte.florarium.data.model.Plant" />
+                app:argType="com.anonlatte.florarium.data.model.Plant"
+                app:nullable="true" />
             <argument
                 android:name="schedule"
                 android:defaultValue="@null"
-                app:argType="com.anonlatte.florarium.data.model.RegularSchedule" />
+                app:argType="com.anonlatte.florarium.data.model.RegularSchedule"
+                app:nullable="true" />
         </action>
     </fragment>
 
@@ -35,11 +37,13 @@
         <argument
             android:name="plant"
             android:defaultValue="@null"
-            app:argType="com.anonlatte.florarium.data.model.Plant" />
+            app:argType="com.anonlatte.florarium.data.model.Plant"
+            app:nullable="true" />
         <argument
             android:name="schedule"
             android:defaultValue="@null"
-            app:argType="com.anonlatte.florarium.data.model.RegularSchedule" />
+            app:argType="com.anonlatte.florarium.data.model.RegularSchedule"
+            app:nullable="true" />
     </fragment>
 
 </navigation>
