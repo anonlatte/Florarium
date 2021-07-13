@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.anonlatte.florarium.data.repository.MainRepository
+import com.anonlatte.florarium.extensions.setAlarm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,11 +38,7 @@ class RestartAlarmsService : BroadcastReceiver() {
                             action = ACTION_NAME
                             putExtra("alarm", plantAlarm)
                         }
-                    plantAlarm.setAlarm(
-                        context,
-                        plantsAlarmIntent,
-                        alarmManager
-                    )
+                    plantAlarm.setAlarm(context, plantsAlarmIntent, alarmManager)
                 }
                 Timber.tag("alarm").d("had been set ${plantsAlarms.size} alarms.")
                 pendingResult.finish()
