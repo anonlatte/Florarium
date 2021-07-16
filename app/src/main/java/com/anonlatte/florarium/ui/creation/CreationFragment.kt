@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import coil.load
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.app.service.PlantsNotificationReceiver
 import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
@@ -35,7 +36,10 @@ import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
-import com.anonlatte.florarium.extensions.*
+import com.anonlatte.florarium.extensions.appComponent
+import com.anonlatte.florarium.extensions.launchWhenStarted
+import com.anonlatte.florarium.extensions.setAlarm
+import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.MainActivity
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -46,9 +50,7 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -98,6 +100,7 @@ class CreationFragment : Fragment() {
             (requireActivity() as MainActivity).supportActionBar?.title = getString(
                 R.string.label_fragment_plant_update
             )
+            binding.plantImageView.load(plant.imageUrl)
         }
         subscribeUi()
         setListeners()

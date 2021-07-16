@@ -7,12 +7,12 @@ import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
-import com.anonlatte.florarium.extensions.load
 
 class PlantsAdapter(
     private val onPlantClick: (Plant, RegularSchedule?) -> Unit

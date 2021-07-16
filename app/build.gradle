@@ -63,7 +63,6 @@ android {
 
 dependencies {
     kapt "androidx.room:room-compiler:$roomVersion"
-    kapt "com.github.bumptech.glide:compiler:$glideVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
@@ -86,12 +85,12 @@ dependencies {
 
     implementation "androidx.work:work-runtime-ktx:$workVersion"
 
-    implementation "com.github.bumptech.glide:glide:$glideVersion"
-
     implementation "com.google.android.material:material:$materialVersion"
     implementation "com.google.dagger:dagger:$daggerVersion"
 
     implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    implementation("io.coil-kt:coil:1.3.0")
 
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
