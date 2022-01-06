@@ -20,35 +20,28 @@ class MainRepository @Inject constructor(
     private val winterScheduleDao: WinterScheduleDao
 ) : IMainRepository {
 
-    override suspend fun createPlant(plant: Plant): Long = plantDao.create(plant)
+    override suspend fun createPlant(
+        plant: Plant,
+        regularSchedule: RegularSchedule,
+        winterSchedule: WinterSchedule
+    ) {
+        val plantId = plantDao.create(plant)
+        regularScheduleDao.create(regularSchedule.copy(plantId = plantId))
+        winterScheduleDao.create(winterSchedule.copy(plantId = plantId))
+    }
+
     override suspend fun getPlants(): List<Plant> = plantDao.getPlants()
     override suspend fun updatePlant(plant: Plant): Int = plantDao.update(plant)
     override suspend fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
-    override suspend fun addSchedule(
-        regularSchedule: RegularSchedule?,
-        winterSchedule: WinterSchedule?
-    ) {
-        db.withTransaction {
-            if (regularSchedule?.plantId != null) {
-                regularScheduleDao.create(regularSchedule)
-            }
-            if (winterSchedule?.plantId != null) {
-                winterScheduleDao.create(winterSchedule)
-            }
-        }
-    }
-
     override suspend fun updateSchedule(
         regularSchedule: RegularSchedule?,
         winterSchedule: WinterSchedule?
     ) {
-        db.withTransaction {
-            if (regularSchedule?.plantId != null) {
-                regularScheduleDao.update(regularSchedule)
-            }
-            if (winterSchedule?.plantId != null) {
-                winterScheduleDao.update(winterSchedule)
-            }
+        if (regularSchedule?.plantId != null) {
+            regularScheduleDao.update(regularSchedule)
+        }
+        if (winterSchedule?.plantId != null) {
+            winterScheduleDao.update(winterSchedule)
         }
     }
 

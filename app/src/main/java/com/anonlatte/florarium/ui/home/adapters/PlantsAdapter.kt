@@ -1,9 +1,9 @@
 package com.anonlatte.florarium.ui.home.adapters
 
+import android.os.Environment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,11 +13,12 @@ import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
+import java.io.File
 
 class PlantsAdapter(
     private val onPlantClick: (Plant, RegularSchedule?) -> Unit
 ) : ListAdapter<PlantWithSchedule, PlantsAdapter.PlantsViewHolder>(DiffCallback()) {
-    private var selectionTracker: SelectionTracker<Long>? = null
+    // private var selectionTracker: SelectionTracker<Long>? = null
 
     init {
         setHasStableIds(true)
@@ -34,17 +35,22 @@ class PlantsAdapter(
 
     override fun onBindViewHolder(holder: PlantsViewHolder, position: Int) {
         val item = getItem(position)
+        holder.bind(item, false)
+/*
         selectionTracker?.let { tracker ->
             holder.bind(item, tracker.isSelected(position.toLong()))
         }
+*/
         holder.itemView.setOnClickListener {
             onPlantClick(item.plant, item.schedule)
         }
     }
 
+/*
     internal fun setTracker(tracker: SelectionTracker<Long>) {
         selectionTracker = tracker
     }
+*/
 
     class DiffCallback : DiffUtil.ItemCallback<PlantWithSchedule>() {
         override fun areItemsTheSame(
@@ -67,7 +73,12 @@ class PlantsAdapter(
         fun bind(plantWithSchedule: PlantWithSchedule, isActivated: Boolean = false) {
             with(binding) {
                 root.isActivated = isActivated
-                plantImage.load(plantWithSchedule.plant.imageUrl)
+                plantImage.load(
+                    File(
+                        itemView.context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                        plantWithSchedule.plant.imageUrl
+                    )
+                )
                 plantImage.contentDescription = plantWithSchedule.plant.name
                 plantName.text = plantWithSchedule.plant.name
                 plantWithSchedule.schedule?.let { schedule ->

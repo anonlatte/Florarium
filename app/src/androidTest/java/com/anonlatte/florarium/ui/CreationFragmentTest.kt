@@ -36,7 +36,7 @@ class CreationFragmentTest {
     @Test
     fun testEmptyPlantNameValidation() {
         onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
-        onView(withId(R.id.titleInputLayout)).check(
+        onView(withId(R.id.til_title)).check(
             matches(hasDescendant(withText(R.string.error_empty_plant_name)))
         )
     }
@@ -48,12 +48,12 @@ class CreationFragmentTest {
             maxFieldLength = it.getTitleInputLayoutMaxLength()
         }
         val invalidLength = maxFieldLength + 1
-        onView(withId(R.id.titleEditText)).perform(
+        onView(withId(R.id.et_title)).perform(
             typeText(getRandomString(invalidLength)),
             closeSoftKeyboard()
         )
         onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
-        onView(withId(R.id.titleInputLayout)).check(
+        onView(withId(R.id.til_title)).check(
             matches(
                 hasDescendant(
                     withText(
@@ -74,7 +74,7 @@ class CreationFragmentTest {
         fragment.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
         }
-        onView(withId(R.id.titleEditText)).perform(
+        onView(withId(R.id.et_title)).perform(
             typeText(getRandomString()),
             closeSoftKeyboard()
         )

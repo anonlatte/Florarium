@@ -7,9 +7,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.selection.SelectionPredicates
 import androidx.recyclerview.selection.SelectionTracker
-import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.data.model.Plant
@@ -17,8 +15,6 @@ import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
 import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.launchWhenStarted
-import com.anonlatte.florarium.ui.home.adapters.PlantItemDetailsLookup
-import com.anonlatte.florarium.ui.home.adapters.PlantKeyProvider
 import com.anonlatte.florarium.ui.home.adapters.PlantsAdapter
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -65,7 +61,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        setupSelectionTracker()
+        // setupSelectionTracker()
         binding.plantAddButton.setOnClickListener {
             findNavController().navigate(R.id.action_home_to_creation)
         }
@@ -142,6 +138,7 @@ class HomeFragment : Fragment() {
         }
     }
 
+/*
     private fun setupSelectionTracker() {
         tracker = SelectionTracker.Builder(
             "plant-selection",
@@ -155,5 +152,6 @@ class HomeFragment : Fragment() {
         tracker.addObserver(trackerObserver)
         plantsAdapter.setTracker(tracker)
     }
+*/
 }
 

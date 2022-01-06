@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -56,28 +57,34 @@ import kotlin.random.Random
 
 // TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
-    @Inject
-    lateinit var viewModel: CreationViewModel
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
-    private lateinit var currentPhotoPath: String
-    private val imageFile: File by lazy { createImageFile() }
+
     private val navArgs: CreationFragmentArgs by navArgs()
 
+    private val imageFile: File by lazy { createImageFile() }
+    private val currentPhotoPath: String get() = imageFile.absolutePath
+
     private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
-        storeBitmapFromUri(uri)
-        viewModel.updatePlantImage(imageFile.path)
+        if (uri == null) return@registerForActivityResult
+        if (!isImageSaved()) return@registerForActivityResult
+        saveDataFromUri(imageFile, uri)
         Timber.d("File ${imageFile.name} is created in ${uri.path}")
+        viewModel.updatePlantImage(currentPhotoPath)
         binding.plantImageView.load(uri)
     }
 
     private val takePictureAction = registerForActivityResult(TakePicture()) { imageTaken ->
         if (imageTaken) {
-            binding.plantImageView.load(currentPhotoPath)
+            if (!isImageSaved()) return@registerForActivityResult
+            Timber.d("File ${imageFile.name} is created in $currentPhotoPath")
             viewModel.updatePlantImage(currentPhotoPath)
+            binding.plantImageView.load(File(currentPhotoPath))
         }
     }
 
+    @Inject
+    lateinit var viewModel: CreationViewModel
     override fun onAttach(context: Context) {
         super.onAttach(context)
         context.appComponent.inject(this)
@@ -100,11 +107,17 @@ class CreationFragment : Fragment() {
             (requireActivity() as MainActivity).supportActionBar?.title = getString(
                 R.string.label_fragment_plant_update
             )
-            binding.plantImageView.load(plant.imageUrl)
+            binding.plantImageView.load("file://${plant.imageUrl}") {
+                listener(
+                    onError = { _, throwable ->
+                        Timber.e(throwable)
+                    }
+                )
+            }
         }
         subscribeUi()
         setListeners()
-        makeScheduleItemsClickable()
+        addImageButtonTooltip()
 
         return binding.root
     }
@@ -117,10 +130,21 @@ class CreationFragment : Fragment() {
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_outline_save_24)
             }
         }
-        viewModel.plant.name?.let { plantName ->
-            if (plantName.isNotEmpty()) {
-                binding.titleEditText.setText(plantName)
-            }
+        if (viewModel.plant.name.isNotEmpty()) {
+            binding.etTitle.setText(viewModel.plant.name)
+        }
+    }
+
+    private fun isImageSaved(): Boolean {
+        return if (!imageFile.exists()) {
+            Toast.makeText(
+                requireContext(),
+                R.string.error_image_not_saved,
+                Toast.LENGTH_SHORT
+            ).show()
+            false
+        } else {
+            true
         }
     }
 
@@ -166,60 +190,38 @@ class CreationFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        if (!viewModel.isPlantCreated.value) {
-            imageFile.delete()
-        }
-    }
-
-    private fun storeBitmapFromUri(uri: Uri): Bitmap? {
-        return requireContext().contentResolver.openInputStream(uri)?.let { inputStream ->
-            val outputStream = FileOutputStream(imageFile)
-            BitmapFactory.decodeStream(inputStream).also { bitmap ->
-                inputStream.close()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 85, outputStream)
-                } else {
-                    bitmap.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
-                }
-                outputStream.flush()
-                outputStream.close()
-            }
-        }
+        imageFile.delete()
     }
 
     // TODO add extended validation
     private fun setListeners() {
         with(binding) {
             btnAddPlant.setOnClickListener {
-                if (titleEditText.text.isNullOrEmpty()) {
-                    titleInputLayout.error = getString(R.string.error_empty_plant_name)
-                } else if (titleInputLayout.error == null) {
-                    titleInputLayout.error = null
-                    viewModel.setPlantName(titleEditText.text)
+                if (viewModel.plant.name.isEmpty()) {
+                    tilTitle.error = getString(R.string.error_empty_plant_name)
+                } else {
+                    tilTitle.error = null
                     viewModel.addPlantToGarden()
                     progressCreation.isVisible = true
                     createAlarms()
-                    viewModel.updateIsPlantCreated(true)
                 }
             }
-            titleEditText.doOnTextChanged { text, _, _, _ ->
+            etTitle.doOnTextChanged { text, _, _, _ ->
+                viewModel.setPlantName(text)
                 when {
                     text.isNullOrEmpty() -> {
-                        titleInputLayout.error = getString(R.string.error_empty_plant_name)
+                        tilTitle.error = getString(R.string.error_empty_plant_name)
                     }
-                    text.length > titleInputLayout.counterMaxLength -> {
-                        titleInputLayout.error =
-                            getString(
-                                R.string.error_long_plant_name,
-                                text.length
-                            )
+                    text.length > tilTitle.counterMaxLength -> {
+                        tilTitle.isCounterEnabled = true
                     }
                     else -> {
-                        titleInputLayout.error = null
+                        tilTitle.error = null
+                        tilTitle.isCounterEnabled = false
                     }
                 }
             }
-            loadImage.setOnClickListener { showIntentChooseDialog() }
+            btnLoadImage.setOnClickListener { showImageSelectDialog() }
             setScheduleItemListener(wateringListItem)
             setScheduleItemListener(sprayingListItem)
             setScheduleItemListener(fertilizingListItem)
@@ -239,7 +241,7 @@ class CreationFragment : Fragment() {
                 val randomRequestId = Random.nextLong()
                 val plantAlarm = PlantAlarm(
                     randomRequestId,
-                    viewModel.plant.name ?: UUID.randomUUID().toString(),
+                    viewModel.plant.name,
                     scheduleType.name.lowercase(),
                     interval,
                     lastCare
@@ -281,8 +283,7 @@ class CreationFragment : Fragment() {
             return schedule
         }
     }
-
-    private fun showIntentChooseDialog() {
+    private fun showImageSelectDialog() {
         val multiItems = arrayOf("Camera", "Gallery")
         MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(getString(R.string.title_intent_image_select))
@@ -294,8 +295,7 @@ class CreationFragment : Fragment() {
                 }
                 dialog.dismiss()
             }
-            show()
-        }
+        }.show()
     }
 
     private fun openImageSelectIntent() {
@@ -303,28 +303,45 @@ class CreationFragment : Fragment() {
     }
 
     private fun openImageCaptureIntent() {
-        runCatching {
-            createImageFile()
-        }.onFailure {
-            Timber.e(it)
-        }.getOrNull()?.also {
-            val photoUri: Uri = FileProvider.getUriForFile(
-                requireContext(),
-                PROVIDER_AUTHORITY,
-                it
-            )
-            takePictureAction.launch(photoUri)
-        }
+        val photoUri: Uri = FileProvider.getUriForFile(
+            requireContext(),
+            PROVIDER_AUTHORITY,
+            imageFile
+        )
+        takePictureAction.launch(photoUri)
     }
 
-    private fun getFormattedTimeStamp(): String =
-        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    /** Returns string in format `yyyyMMdd_HHmmss`of current timestamp from [Date] instance */
+    private fun getFormattedTimeStamp(): String = SimpleDateFormat(
+        "yyyyMMdd_HHmmss", Locale.getDefault()
+    ).format(Date())
 
+    /**
+     * Creates a file with name `yyyyMMdd_HHmmss.jpg`
+     * */
     private fun createImageFile(): File {
         val timeStamp = getFormattedTimeStamp()
-        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(timeStamp, ".jpg", storageDir).apply {
-            currentPhotoPath = absolutePath
+        val storageDir: File? = requireContext().getExternalFilesDir(
+            Environment.DIRECTORY_PICTURES
+        )
+        return File.createTempFile(timeStamp, ".jpg", storageDir)
+    }
+
+    /**
+     * Saves data from uri to file
+     * */
+    private fun saveDataFromUri(file: File, uri: Uri) {
+        val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
+        val outputStream = FileOutputStream(file)
+        BitmapFactory.decodeStream(inputStream).also { bitmap ->
+            inputStream.close()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 85, outputStream)
+            } else {
+                bitmap.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
+            }
+            outputStream.flush()
+            outputStream.close()
         }
     }
 
@@ -467,27 +484,15 @@ class CreationFragment : Fragment() {
     private fun clearScheduleFields(scheduleTypeValue: Int?) {
         viewModel.clearScheduleField(ScheduleType.toScheduleType(scheduleTypeValue))
     }
-
-    private fun makeScheduleItemsClickable() {
+    private fun addImageButtonTooltip() {
         TooltipCompat.setTooltipText(
-            binding.wateringListItem,
-            getString(R.string.tooltip_watering)
-        )
-        TooltipCompat.setTooltipText(
-            binding.sprayingListItem,
-            getString(R.string.tooltip_spraying)
-        )
-        TooltipCompat.setTooltipText(
-            binding.fertilizingListItem,
-            getString(R.string.tooltip_fertilizing)
-        )
-        TooltipCompat.setTooltipText(
-            binding.rotatingListItem,
-            getString(R.string.tooltip_rotating)
+            binding.btnLoadImage,
+            getString(R.string.btn_load_image)
         )
     }
 
+    /** Returns max field length */
     @TestOnly
-    fun getTitleInputLayoutMaxLength(): Int = binding.titleInputLayout.counterMaxLength
+    fun getTitleInputLayoutMaxLength(): Int = binding.tilTitle.counterMaxLength
 }
 

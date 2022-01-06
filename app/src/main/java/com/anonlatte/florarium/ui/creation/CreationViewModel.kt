@@ -24,15 +24,15 @@ class CreationViewModel @Inject constructor(
 
     private var isPlantCreatedData = MutableStateFlow(false)
     var isPlantCreated = isPlantCreatedData.asStateFlow()
-
     fun addPlantToGarden() {
         if (!isPlantExist) {
             viewModelScope.launch {
-                mainRepository.createPlant(plant).also { plantId ->
-                    regularSchedule = regularSchedule.copy(plantId = plantId)
-                    winterSchedule = winterSchedule.copy(plantId = plantId)
-                }
-                addSchedule()
+                mainRepository.createPlant(
+                    plant = plant,
+                    regularSchedule = regularSchedule,
+                    winterSchedule = winterSchedule
+                )
+                updateIsPlantCreated(true)
             }
         } else {
             updatePlant()
@@ -41,10 +41,6 @@ class CreationViewModel @Inject constructor(
 
     fun addPlantAlarm(plantAlarm: PlantAlarm) = viewModelScope.launch(Dispatchers.IO) {
         mainRepository.createPlantAlarm(plantAlarm)
-    }
-
-    private suspend fun addSchedule() {
-        mainRepository.addSchedule(regularSchedule, winterSchedule)
     }
 
     private fun updatePlant() {
@@ -97,7 +93,7 @@ class CreationViewModel @Inject constructor(
     }
 
     fun clearScheduleField(toScheduleType: ScheduleType?) = updateSchedule(toScheduleType)
-    fun updatePlantImage(path: String?) {
+    fun updatePlantImage(path: String) {
         plant.imageUrl = path
     }
 

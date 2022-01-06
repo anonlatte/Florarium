@@ -10,8 +10,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Plant(
     @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id") val plantId: Long = 0,
-    var name: String? = null,
-    var imageUrl: String? = null,
+    var name: String = "",
+    var imageUrl: String = "",
     var temperature: Double? = null, // In celsius
     var humidity: Double? = null, // In percents
     var soilAcidity: Double? = null, // pH
