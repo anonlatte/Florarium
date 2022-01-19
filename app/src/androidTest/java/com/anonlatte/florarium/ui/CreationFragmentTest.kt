@@ -9,7 +9,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.anonlatte.florarium.R
@@ -34,7 +36,7 @@ class CreationFragmentTest {
     @Test
     fun testEmptyPlantNameValidation() {
         onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
-        onView(withId(R.id.titleInputLayout)).check(
+        onView(withId(R.id.til_title)).check(
             matches(hasDescendant(withText(R.string.error_empty_plant_name)))
         )
     }
@@ -46,12 +48,12 @@ class CreationFragmentTest {
             maxFieldLength = it.getTitleInputLayoutMaxLength()
         }
         val invalidLength = maxFieldLength + 1
-        onView(withId(R.id.titleEditText)).perform(
+        onView(withId(R.id.et_title)).perform(
             typeText(getRandomString(invalidLength)),
             closeSoftKeyboard()
         )
         onView(withId(R.id.btn_add_plant)).perform(scrollTo(), click())
-        onView(withId(R.id.titleInputLayout)).check(
+        onView(withId(R.id.til_title)).check(
             matches(
                 hasDescendant(
                     withText(
@@ -72,7 +74,7 @@ class CreationFragmentTest {
         fragment.onFragment {
             Navigation.setViewNavController(it.requireView(), navController)
         }
-        onView(withId(R.id.titleEditText)).perform(
+        onView(withId(R.id.et_title)).perform(
             typeText(getRandomString()),
             closeSoftKeyboard()
         )

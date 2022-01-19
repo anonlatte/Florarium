@@ -20,12 +20,14 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import coil.load
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.app.service.PlantsNotificationReceiver
 import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
@@ -37,15 +39,13 @@ import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.launchWhenStarted
-import com.anonlatte.florarium.extensions.load
+import com.anonlatte.florarium.extensions.setAlarm
 import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.MainActivity
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
 import java.io.File
@@ -53,35 +53,38 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
+import kotlin.random.Random
 
 // TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
-    @Inject
-    lateinit var viewModel: CreationViewModel
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
-    private lateinit var currentPhotoPath: String
-    private val imageFile: File by lazy { createImageFile() }
+
     private val navArgs: CreationFragmentArgs by navArgs()
-    // private val passedPlant: Plant? = navArgs?.plant
-    // private val passedSchedule: RegularSchedule? = navArgs?.schedule
+
+    private val imageFile: File by lazy { createImageFile() }
+    private val currentPhotoPath: String get() = imageFile.absolutePath
 
     private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
-        lifecycleScope.launch {
-            storeBitmapFromUri(uri)
-            viewModel.updatePlantImage(imageFile.path)
-            Timber.d("File ${imageFile.name} is created in ${uri.path}")
-        }
+        if (uri == null) return@registerForActivityResult
+        if (!isImageSaved()) return@registerForActivityResult
+        saveDataFromUri(imageFile, uri)
+        Timber.d("File ${imageFile.name} is created in ${uri.path}")
+        viewModel.updatePlantImage(currentPhotoPath)
         binding.plantImageView.load(uri)
     }
 
     private val takePictureAction = registerForActivityResult(TakePicture()) { imageTaken ->
         if (imageTaken) {
-            binding.plantImageView.load(currentPhotoPath)
+            if (!isImageSaved()) return@registerForActivityResult
+            Timber.d("File ${imageFile.name} is created in $currentPhotoPath")
             viewModel.updatePlantImage(currentPhotoPath)
+            binding.plantImageView.load(File(currentPhotoPath))
         }
     }
 
+    @Inject
+    lateinit var viewModel: CreationViewModel
     override fun onAttach(context: Context) {
         super.onAttach(context)
         context.appComponent.inject(this)
@@ -104,10 +107,17 @@ class CreationFragment : Fragment() {
             (requireActivity() as MainActivity).supportActionBar?.title = getString(
                 R.string.label_fragment_plant_update
             )
+            binding.plantImageView.load("file://${plant.imageUrl}") {
+                listener(
+                    onError = { _, throwable ->
+                        Timber.e(throwable)
+                    }
+                )
+            }
         }
         subscribeUi()
         setListeners()
-        makeScheduleItemsClickable()
+        addImageButtonTooltip()
 
         return binding.root
     }
@@ -120,10 +130,21 @@ class CreationFragment : Fragment() {
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_outline_save_24)
             }
         }
-        viewModel.plant.name?.let { plantName ->
-            if (plantName.isNotEmpty()) {
-                binding.titleEditText.setText(plantName)
-            }
+        if (viewModel.plant.name.isNotEmpty()) {
+            binding.etTitle.setText(viewModel.plant.name)
+        }
+    }
+
+    private fun isImageSaved(): Boolean {
+        return if (!imageFile.exists()) {
+            Toast.makeText(
+                requireContext(),
+                R.string.error_image_not_saved,
+                Toast.LENGTH_SHORT
+            ).show()
+            false
+        } else {
+            true
         }
     }
 
@@ -141,118 +162,88 @@ class CreationFragment : Fragment() {
     }
 
     private fun restoreCareSchedule() {
-        binding.wateringListItem.setItemDescription(
-            formattedScheduleValue(
+        with(binding) {
+            wateringListItem.setItemDescription(
                 viewModel.regularSchedule.wateringInterval,
                 viewModel.winterSchedule.wateringInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.wateredAt)
             )
-        )
-        binding.sprayingListItem.setItemDescription(
-            formattedScheduleValue(
+            sprayingListItem.setItemDescription(
                 viewModel.regularSchedule.sprayingInterval,
                 viewModel.winterSchedule.sprayingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.sprayedAt)
             )
-        )
-        binding.fertilizingListItem.setItemDescription(
-            formattedScheduleValue(
+            fertilizingListItem.setItemDescription(
                 viewModel.regularSchedule.fertilizingInterval,
                 viewModel.winterSchedule.fertilizingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.fertilizedAt)
             )
-        )
-        binding.rotatingListItem.setItemDescription(
-            formattedScheduleValue(
+            rotatingListItem.setItemDescription(
                 viewModel.regularSchedule.rotatingInterval,
                 viewModel.winterSchedule.rotatingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.rotatedAt)
+
             )
-        )
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        if (viewModel.isPlantCreated.value == false) {
-            imageFile.delete()
-        }
-    }
-
-    private fun storeBitmapFromUri(uri: Uri): Bitmap? {
-        return requireContext().contentResolver.openInputStream(uri)?.let { inputStream ->
-            val outputStream = FileOutputStream(imageFile)
-            BitmapFactory.decodeStream(inputStream).also { bitmap ->
-                inputStream.close()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 85, outputStream)
-                } else {
-                    bitmap.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
-                }
-                outputStream.flush()
-                outputStream.close()
-            }
-        }
+        imageFile.delete()
     }
 
     // TODO add extended validation
     private fun setListeners() {
-        binding.btnAddPlant.setOnClickListener {
-            if (binding.titleEditText.text.isNullOrEmpty()) {
-                binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
-            } else if (binding.titleInputLayout.error == null) {
-                binding.titleInputLayout.error = null
-                viewModel.setPlantName(binding.titleEditText.text)
-                viewModel.addPlantToGarden()
-                binding.progressCreation.isVisible = true
-                lifecycleScope.launch {
+        with(binding) {
+            btnAddPlant.setOnClickListener {
+                if (viewModel.plant.name.isEmpty()) {
+                    tilTitle.error = getString(R.string.error_empty_plant_name)
+                } else {
+                    tilTitle.error = null
+                    viewModel.addPlantToGarden()
+                    progressCreation.isVisible = true
                     createAlarms()
-                    viewModel.updateIsPlantCreated(true)
                 }
             }
-        }
-        binding.titleEditText.doOnTextChanged { text, _, _, _ ->
-            when {
-                text.isNullOrEmpty() -> {
-                    binding.titleInputLayout.error = getString(R.string.error_empty_plant_name)
-                }
-                text.length > binding.titleInputLayout.counterMaxLength -> {
-                    binding.titleInputLayout.error =
-                        getString(
-                            R.string.error_long_plant_name,
-                            text.length
-                        )
-                }
-                else -> {
-                    binding.titleInputLayout.error = null
+            etTitle.doOnTextChanged { text, _, _, _ ->
+                viewModel.setPlantName(text)
+                when {
+                    text.isNullOrEmpty() -> {
+                        tilTitle.error = getString(R.string.error_empty_plant_name)
+                    }
+                    text.length > tilTitle.counterMaxLength -> {
+                        tilTitle.isCounterEnabled = true
+                    }
+                    else -> {
+                        tilTitle.error = null
+                        tilTitle.isCounterEnabled = false
+                    }
                 }
             }
+            btnLoadImage.setOnClickListener { showImageSelectDialog() }
+            setScheduleItemListener(wateringListItem)
+            setScheduleItemListener(sprayingListItem)
+            setScheduleItemListener(fertilizingListItem)
+            setScheduleItemListener(rotatingListItem)
         }
-        binding.loadImage.setOnClickListener {
-            showIntentChooseDialog()
-        }
-        setScheduleItemListener(binding.wateringListItem)
-        setScheduleItemListener(binding.sprayingListItem)
-        setScheduleItemListener(binding.fertilizingListItem)
-        setScheduleItemListener(binding.rotatingListItem)
     }
 
-    private suspend fun createAlarms() = lifecycleScope.launch {
+    private fun createAlarms() {
         val scheduleMap = getScheduleMap()
         val alarmManager = requireContext().getSystemService(
             Context.ALARM_SERVICE
         ) as? AlarmManager
 
         scheduleMap.keys.forEach { scheduleType ->
-            val interval = scheduleMap[scheduleType]?.get(0)
-            interval?.let {
+            scheduleMap[scheduleType]?.get(0)?.let { interval ->
                 val lastCare = scheduleMap[scheduleType]?.get(1)
-                val randomRequestId = System.currentTimeMillis() / 1000
+                val randomRequestId = Random.nextLong()
                 val plantAlarm = PlantAlarm(
                     randomRequestId,
-                    viewModel.plant.name ?: UUID.randomUUID().toString(),
+                    viewModel.plant.name,
                     scheduleType.name.lowercase(),
-                    it,
+                    interval,
                     lastCare
                 ).also { plantAlarm ->
                     val plantsAlarmIntent = Intent(
@@ -269,7 +260,6 @@ class CreationFragment : Fragment() {
                 }
 
                 viewModel.addPlantAlarm(plantAlarm)
-                delay(1000)
             }
         }
     }
@@ -293,8 +283,7 @@ class CreationFragment : Fragment() {
             return schedule
         }
     }
-
-    private fun showIntentChooseDialog() {
+    private fun showImageSelectDialog() {
         val multiItems = arrayOf("Camera", "Gallery")
         MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(getString(R.string.title_intent_image_select))
@@ -306,8 +295,7 @@ class CreationFragment : Fragment() {
                 }
                 dialog.dismiss()
             }
-            show()
-        }
+        }.show()
     }
 
     private fun openImageSelectIntent() {
@@ -315,28 +303,45 @@ class CreationFragment : Fragment() {
     }
 
     private fun openImageCaptureIntent() {
-        runCatching {
-            createImageFile()
-        }.onFailure {
-            Timber.e(it)
-        }.getOrNull()?.also {
-            val photoUri: Uri = FileProvider.getUriForFile(
-                requireContext(),
-                PROVIDER_AUTHORITY,
-                it
-            )
-            takePictureAction.launch(photoUri)
-        }
+        val photoUri: Uri = FileProvider.getUriForFile(
+            requireContext(),
+            PROVIDER_AUTHORITY,
+            imageFile
+        )
+        takePictureAction.launch(photoUri)
     }
 
-    private fun getFormattedTimeStamp(): String =
-        SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    /** Returns string in format `yyyyMMdd_HHmmss`of current timestamp from [Date] instance */
+    private fun getFormattedTimeStamp(): String = SimpleDateFormat(
+        "yyyyMMdd_HHmmss", Locale.getDefault()
+    ).format(Date())
 
+    /**
+     * Creates a file with name `yyyyMMdd_HHmmss.jpg`
+     * */
     private fun createImageFile(): File {
         val timeStamp = getFormattedTimeStamp()
-        val storageDir: File? = requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(timeStamp, ".jpg", storageDir).apply {
-            currentPhotoPath = absolutePath
+        val storageDir: File? = requireContext().getExternalFilesDir(
+            Environment.DIRECTORY_PICTURES
+        )
+        return File.createTempFile(timeStamp, ".jpg", storageDir)
+    }
+
+    /**
+     * Saves data from uri to file
+     * */
+    private fun saveDataFromUri(file: File, uri: Uri) {
+        val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
+        val outputStream = FileOutputStream(file)
+        BitmapFactory.decodeStream(inputStream).also { bitmap ->
+            inputStream.close()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 85, outputStream)
+            } else {
+                bitmap.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
+            }
+            outputStream.flush()
+            outputStream.close()
         }
     }
 
@@ -437,20 +442,16 @@ class CreationFragment : Fragment() {
                 }
             }
         }
-        dialogBinding.defaultIntervalItem.setTitle(
-            R.string.title_interval_in_days,
-            defaultIntervalValue
-        )
-        dialogBinding.defaultIntervalItem.setSliderValue(defaultIntervalValue.toFloat())
+        with(dialogBinding) {
+            defaultIntervalItem.setTitle(R.string.title_interval_in_days, defaultIntervalValue)
+            defaultIntervalItem.setSliderValue(defaultIntervalValue.toFloat())
 
-        dialogBinding.winterIntervalItem.setTitle(
-            R.string.title_interval_for_winter,
-            winterIntervalValue
-        )
-        dialogBinding.winterIntervalItem.setSliderValue(winterIntervalValue.toFloat())
+            winterIntervalItem.setTitle(R.string.title_interval_for_winter, winterIntervalValue)
+            winterIntervalItem.setSliderValue(winterIntervalValue.toFloat())
 
-        dialogBinding.lastCareItem.setTitle(R.string.title_last_care, lastCareIntervalValue)
-        dialogBinding.lastCareItem.setSliderValue(lastCareIntervalValue.toFloat())
+            lastCareItem.setTitle(R.string.title_last_care, lastCareIntervalValue)
+            lastCareItem.setSliderValue(lastCareIntervalValue.toFloat())
+        }
     }
 
     private fun updateCareSchedule(
@@ -468,11 +469,9 @@ class CreationFragment : Fragment() {
         val lastCareValue = dialogBinding.lastCareItem.getSliderValue().toInt()
 
         careScheduleItem.setItemDescription(
-            formattedScheduleValue(
-                defaultIntervalValue,
-                winterIntervalValue,
-                lastCareValue
-            )
+            defaultIntervalValue,
+            winterIntervalValue,
+            lastCareValue
         )
         viewModel.updateSchedule(
             scheduleItemType = ScheduleType.toScheduleType(careScheduleItem.scheduleItemType),
@@ -482,46 +481,18 @@ class CreationFragment : Fragment() {
         )
     }
 
-    private fun formattedScheduleValue(
-        defaultIntervalValue: Int?,
-        winterIntervalValue: Int?,
-        lastCareValue: Int?
-    ): String = if (lastCareValue != null && lastCareValue > 0) {
-        if (winterIntervalValue != null && winterIntervalValue > 0) {
-            "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
-        } else {
-            "$lastCareValue $defaultIntervalValue"
-        }
-    } else if (winterIntervalValue != null && winterIntervalValue > 0) {
-        "$defaultIntervalValue/$winterIntervalValue"
-    } else {
-        defaultIntervalValue.toString()
-    }
-
     private fun clearScheduleFields(scheduleTypeValue: Int?) {
         viewModel.clearScheduleField(ScheduleType.toScheduleType(scheduleTypeValue))
     }
-
-    private fun makeScheduleItemsClickable() {
+    private fun addImageButtonTooltip() {
         TooltipCompat.setTooltipText(
-            binding.wateringListItem,
-            getString(R.string.tooltip_watering)
-        )
-        TooltipCompat.setTooltipText(
-            binding.sprayingListItem,
-            getString(R.string.tooltip_spraying)
-        )
-        TooltipCompat.setTooltipText(
-            binding.fertilizingListItem,
-            getString(R.string.tooltip_fertilizing)
-        )
-        TooltipCompat.setTooltipText(
-            binding.rotatingListItem,
-            getString(R.string.tooltip_rotating)
+            binding.btnLoadImage,
+            getString(R.string.btn_load_image)
         )
     }
 
+    /** Returns max field length */
     @TestOnly
-    fun getTitleInputLayoutMaxLength(): Int = binding.titleInputLayout.counterMaxLength
+    fun getTitleInputLayoutMaxLength(): Int = binding.tilTitle.counterMaxLength
 }
 

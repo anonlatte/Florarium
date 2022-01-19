@@ -32,4 +32,6 @@
     <string name="btn_add_photo">Add photo</string>
     <string name="btn_save">Save</string>
     <string name="label_fragment_plant_update">Update plant</string>
+    <string name="btn_load_image">Load image</string>
+    <string name="error_image_not_saved">Couldn\'t save image</string>
 </resources>

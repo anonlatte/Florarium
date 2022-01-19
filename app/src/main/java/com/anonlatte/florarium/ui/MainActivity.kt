@@ -23,9 +23,6 @@ class MainActivity : AppCompatActivity() {
         ) as NavHostFragment
         navController = navHostFragment.navController
         setupActionBarWithNavController(navController, appBarConfiguration)
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
