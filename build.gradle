@@ -20,7 +20,7 @@ buildscript {
         junitVersion = "4.13.2"
         kotlinVersion = "1.6.10"
         recyclerViewSelectionVersion = '1.1.0'
-        ktlintGradleVersion="9.3.0"
+        ktlintGradleVersion="10.2.1"
         ktxVersion = "1.3.0"
         leakcanaryVersion = '2.8.1'
         lifeCycleVersion = '2.4.0'
