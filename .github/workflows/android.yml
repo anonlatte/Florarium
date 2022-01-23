@@ -33,15 +33,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      #      - name: Ktlint check
-      #        run: ./gradlew ktlintCheck --stacktrace
       - name: Tests
         run: ./gradlew test --stacktrace
-      - name: Android tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 31
-          script: ./gradlew connectedCheck --stacktrace
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace
       - name: Upload APK

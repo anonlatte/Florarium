@@ -19,7 +19,7 @@ class PlantAlarmDaoTest {
 
     private lateinit var scheduleDao: PlantAlarmDao
     private lateinit var db: AppDatabase
-    private val schedule = testPlantAlarm[0]
+    private var schedule = testPlantAlarm[0]
 
     @Before
     fun setUp() {
@@ -47,10 +47,12 @@ class PlantAlarmDaoTest {
 
     @Test
     fun update() = runBlocking {
-        schedule.plantName = "aloe"
-        schedule.eventTag = "new_event"
-        schedule.interval = 5
-        schedule.lastCare = System.currentTimeMillis()
+        schedule = schedule.copy(
+            plantName = "aloe",
+            eventTag = "new_event",
+            interval = 5,
+            lastCare = System.currentTimeMillis()
+        )
         val updatedId = scheduleDao.update(schedule).toLong()
         MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.requestId))
     }
