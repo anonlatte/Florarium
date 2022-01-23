@@ -1,8 +1,6 @@
 package com.anonlatte.florarium.app
 
 import android.app.Application
-import coil.Coil
-import coil.util.CoilUtils
 import com.anonlatte.florarium.BuildConfig
 import com.anonlatte.florarium.di.AppComponent
 import com.anonlatte.florarium.di.DaggerAppComponent

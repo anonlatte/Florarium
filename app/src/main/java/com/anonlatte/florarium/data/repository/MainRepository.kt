@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.data.repository
 
-import androidx.room.withTransaction
 import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.data.db.dao.PlantDao
@@ -10,6 +9,8 @@ import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.WinterSchedule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
@@ -47,7 +48,9 @@ class MainRepository @Inject constructor(
 
     override suspend fun getRegularScheduleList() = regularScheduleDao.getSchedules()
     override suspend fun createPlantAlarm(plantAlarm: PlantAlarm): Long {
-        return plantAlarmDao.create(plantAlarm)
+        return withContext(Dispatchers.IO) {
+            plantAlarmDao.create(plantAlarm)
+        }
     }
 
     override suspend fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
