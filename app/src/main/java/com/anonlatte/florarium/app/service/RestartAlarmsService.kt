@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.app.service
 
-import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -17,32 +16,24 @@ class RestartAlarmsService : BroadcastReceiver() {
     @Inject
     lateinit var mainRepository: MainRepository
 
-    companion object {
-        const val ACTION_NAME = "PLANT_EVENT"
-    }
-
     override fun onReceive(context: Context?, intent: Intent?) {
-        if (intent?.action == Intent.ACTION_BOOT_COMPLETED ||
-            intent?.action == "android.intent.action.QUICKBOOT_POWERON"
+        if (context == null || intent == null) return
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED ||
+            intent.action == ACTION_BOOT_QUICKBOOT_POWERON
         ) {
-            if (context == null) {
-                return
-            }
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
             val pendingResult = goAsync()
             CoroutineScope(Dispatchers.IO).launch {
                 val plantsAlarms = mainRepository.getPlantsAlarms()
                 plantsAlarms.forEach { plantAlarm ->
-                    val plantsAlarmIntent =
-                        Intent(context, PlantsNotificationReceiver::class.java).apply {
-                            action = ACTION_NAME
-                            putExtra("alarm", plantAlarm)
-                        }
-                    plantAlarm.setAlarm(context, plantsAlarmIntent, alarmManager)
+                    plantAlarm.setAlarm(context, plantAlarm)
                 }
-                Timber.tag("alarm").d("had been set ${plantsAlarms.size} alarms.")
+                Timber.d("Alarms had been set ${plantsAlarms.size} alarms.")
                 pendingResult.finish()
             }
         }
+    }
+
+    companion object {
+        private const val ACTION_BOOT_QUICKBOOT_POWERON = "android.intent.action.QUICKBOOT_POWERON"
     }
 }

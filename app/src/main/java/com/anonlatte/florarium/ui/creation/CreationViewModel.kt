@@ -39,8 +39,10 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    fun addPlantAlarm(plantAlarm: PlantAlarm) = viewModelScope.launch(Dispatchers.IO) {
-        mainRepository.createPlantAlarm(plantAlarm)
+    fun addPlantAlarm(plantAlarm: PlantAlarm) {
+        viewModelScope.launch {
+            mainRepository.createPlantAlarm(plantAlarm)
+        }
     }
 
     private fun updatePlant() {

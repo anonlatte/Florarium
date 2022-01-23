@@ -1,42 +1,43 @@
 package com.anonlatte.florarium.extensions
 
-import android.app.AlarmManager
-import android.app.PendingIntent
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
+import androidx.work.Data
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.anonlatte.florarium.app.service.PlantsNotificationWorker
 import com.anonlatte.florarium.data.model.PlantAlarm
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
-fun PlantAlarm.setAlarm(context: Context, intent: Intent, alarmManager: AlarmManager?) {
-    val formattedInterval = interval * AlarmManager.INTERVAL_DAY
-    val careLeftDays = countCareLeftDays(lastCare, formattedInterval)
-    val pendingIntent = PendingIntent.getBroadcast(
-        context,
-        requestId.toInt(),
-        intent,
-        PendingIntent.FLAG_IMMUTABLE
+const val WORKER_ALARM_DATA_KEY = "alarm"
+
+@SuppressLint("RestrictedApi")
+fun PlantAlarm.setAlarm(
+    context: Context,
+    plantAlarm: PlantAlarm
+) {
+    val alarmFormattedToJson = Json.encodeToString(serializer(), plantAlarm)
+    val alarmWorkerData = Data.Builder()
+        .put(WORKER_ALARM_DATA_KEY, alarmFormattedToJson)
+        .build()
+
+    val periodicWorkRequestBuilder = PeriodicWorkRequestBuilder<PlantsNotificationWorker>(
+        interval,
+        TimeUnit.DAYS
     )
-    if (alarmManager != null) {
-        alarmManager.cancel(pendingIntent)
-        alarmManager.setInexactRepeating(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            careLeftDays,
-            formattedInterval,
-            pendingIntent
-        )
-    }
-}
+        .setInputData(alarmWorkerData)
+        .setInitialDelay(interval, TimeUnit.DAYS)
+        .build()
 
-private fun countCareLeftDays(
-    lastCare: Long?, formattedInterval: Long
-): Long = if (lastCare != null) {
-    val value = formattedInterval - getDaysFromTimestampAgo(lastCare) *
-        AlarmManager.INTERVAL_DAY
-    if (value < 1) {
-        0
-    } else {
-        value
-    }
-} else {
-    System.currentTimeMillis() + formattedInterval
+    Timber.d("Set repeating alarm for each $interval day")
+
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        requestId.toString(),
+        ExistingPeriodicWorkPolicy.REPLACE,
+        periodicWorkRequestBuilder
+    )
 }

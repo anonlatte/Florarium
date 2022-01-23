@@ -1,8 +1,6 @@
 package com.anonlatte.florarium.ui.creation
 
-import android.app.AlarmManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
@@ -20,7 +18,6 @@ import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -29,8 +26,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.app.service.PlantsNotificationReceiver
-import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
 import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
 import com.anonlatte.florarium.data.model.PlantAlarm
@@ -51,7 +46,8 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -231,31 +227,21 @@ class CreationFragment : Fragment() {
 
     private fun createAlarms() {
         val scheduleMap = getScheduleMap()
-        val alarmManager = requireContext().getSystemService(
-            Context.ALARM_SERVICE
-        ) as? AlarmManager
 
         scheduleMap.keys.forEach { scheduleType ->
             scheduleMap[scheduleType]?.get(0)?.let { interval ->
                 val lastCare = scheduleMap[scheduleType]?.get(1)
                 val randomRequestId = Random.nextLong()
                 val plantAlarm = PlantAlarm(
-                    randomRequestId,
-                    viewModel.plant.name,
-                    scheduleType.name.lowercase(),
-                    interval,
-                    lastCare
+                    requestId = randomRequestId,
+                    plantName = viewModel.plant.name,
+                    eventTag = scheduleType.name.lowercase(),
+                    interval = interval,
+                    lastCare = lastCare
                 ).also { plantAlarm ->
-                    val plantsAlarmIntent = Intent(
-                        context, PlantsNotificationReceiver::class.java
-                    ).apply {
-                        action = PLANT_NOTIFICATION_EVENT
-                        putExtra("alarm", plantAlarm)
-                    }
                     plantAlarm.setAlarm(
                         requireContext(),
-                        plantsAlarmIntent,
-                        alarmManager
+                        plantAlarm
                     )
                 }
 

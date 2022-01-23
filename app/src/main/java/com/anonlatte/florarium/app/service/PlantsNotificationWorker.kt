@@ -2,29 +2,40 @@ package com.anonlatte.florarium.app.service
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.anonlatte.florarium.BuildConfig
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.app.utils.PLANT_NOTIFICATION_EVENT
 import com.anonlatte.florarium.data.model.PlantAlarm
+import com.anonlatte.florarium.extensions.WORKER_ALARM_DATA_KEY
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 
-class PlantsNotificationReceiver : BroadcastReceiver() {
+class PlantsNotificationWorker(
+    private val context: Context,
+    private val workerParams: WorkerParameters
+) : Worker(context, workerParams) {
 
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == PLANT_NOTIFICATION_EVENT) {
-            if (BuildConfig.DEBUG) {
-                Timber.plant(Timber.DebugTree())
-            }
-            intent.extras?.getParcelable<PlantAlarm>("alarm")?.let { alarm ->
-                makeNotification(context, alarm.eventTag, alarm.plantName)
-            }
+    override fun doWork(): Result {
+        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+
+        val formattedAlarm = workerParams.inputData.getString(
+            WORKER_ALARM_DATA_KEY
+        )
+        if (formattedAlarm == null) {
+            Timber.w("Alarm data wasn't receive.")
+            return Result.failure()
         }
+
+        Json.decodeFromString<PlantAlarm>(formattedAlarm).run {
+            makeNotification(context, eventTag, plantName)
+        }
+        return Result.success()
     }
 
     private fun makeNotification(context: Context, eventTag: String?, plantName: String?) {
@@ -55,7 +66,7 @@ class PlantsNotificationReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        const val CHANNEL_ID = "PLANT_NOTIFICATION"
-        const val NOTIFICATION_GROUP = "com.anonlatte.florarium."
+        private const val CHANNEL_ID = "PLANT_NOTIFICATION"
+        private const val NOTIFICATION_GROUP = "com.anonlatte.florarium."
     }
 }
