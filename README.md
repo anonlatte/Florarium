@@ -1,0 +1,1 @@
+![App preview](preview.gif)
