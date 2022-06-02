@@ -4,11 +4,9 @@ import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.data.db.dao.PlantDao
 import com.anonlatte.florarium.data.db.dao.RegularScheduleDao
-import com.anonlatte.florarium.data.db.dao.WinterScheduleDao
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
-import com.anonlatte.florarium.data.model.WinterSchedule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -18,17 +16,14 @@ class MainRepository @Inject constructor(
     private val plantAlarmDao: PlantAlarmDao,
     private val plantDao: PlantDao,
     private val regularScheduleDao: RegularScheduleDao,
-    private val winterScheduleDao: WinterScheduleDao
 ) : IMainRepository {
 
     override suspend fun createPlant(
         plant: Plant,
         regularSchedule: RegularSchedule,
-        winterSchedule: WinterSchedule
     ) {
         val plantId = plantDao.create(plant)
         regularScheduleDao.create(regularSchedule.copy(plantId = plantId))
-        winterScheduleDao.create(winterSchedule.copy(plantId = plantId))
     }
 
     override suspend fun getPlants(): List<Plant> = plantDao.getPlants()
@@ -36,13 +31,9 @@ class MainRepository @Inject constructor(
     override suspend fun deletePlants(plants: List<Plant>): Int = plantDao.deleteMultiple(plants)
     override suspend fun updateSchedule(
         regularSchedule: RegularSchedule?,
-        winterSchedule: WinterSchedule?
     ) {
         if (regularSchedule?.plantId != null) {
             regularScheduleDao.update(regularSchedule)
-        }
-        if (winterSchedule?.plantId != null) {
-            winterScheduleDao.update(winterSchedule)
         }
     }
 

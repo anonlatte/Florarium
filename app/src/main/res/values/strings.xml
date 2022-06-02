@@ -11,7 +11,6 @@
     <string name="slider_description">Slider for setting value in days</string>
     <string name="title_care_schedule">Care schedule</string>
     <string name="title_fertilizing">Fertilizing</string>
-    <string name="title_interval_for_winter">Interval in winter (in days) - %d</string>
     <string name="title_interval_in_days">Interval (in days) - %d</string>
     <string name="title_last_care">Last care (days ago) - %d</string>
     <string name="title_rotating">Rotating</string>

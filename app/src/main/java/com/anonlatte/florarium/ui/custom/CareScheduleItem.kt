@@ -33,26 +33,19 @@ class CareScheduleItem @JvmOverloads constructor(
 
     fun setItemDescription(
         defaultIntervalValue: Int?,
-        winterIntervalValue: Int?,
         lastCareValue: Int?
     ) {
         binding.scheduleItemDescription.text = formattedScheduleValue(
-            defaultIntervalValue, winterIntervalValue, lastCareValue
+            defaultIntervalValue,
+            lastCareValue
         )
     }
 
     private fun formattedScheduleValue(
         defaultIntervalValue: Int?,
-        winterIntervalValue: Int?,
         lastCareValue: Int?
     ): String = if (lastCareValue != null && lastCareValue > 0) {
-        if (winterIntervalValue != null && winterIntervalValue > 0) {
-            "$lastCareValue $defaultIntervalValue/$winterIntervalValue"
-        } else {
-            "$lastCareValue $defaultIntervalValue"
-        }
-    } else if (winterIntervalValue != null && winterIntervalValue > 0) {
-        "$defaultIntervalValue/$winterIntervalValue"
+        "$lastCareValue $defaultIntervalValue"
     } else {
         defaultIntervalValue.toString()
     }

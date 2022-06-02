@@ -3,12 +3,16 @@ package com.anonlatte.florarium.ui.creation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.app.utils.getTimestampFromDaysAgo
-import com.anonlatte.florarium.data.model.*
+import com.anonlatte.florarium.data.model.Plant
+import com.anonlatte.florarium.data.model.PlantAlarm
+import com.anonlatte.florarium.data.model.RegularSchedule
+import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.data.repository.MainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 class CreationViewModel @Inject constructor(
@@ -17,8 +21,6 @@ class CreationViewModel @Inject constructor(
     var plant: Plant = Plant()
         private set
     var regularSchedule: RegularSchedule = RegularSchedule()
-        private set
-    var winterSchedule: WinterSchedule = WinterSchedule()
         private set
     private var isPlantExist = false
 
@@ -30,7 +32,6 @@ class CreationViewModel @Inject constructor(
                 mainRepository.createPlant(
                     plant = plant,
                     regularSchedule = regularSchedule,
-                    winterSchedule = winterSchedule
                 )
                 updateIsPlantCreated(true)
             }
@@ -53,13 +54,12 @@ class CreationViewModel @Inject constructor(
     }
 
     private suspend fun updateSchedule() {
-        mainRepository.updateSchedule(regularSchedule, winterSchedule)
+        mainRepository.updateSchedule(regularSchedule)
     }
 
     fun updateSchedule(
         scheduleItemType: ScheduleType?,
         defaultIntervalValue: Int? = null,
-        winterIntervalValue: Int? = null,
         lastCareValue: Int? = null
     ) {
         when (scheduleItemType) {
@@ -68,33 +68,31 @@ class CreationViewModel @Inject constructor(
                     wateringInterval = defaultIntervalValue,
                     wateredAt = getTimestampFromDaysAgo(lastCareValue)
                 )
-                winterSchedule = winterSchedule.copy(wateringInterval = winterIntervalValue)
             }
             ScheduleType.SPRAYING -> {
                 regularSchedule = regularSchedule.copy(
                     sprayingInterval = defaultIntervalValue,
                     sprayedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
-                winterSchedule = winterSchedule.copy(sprayingInterval = winterIntervalValue)
             }
             ScheduleType.FERTILIZING -> {
                 regularSchedule = regularSchedule.copy(
                     fertilizingInterval = defaultIntervalValue,
                     fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
-                winterSchedule = winterSchedule.copy(fertilizingInterval = winterIntervalValue)
             }
             ScheduleType.ROTATING -> {
                 regularSchedule = regularSchedule.copy(
                     rotatingInterval = defaultIntervalValue,
                     rotatedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
-                winterSchedule = winterSchedule.copy(rotatingInterval = winterIntervalValue)
             }
+            null -> Timber.e("Unknown schedule type")
         }
     }
 
     fun clearScheduleField(toScheduleType: ScheduleType?) = updateSchedule(toScheduleType)
+
     fun updatePlantImage(path: String) {
         plant.imageUrl = path
     }

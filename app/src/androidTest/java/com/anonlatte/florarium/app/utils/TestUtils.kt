@@ -3,7 +3,6 @@ package com.anonlatte.florarium.app.utils
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
-import com.anonlatte.florarium.data.model.WinterSchedule
 import org.jetbrains.annotations.TestOnly
 import java.util.Date
 
@@ -28,19 +27,6 @@ val testRegularSchedules = arrayListOf(
     )
 )
 
-@TestOnly
-val testWinterSchedules = arrayListOf(
-    WinterSchedule(1, wateringInterval = 7),
-    WinterSchedule(2, wateringInterval = 7, sprayingInterval = 7),
-    WinterSchedule(3, wateringInterval = 7, sprayingInterval = 7, fertilizingInterval = 15),
-    WinterSchedule(
-        4,
-        wateringInterval = 7,
-        sprayingInterval = 7,
-        fertilizingInterval = 15,
-        rotatingInterval = 15
-    )
-)
 
 @TestOnly
 val testPlantAlarm = arrayListOf(

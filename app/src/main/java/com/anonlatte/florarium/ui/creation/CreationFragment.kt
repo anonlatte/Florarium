@@ -161,22 +161,18 @@ class CreationFragment : Fragment() {
         with(binding) {
             wateringListItem.setItemDescription(
                 viewModel.regularSchedule.wateringInterval,
-                viewModel.winterSchedule.wateringInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.wateredAt)
             )
             sprayingListItem.setItemDescription(
                 viewModel.regularSchedule.sprayingInterval,
-                viewModel.winterSchedule.sprayingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.sprayedAt)
             )
             fertilizingListItem.setItemDescription(
                 viewModel.regularSchedule.fertilizingInterval,
-                viewModel.winterSchedule.fertilizingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.fertilizedAt)
             )
             rotatingListItem.setItemDescription(
                 viewModel.regularSchedule.rotatingInterval,
-                viewModel.winterSchedule.rotatingInterval,
                 getDaysFromTimestampAgo(viewModel.regularSchedule.rotatedAt)
 
             )
@@ -269,6 +265,7 @@ class CreationFragment : Fragment() {
             return schedule
         }
     }
+
     private fun showImageSelectDialog() {
         val multiItems = arrayOf("Camera", "Gallery")
         MaterialAlertDialogBuilder(requireContext()).apply {
@@ -398,42 +395,30 @@ class CreationFragment : Fragment() {
         careScheduleItem: CareScheduleItem
     ) {
         var defaultIntervalValue = 0
-        var winterIntervalValue = 0
         var lastCareIntervalValue = 0
         with(viewModel) {
             when (careScheduleItem) {
                 binding.wateringListItem -> {
                     defaultIntervalValue = regularSchedule.wateringInterval ?: 0
-                    winterIntervalValue = winterSchedule.wateringInterval ?: 0
-                    lastCareIntervalValue =
-                        getDaysFromTimestampAgo(regularSchedule.wateredAt)
+                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.wateredAt)
                 }
                 binding.sprayingListItem -> {
                     defaultIntervalValue = regularSchedule.sprayingInterval ?: 0
-                    winterIntervalValue = winterSchedule.sprayingInterval ?: 0
-                    lastCareIntervalValue =
-                        getDaysFromTimestampAgo(regularSchedule.sprayedAt)
+                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.sprayedAt)
                 }
                 binding.fertilizingListItem -> {
                     defaultIntervalValue = regularSchedule.fertilizingInterval ?: 0
-                    winterIntervalValue = winterSchedule.fertilizingInterval ?: 0
-                    lastCareIntervalValue =
-                        getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
+                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
                 }
                 binding.rotatingListItem -> {
                     defaultIntervalValue = regularSchedule.rotatingInterval ?: 0
-                    winterIntervalValue = winterSchedule.rotatingInterval ?: 0
-                    lastCareIntervalValue =
-                        getDaysFromTimestampAgo(regularSchedule.rotatedAt)
+                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.rotatedAt)
                 }
             }
         }
         with(dialogBinding) {
             defaultIntervalItem.setTitle(R.string.title_interval_in_days, defaultIntervalValue)
             defaultIntervalItem.setSliderValue(defaultIntervalValue.toFloat())
-
-            winterIntervalItem.setTitle(R.string.title_interval_for_winter, winterIntervalValue)
-            winterIntervalItem.setSliderValue(winterIntervalValue.toFloat())
 
             lastCareItem.setTitle(R.string.title_last_care, lastCareIntervalValue)
             lastCareItem.setSliderValue(lastCareIntervalValue.toFloat())
@@ -451,18 +436,15 @@ class CreationFragment : Fragment() {
             return
         }
 
-        val winterIntervalValue = dialogBinding.winterIntervalItem.getSliderValue().toInt()
         val lastCareValue = dialogBinding.lastCareItem.getSliderValue().toInt()
 
         careScheduleItem.setItemDescription(
             defaultIntervalValue,
-            winterIntervalValue,
             lastCareValue
         )
         viewModel.updateSchedule(
             scheduleItemType = ScheduleType.toScheduleType(careScheduleItem.scheduleItemType),
             defaultIntervalValue = defaultIntervalValue,
-            winterIntervalValue = winterIntervalValue,
             lastCareValue = lastCareValue
         )
     }
@@ -470,6 +452,7 @@ class CreationFragment : Fragment() {
     private fun clearScheduleFields(scheduleTypeValue: Int?) {
         viewModel.clearScheduleField(ScheduleType.toScheduleType(scheduleTypeValue))
     }
+
     private fun addImageButtonTooltip() {
         TooltipCompat.setTooltipText(
             binding.btnLoadImage,

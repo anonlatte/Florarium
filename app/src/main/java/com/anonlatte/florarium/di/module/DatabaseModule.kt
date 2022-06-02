@@ -22,7 +22,4 @@ class DatabaseModule {
 
     @Provides
     fun provideRegularScheduleDao(db: AppDatabase) = db.regularScheduleDao()
-
-    @Provides
-    fun provideWinterScheduleDao(db: AppDatabase) = db.winterScheduleDao()
 }

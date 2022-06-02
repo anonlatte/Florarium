@@ -12,8 +12,7 @@
         <attr name="icon" />
         <attr name="item_type" format="enum">
             <enum name="item_type_default" value="0" />
-            <enum name="item_type_winter" value="1" />
-            <enum name="item_type_last_care" value="2" />
+            <enum name="item_type_last_care" value="1" />
         </attr>
     </declare-styleable>
 </resources>

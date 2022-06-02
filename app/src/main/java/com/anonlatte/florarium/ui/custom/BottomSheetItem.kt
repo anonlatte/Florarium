@@ -37,10 +37,6 @@ class BottomSheetItem @JvmOverloads constructor(
                         R.string.title_interval_in_days,
                         value.toInt()
                     )
-                    BottomSheetItemType.WINTER.value -> context.getString(
-                        R.string.title_interval_for_winter,
-                        value.toInt()
-                    )
                     BottomSheetItemType.LAST_CARE.value -> context.getString(
                         R.string.title_last_care,
                         value.toInt()
@@ -62,6 +58,6 @@ class BottomSheetItem @JvmOverloads constructor(
 
     fun getSliderValue(): Float = binding.intervalSlider.value
     private enum class BottomSheetItemType(val value: Int) {
-        DEFAULT(0), WINTER(1), LAST_CARE(2)
+        DEFAULT(0), LAST_CARE(1)
     }
 }
