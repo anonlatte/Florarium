@@ -105,8 +105,8 @@ class CreationFragment : Fragment() {
             )
             binding.plantImageView.load("file://${plant.imageUrl}") {
                 listener(
-                    onError = { _, throwable ->
-                        Timber.e(throwable)
+                    onError = { _, errorResult ->
+                        Timber.e(errorResult.throwable)
                     }
                 )
             }
