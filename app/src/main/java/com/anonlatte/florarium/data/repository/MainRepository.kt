@@ -1,18 +1,17 @@
 package com.anonlatte.florarium.data.repository
 
-import com.anonlatte.florarium.data.db.AppDatabase
 import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import com.anonlatte.florarium.data.db.dao.PlantDao
 import com.anonlatte.florarium.data.db.dao.RegularScheduleDao
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
+import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.data.model.RegularSchedule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
-    private val db: AppDatabase,
     private val plantAlarmDao: PlantAlarmDao,
     private val plantDao: PlantDao,
     private val regularScheduleDao: RegularScheduleDao,
@@ -45,4 +44,13 @@ class MainRepository @Inject constructor(
     }
 
     override suspend fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
+
+    override suspend fun getPlantsToSchedules(): List<PlantWithSchedule> {
+        val plantsList = getPlants()
+        val schedulesList = getRegularScheduleList()
+        return plantsList.map { plant ->
+            val associatedSchedule = schedulesList.firstOrNull { it.plantId == plant.plantId }
+            PlantWithSchedule(plant, associatedSchedule)
+        }
+    }
 }

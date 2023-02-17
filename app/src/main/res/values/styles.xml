@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.Material3.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
@@ -10,7 +10,7 @@
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
     </style>
 
-    <style name="IconOnly" parent="Widget.MaterialComponents.Button.OutlinedButton">
+    <style name="IconOnly" parent="Widget.Material3.Button.OutlinedButton">
         <item name="iconPadding">0dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
@@ -21,15 +21,15 @@
         <item name="iconGravity">textStart</item>
     </style>
 
-    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/AppModalStyle</item>
     </style>
 
-    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+    <style name="AppModalStyle" parent="Widget.Material3.BottomSheet.Modal">
         <item name="android:background">@drawable/rounded_dialog</item>
     </style>
 
-    <style name="Tooltip" parent="Widget.MaterialComponents.Tooltip">
+    <style name="Tooltip" parent="Widget.Material3.Tooltip">
         <item name="shapeAppearanceOverlay">@style/tooltipOverlay</item>
         <item name="backgroundTint">@color/colorPrimary</item>
     </style>

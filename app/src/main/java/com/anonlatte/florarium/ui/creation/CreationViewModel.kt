@@ -7,7 +7,7 @@ import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
-import com.anonlatte.florarium.data.repository.MainRepository
+import com.anonlatte.florarium.data.repository.IMainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,7 +16,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class CreationViewModel @Inject constructor(
-    private val mainRepository: MainRepository
+    private val mainRepository: IMainRepository
 ) : ViewModel() {
     var plant: Plant = Plant()
         private set
@@ -69,24 +69,28 @@ class CreationViewModel @Inject constructor(
                     wateredAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
+
             ScheduleType.SPRAYING -> {
                 regularSchedule = regularSchedule.copy(
                     sprayingInterval = defaultIntervalValue,
                     sprayedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
+
             ScheduleType.FERTILIZING -> {
                 regularSchedule = regularSchedule.copy(
                     fertilizingInterval = defaultIntervalValue,
                     fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
+
             ScheduleType.ROTATING -> {
                 regularSchedule = regularSchedule.copy(
                     rotatingInterval = defaultIntervalValue,
                     rotatedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
+
             null -> Timber.e("Unknown schedule type")
         }
     }

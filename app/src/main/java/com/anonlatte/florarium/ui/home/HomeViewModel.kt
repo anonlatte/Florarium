@@ -1,35 +1,24 @@
 package com.anonlatte.florarium.ui.home
 
 import androidx.lifecycle.ViewModel
-import com.anonlatte.florarium.data.model.PlantWithSchedule
-import com.anonlatte.florarium.data.repository.MainRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
+import androidx.lifecycle.viewModelScope
+import com.anonlatte.florarium.data.repository.IMainRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class HomeViewModel @Inject constructor(
-    private val mainRepository: MainRepository
+    private val mainRepository: IMainRepository
 ) : ViewModel() {
 
-    private val plantsListFlow = flow { emit(mainRepository.getPlants()) }
-    private val regularSchedulesListFlow = flow { emit(mainRepository.getRegularScheduleList()) }
-
-    val plantsToSchedules: Flow<List<PlantWithSchedule>> = combine(
-        plantsListFlow, regularSchedulesListFlow
-    ) { plantsList, schedulesList ->
-        plantsList.map { plant ->
-            val associatedSchedule = schedulesList.firstOrNull { it.plantId == plant.plantId }
-            PlantWithSchedule(plant, associatedSchedule)
-        }
-    }
-
-    fun deletePlants(plants: List<PlantWithSchedule>): Flow<Int> = flow {
-        if (plants.isEmpty()) {
-            emit(0)
-        } else {
-            val deletedAmount = mainRepository.deletePlants(plants.map { it.plant })
-            emit(deletedAmount)
+    private val _screenState = MutableStateFlow<HomeScreenState>(HomeScreenState.Loading)
+    val screenState: StateFlow<HomeScreenState> = _screenState.asStateFlow()
+    fun getPlantsToSchedules() {
+        viewModelScope.launch {
+            _screenState.emit(HomeScreenState.Default(mainRepository.getPlantsToSchedules()))
         }
     }
 }
+

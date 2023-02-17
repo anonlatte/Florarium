@@ -2,6 +2,7 @@ package com.anonlatte.florarium.data.repository
 
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
+import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.data.model.RegularSchedule
 
 interface IMainRepository {
@@ -17,4 +18,5 @@ interface IMainRepository {
     suspend fun getRegularScheduleList(): List<RegularSchedule>
     suspend fun createPlantAlarm(plantAlarm: PlantAlarm): Long
     suspend fun getPlantsAlarms(): List<PlantAlarm>
+    suspend fun getPlantsToSchedules(): List<PlantWithSchedule>
 }

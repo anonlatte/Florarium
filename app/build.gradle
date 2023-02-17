@@ -65,6 +65,7 @@ dependencies {
     implementation "androidx.core:core-ktx:$coreVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
 
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifeCycleVersion"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifeCycleVersion"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifeCycleVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifeCycleVersion"
@@ -85,7 +86,7 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:$timberVersion"
 
-    implementation('io.coil-kt:coil:2.1.0')
+    implementation('io.coil-kt:coil:2.2.2')
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion"
 

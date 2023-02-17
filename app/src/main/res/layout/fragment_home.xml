@@ -3,23 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment">
+    android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/plantsList"
+        android:id="@+id/plants_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/list_item_plant" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/plantAddButton"
+        android:id="@+id/plant_add_button"
         android:layout_width="56dp"
         android:layout_height="56dp"
-        android:contentDescription="@string/btn_add_plant"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/btn_add_plant"
         app:srcCompat="@drawable/ic_add_24"
         app:tint="@color/iconsColor" />
 
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true" />
 </FrameLayout>
