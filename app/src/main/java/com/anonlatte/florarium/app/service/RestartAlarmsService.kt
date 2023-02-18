@@ -3,7 +3,7 @@ package com.anonlatte.florarium.app.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.anonlatte.florarium.data.repository.IMainRepository
+import com.anonlatte.florarium.data.repository.MainRepository
 import com.anonlatte.florarium.extensions.setAlarm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +14,7 @@ import javax.inject.Inject
 class RestartAlarmsService : BroadcastReceiver() {
 
     @Inject
-    lateinit var mainRepository: IMainRepository
+    lateinit var mainRepository: MainRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return

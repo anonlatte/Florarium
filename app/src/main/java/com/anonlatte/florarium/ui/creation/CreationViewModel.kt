@@ -11,34 +11,60 @@ import com.anonlatte.florarium.data.repository.IMainRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+sealed interface PlantCreationState {
+    data class Default(
+        val plant: Plant = Plant(),
+        val schedule: RegularSchedule = RegularSchedule()
+    ) : PlantCreationState
+
+    data class Creating(
+        val plant: Plant,
+        val schedule: RegularSchedule
+    ) : PlantCreationState
+
+    object Created : PlantCreationState
+}
+
 class CreationViewModel @Inject constructor(
     private val mainRepository: IMainRepository
 ) : ViewModel() {
-    var plant: Plant = Plant()
-        private set
-    var regularSchedule: RegularSchedule = RegularSchedule()
-        private set
+
+    private val _plantCreationState = MutableStateFlow<PlantCreationState>(
+        PlantCreationState.Default()
+    )
+    val plantCreationState = _plantCreationState.asStateFlow()
+
     private var isPlantExist = false
 
-    private var isPlantCreatedData = MutableStateFlow(false)
-    var isPlantCreated = isPlantCreatedData.asStateFlow()
     fun addPlantToGarden() {
-        if (!isPlantExist) {
-            viewModelScope.launch {
-                mainRepository.createPlant(
-                    plant = plant,
-                    regularSchedule = regularSchedule,
-                )
-                updateIsPlantCreated(true)
+        viewModelScope.launch {
+            plantCreationState.collect {
+                when (it) {
+                    is PlantCreationState.Creating -> addPlantToGarden(it.plant, it.schedule)
+                    is PlantCreationState.Default -> addPlantToGarden(it.plant, it.schedule)
+                    else -> Unit
+                }
             }
-        } else {
-            updatePlant()
         }
     }
+
+    private suspend fun addPlantToGarden(plant: Plant, schedule: RegularSchedule) {
+        if (!isPlantExist) {
+            mainRepository.createPlant(
+                plant = plant,
+                regularSchedule = schedule,
+            )
+            _plantCreationState.emit(PlantCreationState.Created)
+        } else {
+            updatePlant(plant, schedule)
+        }
+    }
+
 
     fun addPlantAlarm(plantAlarm: PlantAlarm) {
         viewModelScope.launch {
@@ -46,78 +72,114 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    private fun updatePlant() {
+    private fun updatePlant(plant: Plant, schedule: RegularSchedule) {
         viewModelScope.launch(Dispatchers.IO) {
             mainRepository.updatePlant(plant)
-            updateSchedule()
+            updateSchedule(schedule)
         }
     }
 
-    private suspend fun updateSchedule() {
-        mainRepository.updateSchedule(regularSchedule)
+    private suspend fun updateSchedule(schedule: RegularSchedule) {
+        mainRepository.updateSchedule(schedule)
     }
 
     fun updateSchedule(
+        schedule: RegularSchedule,
         scheduleItemType: ScheduleType?,
         defaultIntervalValue: Int? = null,
         lastCareValue: Int? = null
     ) {
-        when (scheduleItemType) {
+        val updatedSchedule = when (scheduleItemType) {
             ScheduleType.WATERING -> {
-                regularSchedule = regularSchedule.copy(
+                schedule.copy(
                     wateringInterval = defaultIntervalValue,
                     wateredAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
 
             ScheduleType.SPRAYING -> {
-                regularSchedule = regularSchedule.copy(
+                schedule.copy(
                     sprayingInterval = defaultIntervalValue,
                     sprayedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
 
             ScheduleType.FERTILIZING -> {
-                regularSchedule = regularSchedule.copy(
+                schedule.copy(
                     fertilizingInterval = defaultIntervalValue,
                     fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
 
             ScheduleType.ROTATING -> {
-                regularSchedule = regularSchedule.copy(
+                schedule.copy(
                     rotatingInterval = defaultIntervalValue,
                     rotatedAt = getTimestampFromDaysAgo(lastCareValue)
                 )
             }
 
-            null -> Timber.e("Unknown schedule type")
+            null -> {
+                Timber.e("Unknown schedule type")
+                schedule
+            }
+        }
+        _plantCreationState.update {
+            if (it is PlantCreationState.Default) {
+                it.copy(schedule = updatedSchedule)
+            } else {
+                it
+            }
         }
     }
 
-    fun clearScheduleField(toScheduleType: ScheduleType?) = updateSchedule(toScheduleType)
+    fun clearScheduleField(schedule: RegularSchedule, toScheduleType: ScheduleType?) {
+        updateSchedule(schedule, toScheduleType)
+    }
 
     fun updatePlantImage(path: String) {
-        plant.imageUrl = path
+        _plantCreationState.update { state ->
+            if (state is PlantCreationState.Default) {
+                val updatedPlant = state.plant.copy(imageUrl = path)
+                state.copy(updatedPlant)
+            } else {
+                state
+            }
+
+        }
     }
 
-    fun setPlant(srcPlant: Plant) {
-        plant = srcPlant
+    fun restorePlant(srcPlant: Plant) {
+        isPlantExist = true
+        _plantCreationState.update { state ->
+            if (state is PlantCreationState.Default) {
+                state.copy(srcPlant)
+            } else {
+                state
+            }
+
+        }
     }
 
-    fun setSchedule(schedule: RegularSchedule) {
-        regularSchedule = schedule
-    }
+    fun restoreSchedule(schedule: RegularSchedule) {
+        _plantCreationState.update { state ->
+            if (state is PlantCreationState.Default) {
+                state.copy(schedule = schedule)
+            } else {
+                state
+            }
 
-    fun updatePlantExistence(exists: Boolean) {
-        isPlantExist = exists
-    }
-
-    fun updateIsPlantCreated(isCreated: Boolean) {
-        isPlantCreatedData.value = isCreated
+        }
     }
 
     fun setPlantName(text: CharSequence?) {
-        plant = plant.copy(name = text.toString())
+        _plantCreationState.update { state ->
+            if (state is PlantCreationState.Default) {
+                val updatedPlant = state.plant.copy(name = text.toString())
+                state.copy(updatedPlant)
+            } else {
+                state
+            }
+
+        }
     }
 }

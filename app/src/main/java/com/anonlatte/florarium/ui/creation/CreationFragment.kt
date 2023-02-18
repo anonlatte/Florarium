@@ -21,26 +21,26 @@ import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
+import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
+import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.extensions.appComponent
-import com.anonlatte.florarium.extensions.launchWhenStarted
+import com.anonlatte.florarium.extensions.collectWithLifecycle
 import com.anonlatte.florarium.extensions.setAlarm
 import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.MainActivity
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.flow.onEach
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
 import java.io.File
@@ -92,13 +92,20 @@ class CreationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
+        reinitializeScreen()
+        subscribeUi()
+        addImageButtonTooltip()
+
+        return binding.root
+    }
+
+    private fun reinitializeScreen() {
         navArgs.plant?.let { plant ->
-            viewModel.setPlant(plant)
-            viewModel.updatePlantExistence(true)
+            viewModel.restorePlant(plant)
             navArgs.schedule?.let { schedule ->
                 // TODO if field is null then hide/show 'not set'
-                viewModel.setSchedule(schedule)
-                restoreCareSchedule()
+                viewModel.restoreSchedule(schedule)
+                restoreCareSchedule(schedule)
             }
             (requireActivity() as MainActivity).supportActionBar?.title = getString(
                 R.string.label_fragment_plant_update
@@ -111,11 +118,6 @@ class CreationFragment : Fragment() {
                 )
             }
         }
-        subscribeUi()
-        setListeners()
-        addImageButtonTooltip()
-
-        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -125,9 +127,6 @@ class CreationFragment : Fragment() {
                 setText(R.string.btn_save)
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_outline_save_24)
             }
-        }
-        if (viewModel.plant.name.isNotEmpty()) {
-            binding.etTitle.setText(viewModel.plant.name)
         }
     }
 
@@ -145,35 +144,55 @@ class CreationFragment : Fragment() {
     }
 
     private fun subscribeUi() {
-        viewModel.isPlantCreated.onEach {
-            if (it) {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.message_plant_is_added),
-                    Toast.LENGTH_SHORT
-                ).show()
-                findNavController().navigateUp()
+        viewModel.plantCreationState.collectWithLifecycle(this) {
+            when (it) {
+                PlantCreationState.Created -> {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.message_plant_is_added),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    findNavController().navigateUp()
+                }
+
+                is PlantCreationState.Default -> {
+                    setListeners(it.schedule)
+                    if (it.plant.name.isNotEmpty()) {
+                        binding.etTitle.setText(it.plant.name)
+                    }
+                }
+
+                is PlantCreationState.Creating -> {
+                    if (it.plant.name.isEmpty()) {
+                        binding.tilTitle.error = getString(R.string.error_empty_plant_name)
+                    } else {
+                        binding.tilTitle.error = null
+                        binding.progressCreation.isVisible = true
+                        createAlarms(it.plant, it.schedule)
+                    }
+
+                }
             }
-        }.launchWhenStarted(lifecycleScope)
+        }
     }
 
-    private fun restoreCareSchedule() {
+    private fun restoreCareSchedule(regularSchedule: RegularSchedule) {
         with(binding) {
             wateringListItem.setItemDescription(
-                viewModel.regularSchedule.wateringInterval,
-                getDaysFromTimestampAgo(viewModel.regularSchedule.wateredAt)
+                regularSchedule.wateringInterval,
+                getDaysFromTimestampAgo(regularSchedule.wateredAt)
             )
             sprayingListItem.setItemDescription(
-                viewModel.regularSchedule.sprayingInterval,
-                getDaysFromTimestampAgo(viewModel.regularSchedule.sprayedAt)
+                regularSchedule.sprayingInterval,
+                getDaysFromTimestampAgo(regularSchedule.sprayedAt)
             )
             fertilizingListItem.setItemDescription(
-                viewModel.regularSchedule.fertilizingInterval,
-                getDaysFromTimestampAgo(viewModel.regularSchedule.fertilizedAt)
+                regularSchedule.fertilizingInterval,
+                getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
             )
             rotatingListItem.setItemDescription(
-                viewModel.regularSchedule.rotatingInterval,
-                getDaysFromTimestampAgo(viewModel.regularSchedule.rotatedAt)
+                regularSchedule.rotatingInterval,
+                getDaysFromTimestampAgo(regularSchedule.rotatedAt)
 
             )
         }
@@ -186,17 +205,10 @@ class CreationFragment : Fragment() {
     }
 
     // TODO add extended validation
-    private fun setListeners() {
+    private fun setListeners(schedule: RegularSchedule) {
         with(binding) {
             btnAddPlant.setOnClickListener {
-                if (viewModel.plant.name.isEmpty()) {
-                    tilTitle.error = getString(R.string.error_empty_plant_name)
-                } else {
-                    tilTitle.error = null
-                    viewModel.addPlantToGarden()
-                    progressCreation.isVisible = true
-                    createAlarms()
-                }
+                viewModel.addPlantToGarden()
             }
             etTitle.doOnTextChanged { text, _, _, _ ->
                 viewModel.setPlantName(text)
@@ -204,9 +216,11 @@ class CreationFragment : Fragment() {
                     text.isNullOrEmpty() -> {
                         tilTitle.error = getString(R.string.error_empty_plant_name)
                     }
+
                     text.length > tilTitle.counterMaxLength -> {
                         tilTitle.isCounterEnabled = true
                     }
+
                     else -> {
                         tilTitle.error = null
                         tilTitle.isCounterEnabled = false
@@ -214,15 +228,15 @@ class CreationFragment : Fragment() {
                 }
             }
             btnLoadImage.setOnClickListener { showImageSelectDialog() }
-            setScheduleItemListener(wateringListItem)
-            setScheduleItemListener(sprayingListItem)
-            setScheduleItemListener(fertilizingListItem)
-            setScheduleItemListener(rotatingListItem)
+            setScheduleItemListener(schedule, wateringListItem)
+            setScheduleItemListener(schedule, sprayingListItem)
+            setScheduleItemListener(schedule, fertilizingListItem)
+            setScheduleItemListener(schedule, rotatingListItem)
         }
     }
 
-    private fun createAlarms() {
-        val scheduleMap = getScheduleMap()
+    private fun createAlarms(plant: Plant, regularSchedule: RegularSchedule) {
+        val scheduleMap = getScheduleMap(regularSchedule)
 
         scheduleMap.keys.forEach { scheduleType ->
             scheduleMap[scheduleType]?.get(0)?.let { interval ->
@@ -230,7 +244,7 @@ class CreationFragment : Fragment() {
                 val randomRequestId = Random.nextLong()
                 val plantAlarm = PlantAlarm(
                     requestId = randomRequestId,
-                    plantName = viewModel.plant.name,
+                    plantName = plant.name,
                     eventTag = scheduleType.name.lowercase(),
                     interval = interval,
                     lastCare = lastCare
@@ -246,8 +260,10 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun getScheduleMap(): MutableMap<ScheduleType, List<Long?>> {
-        with(viewModel.regularSchedule) {
+    private fun getScheduleMap(
+        regularSchedule: RegularSchedule
+    ): MutableMap<ScheduleType, List<Long?>> {
+        with(regularSchedule) {
             val schedule = mutableMapOf(
                 ScheduleType.WATERING to listOf(wateringInterval?.toLong(), wateredAt)
             )
@@ -329,6 +345,7 @@ class CreationFragment : Fragment() {
     }
 
     private fun onScheduleItemClickListener(
+        schedule: RegularSchedule,
         careScheduleItem: CareScheduleItem,
         title: String?,
         icon: Drawable?
@@ -340,13 +357,14 @@ class CreationFragment : Fragment() {
         dialogBinding.bottomSheetTitle.text = title
         dialogBinding.bottomSheetTitle.setIcon(left = icon)
 
-        restoreCareScheduleItem(dialogBinding, careScheduleItem)
-        setDialogListeners(dialog, dialogBinding, careScheduleItem)
+        restoreCareScheduleItem(schedule, dialogBinding, careScheduleItem)
+        setDialogListeners(schedule, dialog, dialogBinding, careScheduleItem)
 
         dialog.show()
     }
 
     private fun setDialogListeners(
+        schedule: RegularSchedule,
         dialog: BottomSheetDialog,
         dialogBinding: BottomSheetBinding,
         careScheduleItem: CareScheduleItem
@@ -358,6 +376,7 @@ class CreationFragment : Fragment() {
              */
             careScheduleItem.binding.itemSwitch.isChecked = true
             updateCareSchedule(
+                schedule,
                 dialogBinding,
                 careScheduleItem
             )
@@ -368,10 +387,14 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun setScheduleItemListener(careScheduleItem: CareScheduleItem) {
+    private fun setScheduleItemListener(
+        schedule: RegularSchedule,
+        careScheduleItem: CareScheduleItem
+    ) {
         with(careScheduleItem) {
             setOnClickListener {
                 onScheduleItemClickListener(
+                    schedule,
                     careScheduleItem,
                     title,
                     icon
@@ -380,10 +403,10 @@ class CreationFragment : Fragment() {
             /** Convert itemSwitch to View to avoid overriding [View.performClick] */
             (binding.itemSwitch as View).setOnTouchListener { switchView, event ->
                 if (event.action == MotionEvent.ACTION_UP && !binding.itemSwitch.isChecked) {
-                    onScheduleItemClickListener(careScheduleItem, title, icon)
+                    onScheduleItemClickListener(schedule, careScheduleItem, title, icon)
                     switchView.performClick()
                 } else if (event.action == MotionEvent.ACTION_UP && binding.itemSwitch.isChecked) {
-                    clearScheduleFields(careScheduleItem.scheduleItemType)
+                    clearScheduleFields(schedule, careScheduleItem.scheduleItemType)
                 }
                 event.actionMasked == MotionEvent.ACTION_MOVE
             }
@@ -391,29 +414,31 @@ class CreationFragment : Fragment() {
     }
 
     private fun restoreCareScheduleItem(
+        regularSchedule: RegularSchedule,
         dialogBinding: BottomSheetBinding,
         careScheduleItem: CareScheduleItem
     ) {
         var defaultIntervalValue = 0
         var lastCareIntervalValue = 0
-        with(viewModel) {
-            when (careScheduleItem) {
-                binding.wateringListItem -> {
-                    defaultIntervalValue = regularSchedule.wateringInterval ?: 0
-                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.wateredAt)
-                }
-                binding.sprayingListItem -> {
-                    defaultIntervalValue = regularSchedule.sprayingInterval ?: 0
-                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.sprayedAt)
-                }
-                binding.fertilizingListItem -> {
-                    defaultIntervalValue = regularSchedule.fertilizingInterval ?: 0
-                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
-                }
-                binding.rotatingListItem -> {
-                    defaultIntervalValue = regularSchedule.rotatingInterval ?: 0
-                    lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.rotatedAt)
-                }
+        when (careScheduleItem) {
+            binding.wateringListItem -> {
+                defaultIntervalValue = regularSchedule.wateringInterval ?: 0
+                lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.wateredAt)
+            }
+
+            binding.sprayingListItem -> {
+                defaultIntervalValue = regularSchedule.sprayingInterval ?: 0
+                lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.sprayedAt)
+            }
+
+            binding.fertilizingListItem -> {
+                defaultIntervalValue = regularSchedule.fertilizingInterval ?: 0
+                lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
+            }
+
+            binding.rotatingListItem -> {
+                defaultIntervalValue = regularSchedule.rotatingInterval ?: 0
+                lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.rotatedAt)
             }
         }
         with(dialogBinding) {
@@ -426,6 +451,7 @@ class CreationFragment : Fragment() {
     }
 
     private fun updateCareSchedule(
+        schedule: RegularSchedule,
         dialogBinding: BottomSheetBinding,
         careScheduleItem: CareScheduleItem
     ) {
@@ -443,14 +469,15 @@ class CreationFragment : Fragment() {
             lastCareValue
         )
         viewModel.updateSchedule(
+            schedule = schedule,
             scheduleItemType = ScheduleType.toScheduleType(careScheduleItem.scheduleItemType),
             defaultIntervalValue = defaultIntervalValue,
             lastCareValue = lastCareValue
         )
     }
 
-    private fun clearScheduleFields(scheduleTypeValue: Int?) {
-        viewModel.clearScheduleField(ScheduleType.toScheduleType(scheduleTypeValue))
+    private fun clearScheduleFields(schedule: RegularSchedule, scheduleTypeValue: Int?) {
+        viewModel.clearScheduleField(schedule, ScheduleType.toScheduleType(scheduleTypeValue))
     }
 
     private fun addImageButtonTooltip() {
