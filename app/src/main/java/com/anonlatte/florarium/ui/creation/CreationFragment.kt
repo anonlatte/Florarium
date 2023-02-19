@@ -13,7 +13,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.activity.result.contract.ActivityResultContracts.TakePicture
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
@@ -26,6 +25,7 @@ import androidx.navigation.fragment.navArgs
 import coil.load
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
+import com.anonlatte.florarium.app.utils.PhotoPicker
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
@@ -51,6 +51,7 @@ import java.util.Locale
 import javax.inject.Inject
 import kotlin.random.Random
 
+
 // TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
     private var _binding: FragmentPlantCreationBinding? = null
@@ -61,9 +62,9 @@ class CreationFragment : Fragment() {
     private val imageFile: File by lazy { createImageFile() }
     private val currentPhotoPath: String get() = imageFile.absolutePath
 
-    private val imageSelectAction = registerForActivityResult(GetContent()) { uri ->
-        if (uri == null) return@registerForActivityResult
-        if (!isImageSaved()) return@registerForActivityResult
+    private val photoPicker = PhotoPicker(this) { uri ->
+        if (uri == null) return@PhotoPicker
+        if (!isImageSaved()) return@PhotoPicker
         saveDataFromUri(imageFile, uri)
         Timber.d("File ${imageFile.name} is created in ${uri.path}")
         viewModel.updatePlantImage(currentPhotoPath)
@@ -290,16 +291,13 @@ class CreationFragment : Fragment() {
                 if (which == 0) {
                     openImageCaptureIntent()
                 } else {
-                    openImageSelectIntent()
+                    photoPicker.pickPhoto()
                 }
                 dialog.dismiss()
             }
         }.show()
     }
 
-    private fun openImageSelectIntent() {
-        imageSelectAction.launch("image/*")
-    }
 
     private fun openImageCaptureIntent() {
         val photoUri: Uri = FileProvider.getUriForFile(
