@@ -1,22 +1,17 @@
 package com.anonlatte.florarium.ui.creation
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts.TakePicture
+import androidx.annotation.StringRes
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
@@ -24,9 +19,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
-import com.anonlatte.florarium.app.utils.PhotoPicker
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
+import com.anonlatte.florarium.app.utils.photo.PhotoPicker
+import com.anonlatte.florarium.app.utils.photo.PhotoTaker
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
@@ -43,42 +38,21 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
-import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import kotlin.random.Random
 
 
-// TODO: 01-Nov-20 sometimes plant image doesn't appear on release build
 class CreationFragment : Fragment() {
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
 
     private val navArgs: CreationFragmentArgs by navArgs()
 
-    private val imageFile: File by lazy { createImageFile() }
-    private val currentPhotoPath: String get() = imageFile.absolutePath
+    /** Allows to pick photos from gallery */
+    private val photoPicker = PhotoPicker(this, ::updatePlantImage)
 
-    private val photoPicker = PhotoPicker(this) { uri ->
-        if (uri == null) return@PhotoPicker
-        if (!isImageSaved()) return@PhotoPicker
-        saveDataFromUri(imageFile, uri)
-        Timber.d("File ${imageFile.name} is created in ${uri.path}")
-        viewModel.updatePlantImage(currentPhotoPath)
-        binding.plantImageView.load(uri)
-    }
-
-    private val takePictureAction = registerForActivityResult(TakePicture()) { imageTaken ->
-        if (imageTaken) {
-            if (!isImageSaved()) return@registerForActivityResult
-            Timber.d("File ${imageFile.name} is created in $currentPhotoPath")
-            viewModel.updatePlantImage(currentPhotoPath)
-            binding.plantImageView.load(File(currentPhotoPath))
-        }
-    }
+    /** Takes photos from camera */
+    private val photoTaker = PhotoTaker(this, ::updatePlantImage)
 
     @Inject
     lateinit var viewModel: CreationViewModel
@@ -111,7 +85,7 @@ class CreationFragment : Fragment() {
             (requireActivity() as MainActivity).supportActionBar?.title = getString(
                 R.string.label_fragment_plant_update
             )
-            binding.plantImageView.load("file://${plant.imageUrl}") {
+            binding.plantImageView.load(Uri.parse(plant.imageUri)) {
                 listener(
                     onError = { _, errorResult ->
                         Timber.e(errorResult.throwable)
@@ -128,19 +102,6 @@ class CreationFragment : Fragment() {
                 setText(R.string.btn_save)
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_outline_save_24)
             }
-        }
-    }
-
-    private fun isImageSaved(): Boolean {
-        return if (!imageFile.exists()) {
-            Toast.makeText(
-                requireContext(),
-                R.string.error_image_not_saved,
-                Toast.LENGTH_SHORT
-            ).show()
-            false
-        } else {
-            true
         }
     }
 
@@ -177,6 +138,11 @@ class CreationFragment : Fragment() {
         }
     }
 
+    private fun clearCreatedImageFiles() {
+        photoPicker.clearCreatedImageFiles()
+        photoTaker.clearCreatedImageFiles()
+    }
+
     private fun restoreCareSchedule(regularSchedule: RegularSchedule) {
         with(binding) {
             wateringListItem.setItemDescription(
@@ -201,8 +167,27 @@ class CreationFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (!viewModel.keepCreatedImageFiles) clearCreatedImageFiles()
         _binding = null
-        imageFile.delete()
+    }
+
+    private fun updatePlantImage(photoUri: Uri?) {
+        if (photoUri != null) {
+            viewModel.updatePlantImage(photoUri.toString())
+            binding.plantImageView.load(photoUri) {
+                listener(
+                    onError = { _, errorResult ->
+                        Timber.e(errorResult.throwable)
+                    }
+                )
+            }
+        } else {
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.error_image_not_saved),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     // TODO add extended validation
@@ -284,62 +269,20 @@ class CreationFragment : Fragment() {
     }
 
     private fun showImageSelectDialog() {
-        val multiItems = arrayOf("Camera", "Gallery")
+        val multiItems = ImageRetrieveType.getRetrieveWaysText(requireContext())
+        val performActionByRetrieveType = { retrieveTypeIndex: Int ->
+            when (ImageRetrieveType.values()[retrieveTypeIndex]) {
+                ImageRetrieveType.CAMERA -> photoTaker.takePhoto()
+                ImageRetrieveType.GALLERY -> photoPicker.pickPhoto()
+            }
+        }
         MaterialAlertDialogBuilder(requireContext()).apply {
             setTitle(getString(R.string.title_intent_image_select))
-            setItems(multiItems) { dialog, which ->
-                if (which == 0) {
-                    openImageCaptureIntent()
-                } else {
-                    photoPicker.pickPhoto()
-                }
+            setItems(multiItems) { dialog, retrieveTypeIndex ->
+                performActionByRetrieveType(retrieveTypeIndex)
                 dialog.dismiss()
             }
         }.show()
-    }
-
-
-    private fun openImageCaptureIntent() {
-        val photoUri: Uri = FileProvider.getUriForFile(
-            requireContext(),
-            PROVIDER_AUTHORITY,
-            imageFile
-        )
-        takePictureAction.launch(photoUri)
-    }
-
-    /** Returns string in format `yyyyMMdd_HHmmss`of current timestamp from [Date] instance */
-    private fun getFormattedTimeStamp(): String = SimpleDateFormat(
-        "yyyyMMdd_HHmmss", Locale.getDefault()
-    ).format(Date())
-
-    /**
-     * Creates a file with name `yyyyMMdd_HHmmss.jpg`
-     * */
-    private fun createImageFile(): File {
-        val timeStamp = getFormattedTimeStamp()
-        val storageDir: File? = requireContext().getExternalFilesDir(
-            Environment.DIRECTORY_PICTURES
-        )
-        return File.createTempFile(timeStamp, ".jpg", storageDir)
-    }
-
-    /**
-     * Saves data from uri to file
-     * */
-    private fun saveDataFromUri(file: File, uri: Uri) {
-        val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return
-        val outputStream = FileOutputStream(file)
-        BitmapFactory.decodeStream(inputStream).also { bitmap ->
-            inputStream.close()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, 85, outputStream)
-            } else {
-                bitmap.compress(Bitmap.CompressFormat.WEBP, 85, outputStream)
-            }
-            outputStream.flush()
-            outputStream.close()
-        }
     }
 
     private fun onScheduleItemClickListener(
@@ -488,5 +431,22 @@ class CreationFragment : Fragment() {
     /** Returns max field length */
     @TestOnly
     fun getTitleInputLayoutMaxLength(): Int = binding.tilTitle.counterMaxLength
+
+    /** Contains image retrieve types */
+    private enum class ImageRetrieveType(@StringRes private val retrieveWayTextRes: Int) {
+        CAMERA(R.string.dialog_get_image_from_camera),
+        GALLERY(R.string.dialog_get_image_from_gallery);
+
+        companion object {
+
+            /**
+             * Returns array of [ImageRetrieveType] text.
+             * For example: ["Camera", "Gallery"]
+             */
+            fun getRetrieveWaysText(context: Context): Array<String> {
+                return values().map { context.getString(it.retrieveWayTextRes) }.toTypedArray()
+            }
+        }
+    }
 }
 

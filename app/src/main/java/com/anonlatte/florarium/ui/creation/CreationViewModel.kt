@@ -16,20 +16,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-sealed interface PlantCreationState {
-    data class Default(
-        val plant: Plant = Plant(),
-        val schedule: RegularSchedule = RegularSchedule()
-    ) : PlantCreationState
-
-    data class Creating(
-        val plant: Plant,
-        val schedule: RegularSchedule
-    ) : PlantCreationState
-
-    object Created : PlantCreationState
-}
-
 class CreationViewModel @Inject constructor(
     private val mainRepository: IMainRepository
 ) : ViewModel() {
@@ -39,9 +25,17 @@ class CreationViewModel @Inject constructor(
     )
     val plantCreationState = _plantCreationState.asStateFlow()
 
+    /** Used to determine if new plant was created */
+    private var wasPlantCreated: Boolean = false
+
+    /** Used to determine if plant already exists in database or new one should be created */
     private var isPlantExist = false
 
+    /** Used to determine if image files should be deleted */
+    val keepCreatedImageFiles get() = !isPlantExist && wasPlantCreated
+
     fun addPlantToGarden() {
+        wasPlantCreated = true
         viewModelScope.launch {
             plantCreationState.collect {
                 when (it) {
@@ -139,7 +133,7 @@ class CreationViewModel @Inject constructor(
     fun updatePlantImage(path: String) {
         _plantCreationState.update { state ->
             if (state is PlantCreationState.Default) {
-                val updatedPlant = state.plant.copy(imageUrl = path)
+                val updatedPlant = state.plant.copy(imageUri = path)
                 state.copy(updatedPlant)
             } else {
                 state

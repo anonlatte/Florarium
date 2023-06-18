@@ -33,4 +33,7 @@
     <string name="label_fragment_plant_update">Update plant</string>
     <string name="btn_load_image">Load image</string>
     <string name="error_image_not_saved">Couldn\'t save image</string>
+
+    <string name="dialog_get_image_from_camera">Camera</string>
+    <string name="dialog_get_image_from_gallery">Gallery</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.ui.home.adapters
 
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -12,12 +11,10 @@ import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantWithSchedule
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
-import java.io.File
 
 class PlantsAdapter(
     private val onPlantClick: (Plant, RegularSchedule?) -> Unit
 ) : ListAdapter<PlantWithSchedule, PlantsAdapter.PlantsViewHolder>(DiffCallback()) {
-    // private var selectionTracker: SelectionTracker<Long>? = null
 
     init {
         setHasStableIds(true)
@@ -62,12 +59,7 @@ class PlantsAdapter(
         fun bind(plantWithSchedule: PlantWithSchedule, isActivated: Boolean = false) {
             with(binding) {
                 root.isActivated = isActivated
-                plantImage.load(
-                    File(
-                        itemView.context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
-                        plantWithSchedule.plant.imageUrl
-                    )
-                )
+                plantImage.load(plantWithSchedule.plant.imageUri)
                 plantImage.contentDescription = plantWithSchedule.plant.name
                 plantName.text = plantWithSchedule.plant.name
                 plantWithSchedule.schedule?.let { schedule ->
