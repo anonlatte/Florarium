@@ -26,7 +26,9 @@ class PhotoPicker(
     ) { uri ->
         if (uri != null) {
             localImageFilePath = storageManager.saveImageFile(context, uri)
-            photoPickListener.onPicked(localImageFilePath)
+            launchImageCompressionJob {
+                photoPickListener.onPicked(localImageFilePath)
+            }
         }
     }
 

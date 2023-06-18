@@ -8,9 +8,9 @@ import java.util.Date
 
 @TestOnly
 val testPlants = arrayListOf(
-    Plant(plantId = 1, name = "rose", plantedAt = Date().time),
-    Plant(plantId = 2, name = "lavender", plantedAt = Date().time),
-    Plant(plantId = 3, name = "cactus", plantedAt = Date().time)
+    Plant(plantId = 1, name = "rose", createdAt = Date().time),
+    Plant(plantId = 2, name = "lavender", createdAt = Date().time),
+    Plant(plantId = 3, name = "cactus", createdAt = Date().time)
 )
 
 @TestOnly

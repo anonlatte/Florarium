@@ -24,6 +24,17 @@
                 android:src="@drawable/flower_example"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/pb_image_loading"
+                style="?progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                app:layout_constraintBottom_toBottomOf="@id/plantImageView"
+                app:layout_constraintEnd_toEndOf="@id/plantImageView"
+                app:layout_constraintStart_toStartOf="@id/plantImageView"
+                app:layout_constraintTop_toTopOf="@id/plantImageView" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_title"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"

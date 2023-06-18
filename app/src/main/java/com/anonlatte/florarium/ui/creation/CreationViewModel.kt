@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Date
 import javax.inject.Inject
 
 class CreationViewModel @Inject constructor(
@@ -50,7 +51,7 @@ class CreationViewModel @Inject constructor(
     private suspend fun addPlantToGarden(plant: Plant, schedule: RegularSchedule) {
         if (!isPlantExist) {
             mainRepository.createPlant(
-                plant = plant,
+                plant = plant.copy(createdAt = Date().time),
                 regularSchedule = schedule,
             )
             _plantCreationState.emit(PlantCreationState.Created)

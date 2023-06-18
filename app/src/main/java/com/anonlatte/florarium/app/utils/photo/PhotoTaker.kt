@@ -21,10 +21,9 @@ class PhotoTaker(
         ActivityResultContracts.TakePicture()
     ) { imageTaken ->
         if (imageTaken) {
-            val compressedImage = localImageFilePath?.also {
-                storageManager.compressImage(context, it)
+            launchImageCompressionJob {
+                pickListener.onPhotoTake(localImageFilePath)
             }
-            pickListener.onPhotoTake(compressedImage)
         }
     }
 

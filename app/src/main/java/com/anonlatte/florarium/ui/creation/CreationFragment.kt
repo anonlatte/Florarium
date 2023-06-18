@@ -136,8 +136,15 @@ class CreationFragment : Fragment() {
                 }
             }
         }
+        photoPicker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
+            binding.pbImageLoading.isVisible = isCompressionInProgress
+        }
+        photoTaker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
+            binding.pbImageLoading.isVisible = isCompressionInProgress
+        }
     }
 
+    /** Called if user didn't submit the form */
     private fun clearCreatedImageFiles() {
         photoPicker.clearCreatedImageFiles()
         photoTaker.clearCreatedImageFiles()
@@ -272,8 +279,15 @@ class CreationFragment : Fragment() {
         val multiItems = ImageRetrieveType.getRetrieveWaysText(requireContext())
         val performActionByRetrieveType = { retrieveTypeIndex: Int ->
             when (ImageRetrieveType.values()[retrieveTypeIndex]) {
-                ImageRetrieveType.CAMERA -> photoTaker.takePhoto()
-                ImageRetrieveType.GALLERY -> photoPicker.pickPhoto()
+                ImageRetrieveType.CAMERA -> {
+                    photoPicker.clearCreatedImageFiles()
+                    photoTaker.takePhoto()
+                }
+
+                ImageRetrieveType.GALLERY -> {
+                    photoTaker.clearCreatedImageFiles()
+                    photoPicker.pickPhoto()
+                }
             }
         }
         MaterialAlertDialogBuilder(requireContext()).apply {

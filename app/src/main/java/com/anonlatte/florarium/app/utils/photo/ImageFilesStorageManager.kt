@@ -3,10 +3,12 @@ package com.anonlatte.florarium.app.utils.photo
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
 import android.os.Build
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
 import com.anonlatte.florarium.app.utils.PROVIDER_AUTHORITY
 import timber.log.Timber
 import java.io.File
@@ -27,7 +29,6 @@ class ImageFilesStorageManager {
 
     /**
      * This method is used to save file to application storage.
-     * It also compresses image before saving.
      * @param context context that will be used to get application storage directory
      * @param imageUri uri of the image that will be saved
      */
@@ -40,7 +41,7 @@ class ImageFilesStorageManager {
                 }
             }
 
-            file.toUri().also { compressImage(context, it) }
+            file.toUri()
         }.onFailure {
             Timber.e(it)
         }.getOrNull()
@@ -64,36 +65,84 @@ class ImageFilesStorageManager {
         return imageFile
     }
 
-    /** Overwrites image file with compressed image. */
+    /**
+     * Overwrites image file with compressed image.
+     */
     fun compressImage(context: Context, imageUri: Uri) {
         kotlin.runCatching {
             context.contentResolver.openInputStream(imageUri)?.use { inputStream ->
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                val imageRotationAngle = getRotationFromExif(context, imageUri)
                 context.contentResolver.openOutputStream(imageUri).use { outputStream ->
-                    val bitmap = BitmapFactory.decodeStream(inputStream)
-                    bitmap.compress(
+                    bitmap?.rotate(
+                        imageRotationAngle
+                    )?.compress(
                         getRequiredWebpConfig(),
                         COMPRESSION_QUALITY,
                         outputStream
                     )
                 }
             }
+
         }.onFailure {
             Timber.e(it)
         }
     }
 
+    /**
+     * Returns required webp config for current android version.
+     * @see [Bitmap.CompressFormat.WEBP]
+     * @see [Bitmap.CompressFormat.WEBP_LOSSY]
+     */
     private fun getRequiredWebpConfig(): Bitmap.CompressFormat {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Bitmap.CompressFormat.WEBP_LOSSLESS
+            Bitmap.CompressFormat.WEBP_LOSSY
         } else {
             @Suppress("DEPRECATION")
             Bitmap.CompressFormat.WEBP
         }
     }
 
+    /**
+     * Returns image rotation angle from exif data.
+     * @param context context that will be used to get image input stream
+     * @param imageUri uri of the image that will be used to get exif data
+     * @return rotation angle in degrees
+     */
+    private fun getRotationFromExif(context: Context, imageUri: Uri): Int {
+        return kotlin.runCatching {
+
+            val inputStream = context.contentResolver.openInputStream(imageUri) ?: return 0
+            val exifInterface = ExifInterface(inputStream)
+
+            val orientation = exifInterface.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            )
+            val rotation: Int = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> 90
+                ExifInterface.ORIENTATION_ROTATE_180 -> 180
+                ExifInterface.ORIENTATION_ROTATE_270 -> 270
+                else -> 0
+            }
+
+            rotation
+        }.getOrDefault(0)
+    }
+
+    /**
+     * Rotates bitmap by given angle.
+     * @param degrees angle in degrees
+     * @return rotated bitmap
+     */
+    private fun Bitmap.rotate(degrees: Int): Bitmap {
+        val matrix = Matrix().apply { postRotate(degrees.toFloat()) }
+        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+    }
+
     companion object {
 
-        private const val COMPRESSION_QUALITY = 85
+        private const val COMPRESSION_QUALITY = 0
         private const val IMAGE_EXTENSION = "webp"
 
         /** Returns uri of the file if it exists in application storage. */

@@ -46,7 +46,7 @@ class MainRepository @Inject constructor(
     override suspend fun getPlantsAlarms(): List<PlantAlarm> = plantAlarmDao.getPlantsAlarms()
 
     override suspend fun getPlantsToSchedules(): List<PlantWithSchedule> {
-        val plantsList = getPlants()
+        val plantsList = getPlants().sortedByDescending { it.createdAt }
         val schedulesList = getRegularScheduleList()
         return plantsList.map { plant ->
             val associatedSchedule = schedulesList.firstOrNull { it.plantId == plant.plantId }
