@@ -8,11 +8,4 @@ sealed interface PlantCreationState {
         val plant: Plant = Plant(),
         val schedule: RegularSchedule = RegularSchedule()
     ) : PlantCreationState
-
-    data class Creating(
-        val plant: Plant,
-        val schedule: RegularSchedule
-    ) : PlantCreationState
-
-    object Created : PlantCreationState
 }

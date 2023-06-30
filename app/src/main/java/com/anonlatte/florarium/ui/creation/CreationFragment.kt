@@ -1,7 +1,6 @@
 package com.anonlatte.florarium.ui.creation
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
@@ -41,6 +41,13 @@ import timber.log.Timber
 import javax.inject.Inject
 import kotlin.random.Random
 
+class CareScheduleItemData(
+    @StringRes val title: Int,
+    @DrawableRes val icon: Int,
+    @StringRes val scheduleValue: Int = R.string.value_not_set,
+    val scheduleItemType: ScheduleType
+)
+
 
 class CreationFragment : Fragment() {
     private var _binding: FragmentPlantCreationBinding? = null
@@ -53,6 +60,35 @@ class CreationFragment : Fragment() {
 
     /** Takes photos from camera */
     private val photoTaker = PhotoTaker(this, ::updatePlantImage)
+
+    private val careScheduleItemsUiData = ScheduleType.values().associate {
+        when (it) {
+            ScheduleType.WATERING -> ScheduleType.WATERING to CareScheduleItemData(
+                title = R.string.title_watering,
+                icon = R.drawable.ic_outline_drop_24,
+                scheduleItemType = it
+            )
+
+            ScheduleType.SPRAYING -> ScheduleType.SPRAYING to CareScheduleItemData(
+                title = R.string.title_spraying,
+                icon = R.drawable.ic_outline_spray_24,
+                scheduleItemType = it
+            )
+
+            ScheduleType.FERTILIZING -> ScheduleType.FERTILIZING to CareScheduleItemData(
+                title = R.string.title_fertilizing,
+                icon = R.drawable.ic_outline_fertilizing_24,
+                scheduleItemType = it
+            )
+
+            ScheduleType.ROTATING -> ScheduleType.ROTATING to CareScheduleItemData(
+                title = R.string.title_rotating,
+                icon = R.drawable.ic_outline_rotate_right_24,
+                scheduleItemType = it
+            )
+        }
+    }
+
 
     @Inject
     lateinit var viewModel: CreationViewModel
@@ -68,10 +104,47 @@ class CreationFragment : Fragment() {
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
         reinitializeScreen()
+        initViews()
         subscribeUi()
         addImageButtonTooltip()
 
         return binding.root
+    }
+
+    private fun initViews() = with(binding) {
+        btnAddPlant.setOnClickListener {
+            viewModel.addPlantToGarden()
+        }
+        etTitle.doOnTextChanged { text, _, _, _ ->
+            viewModel.setPlantName(text)
+            when {
+                text.isNullOrEmpty() -> {
+                    tilTitle.error = getString(R.string.error_empty_plant_name)
+                }
+
+                text.length > tilTitle.counterMaxLength -> {
+                    tilTitle.isCounterEnabled = true
+                }
+
+                else -> {
+                    tilTitle.error = null
+                    tilTitle.isCounterEnabled = false
+                }
+            }
+        }
+        btnLoadImage.setOnClickListener { showImageSelectDialog() }
+
+        listOf(
+            wateringListItem,
+            sprayingListItem,
+            fertilizingListItem,
+            rotatingListItem
+        ).forEach {
+            it.updateData(checkNotNull(careScheduleItemsUiData[it.state.scheduleItemType]) {
+                Timber.e("No data for ${it.state.scheduleItemType}")
+            })
+            setScheduleItemListener(it)
+        }
     }
 
     private fun reinitializeScreen() {
@@ -106,25 +179,20 @@ class CreationFragment : Fragment() {
     }
 
     private fun subscribeUi() {
+        collectMainState()
+        collectCommands()
+        photoPicker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
+            binding.pbImageLoading.isVisible = isCompressionInProgress
+        }
+        photoTaker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
+            binding.pbImageLoading.isVisible = isCompressionInProgress
+        }
+    }
+
+    private fun collectMainState() {
         viewModel.plantCreationState.collectWithLifecycle(this) {
             when (it) {
-                PlantCreationState.Created -> {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.message_plant_is_added),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    findNavController().navigateUp()
-                }
-
                 is PlantCreationState.Default -> {
-                    setListeners(it.schedule)
-                    if (it.plant.name.isNotEmpty()) {
-                        binding.etTitle.setText(it.plant.name)
-                    }
-                }
-
-                is PlantCreationState.Creating -> {
                     if (it.plant.name.isEmpty()) {
                         binding.tilTitle.error = getString(R.string.error_empty_plant_name)
                     } else {
@@ -132,16 +200,39 @@ class CreationFragment : Fragment() {
                         binding.progressCreation.isVisible = true
                         createAlarms(it.plant, it.schedule)
                     }
-
                 }
             }
         }
-        photoPicker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
-            binding.pbImageLoading.isVisible = isCompressionInProgress
+    }
+
+    private fun collectCommands() {
+        viewModel.uiCommand.collectWithLifecycle(viewLifecycleOwner) {
+            when (it) {
+                PlantCreationCommand.None -> Unit
+
+                is PlantCreationCommand.OpenScheduleScreen -> {
+                    openScheduleDialog(
+                        schedule = it.schedule,
+                        scheduleType = it.scheduleItemType,
+                        title = it.title,
+                        icon = it.icon,
+                    )
+                }
+
+                PlantCreationCommand.PlantCreated -> {
+                    onPlantCreated()
+                }
+            }
         }
-        photoTaker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
-            binding.pbImageLoading.isVisible = isCompressionInProgress
-        }
+    }
+
+    private fun onPlantCreated() {
+        Toast.makeText(
+            requireContext(),
+            getString(R.string.message_plant_is_added),
+            Toast.LENGTH_SHORT
+        ).show()
+        findNavController().navigateUp()
     }
 
     /** Called if user didn't submit the form */
@@ -194,37 +285,6 @@ class CreationFragment : Fragment() {
                 getString(R.string.error_image_not_saved),
                 Toast.LENGTH_SHORT
             ).show()
-        }
-    }
-
-    // TODO add extended validation
-    private fun setListeners(schedule: RegularSchedule) {
-        with(binding) {
-            btnAddPlant.setOnClickListener {
-                viewModel.addPlantToGarden()
-            }
-            etTitle.doOnTextChanged { text, _, _, _ ->
-                viewModel.setPlantName(text)
-                when {
-                    text.isNullOrEmpty() -> {
-                        tilTitle.error = getString(R.string.error_empty_plant_name)
-                    }
-
-                    text.length > tilTitle.counterMaxLength -> {
-                        tilTitle.isCounterEnabled = true
-                    }
-
-                    else -> {
-                        tilTitle.error = null
-                        tilTitle.isCounterEnabled = false
-                    }
-                }
-            }
-            btnLoadImage.setOnClickListener { showImageSelectDialog() }
-            setScheduleItemListener(schedule, wateringListItem)
-            setScheduleItemListener(schedule, sprayingListItem)
-            setScheduleItemListener(schedule, fertilizingListItem)
-            setScheduleItemListener(schedule, rotatingListItem)
         }
     }
 
@@ -299,39 +359,46 @@ class CreationFragment : Fragment() {
         }.show()
     }
 
-    private fun onScheduleItemClickListener(
+    private fun openScheduleDialog(
         schedule: RegularSchedule,
-        careScheduleItem: CareScheduleItem,
-        title: String?,
-        icon: Drawable?
+        scheduleType: ScheduleType,
+        title: Int,
+        icon: Int
     ) {
         val dialog = BottomSheetDialog(requireContext())
         val dialogBinding = BottomSheetBinding.inflate(LayoutInflater.from(requireContext()))
         dialog.setContentView(dialogBinding.root)
 
-        dialogBinding.bottomSheetTitle.text = title
-        dialogBinding.bottomSheetTitle.setIcon(left = icon)
+        dialogBinding.bottomSheetTitle.text = getString(title)
+        dialogBinding.bottomSheetTitle.setIcon(
+            left = ContextCompat.getDrawable(requireContext(), icon)
+        )
 
-        restoreCareScheduleItem(schedule, dialogBinding, careScheduleItem)
-        setDialogListeners(schedule, dialog, dialogBinding, careScheduleItem)
+        restoreCareScheduleItem(schedule, dialogBinding, scheduleType)
+        setDialogListeners(dialog, dialogBinding, scheduleType)
 
         dialog.show()
     }
 
     private fun setDialogListeners(
-        schedule: RegularSchedule,
         dialog: BottomSheetDialog,
         dialogBinding: BottomSheetBinding,
-        careScheduleItem: CareScheduleItem
+        scheduleType: ScheduleType
     ) {
         dialogBinding.okButton.setOnClickListener {
             /**
              * TODO check if DefaultCareValue slider < 0 then don't execute
              *  move out checking condition from [updateCareSchedule]
              */
+            // fixme repeating code
+            val careScheduleItem = when (scheduleType) {
+                ScheduleType.WATERING -> binding.wateringListItem
+                ScheduleType.SPRAYING -> binding.sprayingListItem
+                ScheduleType.FERTILIZING -> binding.fertilizingListItem
+                ScheduleType.ROTATING -> binding.rotatingListItem
+            }
             careScheduleItem.binding.itemSwitch.isChecked = true
             updateCareSchedule(
-                schedule,
                 dialogBinding,
                 careScheduleItem
             )
@@ -342,26 +409,26 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun setScheduleItemListener(
-        schedule: RegularSchedule,
-        careScheduleItem: CareScheduleItem
-    ) {
+    private fun onScheduleItemClickListener(careScheduleItem: CareScheduleItem) {
+        viewModel.onScheduleItemClickListener(careScheduleItem.state)
+    }
+
+    private fun setScheduleItemListener(careScheduleItem: CareScheduleItem) {
         with(careScheduleItem) {
             setOnClickListener {
-                onScheduleItemClickListener(
-                    schedule,
-                    careScheduleItem,
-                    title,
-                    icon
-                )
+                onScheduleItemClickListener(careScheduleItem)
             }
             /** Convert itemSwitch to View to avoid overriding [View.performClick] */
             (binding.itemSwitch as View).setOnTouchListener { switchView, event ->
-                if (event.action == MotionEvent.ACTION_UP && !binding.itemSwitch.isChecked) {
-                    onScheduleItemClickListener(schedule, careScheduleItem, title, icon)
-                    switchView.performClick()
-                } else if (event.action == MotionEvent.ACTION_UP && binding.itemSwitch.isChecked) {
-                    clearScheduleFields(schedule, careScheduleItem.scheduleItemType)
+                when {
+                    event.action == MotionEvent.ACTION_UP && !binding.itemSwitch.isChecked -> {
+                        onScheduleItemClickListener(careScheduleItem)
+                        switchView.performClick()
+                    }
+
+                    event.action == MotionEvent.ACTION_UP && binding.itemSwitch.isChecked -> {
+                        viewModel.clearScheduleField(state.scheduleItemType)
+                    }
                 }
                 event.actionMasked == MotionEvent.ACTION_MOVE
             }
@@ -371,30 +438,32 @@ class CreationFragment : Fragment() {
     private fun restoreCareScheduleItem(
         regularSchedule: RegularSchedule,
         dialogBinding: BottomSheetBinding,
-        careScheduleItem: CareScheduleItem
+        careScheduleItem: ScheduleType
     ) {
         var defaultIntervalValue = 0
         var lastCareIntervalValue = 0
+
         when (careScheduleItem) {
-            binding.wateringListItem -> {
+            ScheduleType.WATERING -> binding.wateringListItem.apply {
                 defaultIntervalValue = regularSchedule.wateringInterval ?: 0
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.wateredAt)
             }
 
-            binding.sprayingListItem -> {
+            ScheduleType.SPRAYING -> binding.sprayingListItem.apply {
                 defaultIntervalValue = regularSchedule.sprayingInterval ?: 0
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.sprayedAt)
             }
 
-            binding.fertilizingListItem -> {
+            ScheduleType.FERTILIZING -> binding.fertilizingListItem.apply {
                 defaultIntervalValue = regularSchedule.fertilizingInterval ?: 0
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
             }
 
-            binding.rotatingListItem -> {
+            ScheduleType.ROTATING -> binding.rotatingListItem.apply {
                 defaultIntervalValue = regularSchedule.rotatingInterval ?: 0
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.rotatedAt)
             }
+
         }
         with(dialogBinding) {
             defaultIntervalItem.setTitle(R.string.title_interval_in_days, defaultIntervalValue)
@@ -406,7 +475,6 @@ class CreationFragment : Fragment() {
     }
 
     private fun updateCareSchedule(
-        schedule: RegularSchedule,
         dialogBinding: BottomSheetBinding,
         careScheduleItem: CareScheduleItem
     ) {
@@ -424,15 +492,10 @@ class CreationFragment : Fragment() {
             lastCareValue
         )
         viewModel.updateSchedule(
-            schedule = schedule,
-            scheduleItemType = ScheduleType.toScheduleType(careScheduleItem.scheduleItemType),
+            scheduleItemType = careScheduleItem.state.scheduleItemType,
             defaultIntervalValue = defaultIntervalValue,
             lastCareValue = lastCareValue
         )
-    }
-
-    private fun clearScheduleFields(schedule: RegularSchedule, scheduleTypeValue: Int?) {
-        viewModel.clearScheduleField(schedule, ScheduleType.toScheduleType(scheduleTypeValue))
     }
 
     private fun addImageButtonTooltip() {

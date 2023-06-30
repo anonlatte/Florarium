@@ -26,6 +26,11 @@ class CreationViewModel @Inject constructor(
     )
     val plantCreationState = _plantCreationState.asStateFlow()
 
+    private val _uiCommand = MutableStateFlow<PlantCreationCommand>(
+        PlantCreationCommand.None
+    )
+    val uiCommand = _uiCommand.asStateFlow()
+
     /** Used to determine if new plant was created */
     private var wasPlantCreated: Boolean = false
 
@@ -40,9 +45,7 @@ class CreationViewModel @Inject constructor(
         viewModelScope.launch {
             plantCreationState.collect {
                 when (it) {
-                    is PlantCreationState.Creating -> addPlantToGarden(it.plant, it.schedule)
                     is PlantCreationState.Default -> addPlantToGarden(it.plant, it.schedule)
-                    else -> Unit
                 }
             }
         }
@@ -54,7 +57,7 @@ class CreationViewModel @Inject constructor(
                 plant = plant.copy(createdAt = Date().time),
                 regularSchedule = schedule,
             )
-            _plantCreationState.emit(PlantCreationState.Created)
+            _uiCommand.emit(PlantCreationCommand.PlantCreated)
         } else {
             updatePlant(plant, schedule)
         }
@@ -79,56 +82,57 @@ class CreationViewModel @Inject constructor(
     }
 
     fun updateSchedule(
-        schedule: RegularSchedule,
         scheduleItemType: ScheduleType?,
         defaultIntervalValue: Int? = null,
         lastCareValue: Int? = null
     ) {
-        val updatedSchedule = when (scheduleItemType) {
-            ScheduleType.WATERING -> {
-                schedule.copy(
-                    wateringInterval = defaultIntervalValue,
-                    wateredAt = getTimestampFromDaysAgo(lastCareValue)
-                )
-            }
-
-            ScheduleType.SPRAYING -> {
-                schedule.copy(
-                    sprayingInterval = defaultIntervalValue,
-                    sprayedAt = getTimestampFromDaysAgo(lastCareValue)
-                )
-            }
-
-            ScheduleType.FERTILIZING -> {
-                schedule.copy(
-                    fertilizingInterval = defaultIntervalValue,
-                    fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
-                )
-            }
-
-            ScheduleType.ROTATING -> {
-                schedule.copy(
-                    rotatingInterval = defaultIntervalValue,
-                    rotatedAt = getTimestampFromDaysAgo(lastCareValue)
-                )
-            }
-
-            null -> {
-                Timber.e("Unknown schedule type")
-                schedule
-            }
-        }
         _plantCreationState.update {
-            if (it is PlantCreationState.Default) {
-                it.copy(schedule = updatedSchedule)
+            val schedule = if (it is PlantCreationState.Default) {
+                it.schedule
             } else {
-                it
+                Timber.e("Couldn't update schedule")
+                return@update it
             }
+            val updatedSchedule = when (scheduleItemType) {
+                ScheduleType.WATERING -> {
+                    schedule.copy(
+                        wateringInterval = defaultIntervalValue,
+                        wateredAt = getTimestampFromDaysAgo(lastCareValue)
+                    )
+                }
+
+                ScheduleType.SPRAYING -> {
+                    schedule.copy(
+                        sprayingInterval = defaultIntervalValue,
+                        sprayedAt = getTimestampFromDaysAgo(lastCareValue)
+                    )
+                }
+
+                ScheduleType.FERTILIZING -> {
+                    schedule.copy(
+                        fertilizingInterval = defaultIntervalValue,
+                        fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
+                    )
+                }
+
+                ScheduleType.ROTATING -> {
+                    schedule.copy(
+                        rotatingInterval = defaultIntervalValue,
+                        rotatedAt = getTimestampFromDaysAgo(lastCareValue)
+                    )
+                }
+
+                null -> {
+                    Timber.e("Unknown schedule type")
+                    schedule
+                }
+            }
+            it.copy(schedule = updatedSchedule)
         }
     }
 
-    fun clearScheduleField(schedule: RegularSchedule, toScheduleType: ScheduleType?) {
-        updateSchedule(schedule, toScheduleType)
+    fun clearScheduleField(toScheduleType: ScheduleType?) {
+        updateSchedule(toScheduleType)
     }
 
     fun updatePlantImage(path: String) {
@@ -175,6 +179,19 @@ class CreationViewModel @Inject constructor(
                 state
             }
 
+        }
+    }
+
+    fun onScheduleItemClickListener(careScheduleItemData: CareScheduleItemData) {
+        viewModelScope.launch {
+            _uiCommand.emit(
+                PlantCreationCommand.OpenScheduleScreen(
+                    schedule = (plantCreationState.value as PlantCreationState.Default).schedule,
+                    scheduleItemType = careScheduleItemData.scheduleItemType,
+                    title = careScheduleItemData.title,
+                    icon = careScheduleItemData.icon,
+                )
+            )
         }
     }
 }

@@ -71,10 +71,10 @@
                 android:layout_marginBottom="@dimen/margin_normal"
                 android:contentDescription="@string/btn_add_photo"
                 app:backgroundTint="@color/iconsColor"
-                app:icon="@drawable/ic_outline_camera_24"
                 app:iconTint="@color/colorSecondary"
-                app:layout_constraintBottom_toBottomOf="@id/plantImageView"
-                app:layout_constraintEnd_toEndOf="parent" />
+                tools:icon="@drawable/ic_outline_camera_24"
+                tools:layout_constraintBottom_toBottomOf="@id/plantImageView"
+                tools:layout_constraintEnd_toEndOf="parent" />
 
             <TextView
                 android:id="@+id/tv_title"
@@ -93,41 +93,41 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_small"
-                app:icon="@drawable/ic_outline_drop_24"
                 app:layout_constraintTop_toBottomOf="@id/tv_title"
-                app:scheduleItemType="0"
-                app:scheduleValue="@string/value_not_set"
-                app:title="@string/title_watering" />
+                tools:icon="@drawable/ic_outline_drop_24"
+                tools:scheduleItemType="0"
+                tools:scheduleValue="@string/value_not_set"
+                tools:title="@string/title_watering" />
 
             <com.anonlatte.florarium.ui.custom.CareScheduleItem
                 android:id="@+id/sprayingListItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_outline_spray_24"
                 app:layout_constraintTop_toBottomOf="@id/wateringListItem"
-                app:scheduleItemType="1"
-                app:scheduleValue="@string/value_not_set"
-                app:title="@string/title_spraying" />
+                tools:icon="@drawable/ic_outline_spray_24"
+                tools:scheduleItemType="1"
+                tools:scheduleValue="@string/value_not_set"
+                tools:title="@string/title_spraying" />
 
             <com.anonlatte.florarium.ui.custom.CareScheduleItem
                 android:id="@+id/fertilizingListItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_outline_fertilizing_24"
                 app:layout_constraintTop_toBottomOf="@id/sprayingListItem"
-                app:scheduleItemType="2"
-                app:scheduleValue="@string/value_not_set"
-                app:title="@string/title_fertilizing" />
+                tools:icon="@drawable/ic_outline_fertilizing_24"
+                tools:scheduleItemType="2"
+                tools:scheduleValue="@string/value_not_set"
+                tools:title="@string/title_fertilizing" />
 
             <com.anonlatte.florarium.ui.custom.CareScheduleItem
                 android:id="@+id/rotatingListItem"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:icon="@drawable/ic_outline_rotate_right_24"
                 app:layout_constraintTop_toBottomOf="@id/fertilizingListItem"
-                app:scheduleItemType="3"
-                app:scheduleValue="@string/value_not_set"
-                app:title="@string/title_rotating" />
+                tools:icon="@drawable/ic_outline_rotate_right_24"
+                tools:scheduleItemType="3"
+                tools:scheduleValue="@string/value_not_set"
+                tools:title="@string/title_rotating" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_add_plant"
@@ -137,10 +137,10 @@
                 android:layout_margin="@dimen/margin_normal"
                 android:gravity="center"
                 android:text="@string/content_plant_create_button"
-                app:icon="@drawable/ic_add_24"
                 app:iconGravity="textStart"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rotatingListItem" />
+                tools:icon="@drawable/ic_add_24"
+                tools:layout_constraintBottom_toBottomOf="parent"
+                tools:layout_constraintTop_toBottomOf="@id/rotatingListItem" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
