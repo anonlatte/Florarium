@@ -60,7 +60,11 @@ class CreationViewModel @Inject constructor(
                     plant = plant.copy(createdAt = Date().time),
                     regularSchedule = schedule,
                 )
-                _uiCommand.emit(PlantCreationCommand.PlantCreated)
+                _uiCommand.emit(
+                    PlantCreationCommand.CreatePlantAlarms(
+                        PlantCreationData(plant, schedule)
+                    )
+                )
             } else {
                 updatePlant(plant, schedule)
             }
@@ -71,6 +75,7 @@ class CreationViewModel @Inject constructor(
     fun addPlantAlarm(plantAlarm: PlantAlarm) {
         viewModelScope.launch {
             mainRepository.createPlantAlarm(plantAlarm)
+            _uiCommand.emit(PlantCreationCommand.PlantCreated)
         }
     }
 

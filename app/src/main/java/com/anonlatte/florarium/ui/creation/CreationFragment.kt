@@ -229,6 +229,10 @@ class CreationFragment : Fragment() {
                 PlantCreationCommand.PlantCreated -> {
                     onPlantCreated()
                 }
+
+                is PlantCreationCommand.CreatePlantAlarms -> {
+                    createAlarms(command.data.plant, command.data.schedule)
+                }
             }
         }
     }
@@ -316,6 +320,7 @@ class CreationFragment : Fragment() {
                     interval = interval,
                     lastCare = lastCare
                 ).also { plantAlarm ->
+                    // TODO cancel old alarms
                     plantAlarm.setAlarm(
                         requireContext(),
                         plantAlarm

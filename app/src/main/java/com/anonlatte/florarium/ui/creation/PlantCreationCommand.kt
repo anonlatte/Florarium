@@ -11,8 +11,12 @@ sealed interface PlantCreationCommand {
         val schedule: RegularSchedule,
         val scheduleItemType: ScheduleType,
         @StringRes val title: Int,
-        @DrawableRes val icon: Int
+        @DrawableRes val icon: Int,
     ) : PlantCreationCommand
 
     object PlantCreated : PlantCreationCommand
+
+    data class CreatePlantAlarms(
+        val data: PlantCreationData,
+    ) : PlantCreationCommand
 }
