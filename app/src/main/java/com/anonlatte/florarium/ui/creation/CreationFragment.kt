@@ -398,7 +398,7 @@ class CreationFragment : Fragment() {
         dialogBinding: BottomSheetBinding,
         scheduleType: ScheduleType,
     ) {
-        dialogBinding.okButton.setOnClickListener {
+        dialog.setOnDismissListener {
             /**
              * TODO check if DefaultCareValue slider < 0 then don't execute
              *  move out checking condition from [updateCareSchedule]
@@ -415,10 +415,6 @@ class CreationFragment : Fragment() {
                 dialogBinding,
                 careScheduleItem
             )
-            dialog.dismiss()
-        }
-        dialogBinding.cancelButton.setOnClickListener {
-            dialog.cancel()
         }
     }
 
