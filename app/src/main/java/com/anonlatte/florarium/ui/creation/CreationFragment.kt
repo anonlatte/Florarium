@@ -8,8 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
 import androidx.appcompat.widget.TooltipCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
@@ -32,7 +30,6 @@ import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.collectWithLifecycle
 import com.anonlatte.florarium.extensions.setAlarm
 import com.anonlatte.florarium.extensions.setIcon
-import com.anonlatte.florarium.ui.MainActivity
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -40,13 +37,6 @@ import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.random.Random
-
-class CareScheduleItemData(
-    @StringRes val title: Int,
-    @DrawableRes val icon: Int,
-    @StringRes val scheduleValue: Int = R.string.value_not_set,
-    val scheduleItemType: ScheduleType
-)
 
 
 class CreationFragment : Fragment() {
@@ -100,7 +90,7 @@ class CreationFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
         reinitializeScreen()
@@ -133,17 +123,16 @@ class CreationFragment : Fragment() {
             }
         }
         btnLoadImage.setOnClickListener { showImageSelectDialog() }
-
-        listOf(
-            wateringListItem,
-            sprayingListItem,
-            fertilizingListItem,
-            rotatingListItem
-        ).forEach {
-            it.updateData(checkNotNull(careScheduleItemsUiData[it.state.scheduleItemType]) {
-                Timber.e("No data for ${it.state.scheduleItemType}")
-            })
-            setScheduleItemListener(it)
+        careScheduleItemsUiData.forEach { scheduleToData ->
+            when (scheduleToData.key) {
+                ScheduleType.WATERING -> wateringListItem
+                ScheduleType.SPRAYING -> sprayingListItem
+                ScheduleType.FERTILIZING -> fertilizingListItem
+                ScheduleType.ROTATING -> rotatingListItem
+            }.let { careScheduleItem ->
+                careScheduleItem.updateData(scheduleToData.value)
+                setScheduleItemListener(careScheduleItem)
+            }
         }
     }
 
@@ -155,9 +144,6 @@ class CreationFragment : Fragment() {
                 viewModel.restoreSchedule(schedule)
                 restoreCareSchedule(schedule)
             }
-            (requireActivity() as MainActivity).supportActionBar?.title = getString(
-                R.string.label_fragment_plant_update
-            )
             binding.plantImageView.load(Uri.parse(plant.imageUri)) {
                 listener(
                     onError = { _, errorResult ->
@@ -165,6 +151,9 @@ class CreationFragment : Fragment() {
                     }
                 )
             }
+            plant.name.takeIf {
+                it.isNotEmpty()
+            }?.let(binding.etTitle::setText)
         }
     }
 
@@ -181,6 +170,10 @@ class CreationFragment : Fragment() {
     private fun subscribeUi() {
         collectMainState()
         collectCommands()
+        collectImageCompressionFlow()
+    }
+
+    private fun collectImageCompressionFlow() {
         photoPicker.imageCompressionFlow.collectWithLifecycle(this) { isCompressionInProgress ->
             binding.pbImageLoading.isVisible = isCompressionInProgress
         }
@@ -191,15 +184,37 @@ class CreationFragment : Fragment() {
 
     private fun collectMainState() {
         viewModel.plantCreationState.collectWithLifecycle(this) {
+            binding.progressCreation.isVisible = it is PlantCreationState.Loading
+            if (it !is PlantCreationError) {
+                binding.tilTitle.error = null
+            }
             when (it) {
-                is PlantCreationState.Default -> {
-                    if (it.plant.name.isEmpty()) {
-                        binding.tilTitle.error = getString(R.string.error_empty_plant_name)
-                    } else {
-                        binding.tilTitle.error = null
-                        binding.progressCreation.isVisible = true
-                        createAlarms(it.plant, it.schedule)
-                    }
+                is PlantCreationState.Success -> {
+                    createAlarms(it.plantCreationData.plant, it.plantCreationData.schedule)
+                }
+
+                PlantCreationState.Loading -> {
+                    Unit
+                }
+
+                PlantCreationState.Idle -> {
+                    Unit
+                }
+
+                PlantCreationError.NameIsEmpty -> {
+                    binding.tilTitle.error = getString(R.string.error_empty_plant_name)
+                }
+
+                PlantCreationError.CouldNotCreatePlant -> {
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.error_could_not_create_plant),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                PlantCreationError.NameIsTooLong -> {
+                    binding.tilTitle.error = getString(R.string.error_long_plant_name)
                 }
             }
         }
@@ -208,8 +223,6 @@ class CreationFragment : Fragment() {
     private fun collectCommands() {
         viewModel.uiCommand.collectWithLifecycle(viewLifecycleOwner) {
             when (it) {
-                PlantCreationCommand.None -> Unit
-
                 is PlantCreationCommand.OpenScheduleScreen -> {
                     openScheduleDialog(
                         schedule = it.schedule,
@@ -314,7 +327,7 @@ class CreationFragment : Fragment() {
     }
 
     private fun getScheduleMap(
-        regularSchedule: RegularSchedule
+        regularSchedule: RegularSchedule,
     ): MutableMap<ScheduleType, List<Long?>> {
         with(regularSchedule) {
             val schedule = mutableMapOf(
@@ -363,7 +376,7 @@ class CreationFragment : Fragment() {
         schedule: RegularSchedule,
         scheduleType: ScheduleType,
         title: Int,
-        icon: Int
+        icon: Int,
     ) {
         val dialog = BottomSheetDialog(requireContext())
         val dialogBinding = BottomSheetBinding.inflate(LayoutInflater.from(requireContext()))
@@ -383,7 +396,7 @@ class CreationFragment : Fragment() {
     private fun setDialogListeners(
         dialog: BottomSheetDialog,
         dialogBinding: BottomSheetBinding,
-        scheduleType: ScheduleType
+        scheduleType: ScheduleType,
     ) {
         dialogBinding.okButton.setOnClickListener {
             /**
@@ -438,7 +451,7 @@ class CreationFragment : Fragment() {
     private fun restoreCareScheduleItem(
         regularSchedule: RegularSchedule,
         dialogBinding: BottomSheetBinding,
-        careScheduleItem: ScheduleType
+        careScheduleItem: ScheduleType,
     ) {
         var defaultIntervalValue = 0
         var lastCareIntervalValue = 0
@@ -476,7 +489,7 @@ class CreationFragment : Fragment() {
 
     private fun updateCareSchedule(
         dialogBinding: BottomSheetBinding,
-        careScheduleItem: CareScheduleItem
+        careScheduleItem: CareScheduleItem,
     ) {
         val defaultIntervalValue = dialogBinding.defaultIntervalItem.getSliderValue().toInt()
 
@@ -508,22 +521,5 @@ class CreationFragment : Fragment() {
     /** Returns max field length */
     @TestOnly
     fun getTitleInputLayoutMaxLength(): Int = binding.tilTitle.counterMaxLength
-
-    /** Contains image retrieve types */
-    private enum class ImageRetrieveType(@StringRes private val retrieveWayTextRes: Int) {
-        CAMERA(R.string.dialog_get_image_from_camera),
-        GALLERY(R.string.dialog_get_image_from_gallery);
-
-        companion object {
-
-            /**
-             * Returns array of [ImageRetrieveType] text.
-             * For example: ["Camera", "Gallery"]
-             */
-            fun getRetrieveWaysText(context: Context): Array<String> {
-                return values().map { context.getString(it.retrieveWayTextRes) }.toTypedArray()
-            }
-        }
-    }
 }
 

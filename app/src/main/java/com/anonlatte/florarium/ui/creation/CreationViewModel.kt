@@ -9,27 +9,34 @@ import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.data.repository.IMainRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
+data class PlantCreationData(
+    val plant: Plant = Plant(),
+    val schedule: RegularSchedule = RegularSchedule(),
+)
+
 class CreationViewModel @Inject constructor(
-    private val mainRepository: IMainRepository
+    private val mainRepository: IMainRepository,
 ) : ViewModel() {
 
-    private val _plantCreationState = MutableStateFlow<PlantCreationState>(
-        PlantCreationState.Default()
-    )
+    private val _plantCreationState = MutableStateFlow<PlantCreationState>(PlantCreationState.Idle)
     val plantCreationState = _plantCreationState.asStateFlow()
 
-    private val _uiCommand = MutableStateFlow<PlantCreationCommand>(
-        PlantCreationCommand.None
-    )
-    val uiCommand = _uiCommand.asStateFlow()
+    private val _plantCreationData = MutableStateFlow(PlantCreationData())
+    val plantCreationData = _plantCreationData.asStateFlow()
+
+    private val _uiCommand = MutableSharedFlow<PlantCreationCommand>()
+    val uiCommand = _uiCommand.asSharedFlow()
 
     /** Used to determine if new plant was created */
     private var wasPlantCreated: Boolean = false
@@ -41,25 +48,25 @@ class CreationViewModel @Inject constructor(
     val keepCreatedImageFiles get() = !isPlantExist && wasPlantCreated
 
     fun addPlantToGarden() {
-        wasPlantCreated = true
-        viewModelScope.launch {
-            plantCreationState.collect {
-                when (it) {
-                    is PlantCreationState.Default -> addPlantToGarden(it.plant, it.schedule)
-                }
-            }
+        val creationData = _plantCreationData.value
+        _plantCreationState.value = validatePlantName(creationData.plant.name)
+        if (_plantCreationState.value is PlantCreationState.Idle) {
+            wasPlantCreated = true
+            addPlantToGarden(creationData.plant, creationData.schedule)
         }
     }
 
-    private suspend fun addPlantToGarden(plant: Plant, schedule: RegularSchedule) {
-        if (!isPlantExist) {
-            mainRepository.createPlant(
-                plant = plant.copy(createdAt = Date().time),
-                regularSchedule = schedule,
-            )
-            _uiCommand.emit(PlantCreationCommand.PlantCreated)
-        } else {
-            updatePlant(plant, schedule)
+    private fun addPlantToGarden(plant: Plant, schedule: RegularSchedule) {
+        viewModelScope.launch {
+            if (!isPlantExist) {
+                mainRepository.createPlant(
+                    plant = plant.copy(createdAt = Date().time),
+                    regularSchedule = schedule,
+                )
+                _uiCommand.emit(PlantCreationCommand.PlantCreated)
+            } else {
+                updatePlant(plant, schedule)
+            }
         }
     }
 
@@ -70,10 +77,23 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    private fun updatePlant(plant: Plant, schedule: RegularSchedule) {
-        viewModelScope.launch(Dispatchers.IO) {
-            mainRepository.updatePlant(plant)
-            updateSchedule(schedule)
+    private suspend fun updatePlant(plant: Plant, schedule: RegularSchedule) {
+        withContext(Dispatchers.IO) {
+            kotlin.runCatching {
+                mainRepository.updatePlant(plant)
+                updateSchedule(schedule)
+            }.onSuccess {
+                _plantCreationState.emit(
+                    PlantCreationState.Success(
+                        PlantCreationData(
+                            plant,
+                            schedule
+                        )
+                    )
+                )
+            }.onFailure {
+                _plantCreationState.emit(PlantCreationError.CouldNotCreatePlant)
+            }
         }
     }
 
@@ -84,15 +104,10 @@ class CreationViewModel @Inject constructor(
     fun updateSchedule(
         scheduleItemType: ScheduleType?,
         defaultIntervalValue: Int? = null,
-        lastCareValue: Int? = null
+        lastCareValue: Int? = null,
     ) {
-        _plantCreationState.update {
-            val schedule = if (it is PlantCreationState.Default) {
-                it.schedule
-            } else {
-                Timber.e("Couldn't update schedule")
-                return@update it
-            }
+        _plantCreationData.update {
+            val schedule = it.schedule
             val updatedSchedule = when (scheduleItemType) {
                 ScheduleType.WATERING -> {
                     schedule.copy(
@@ -136,49 +151,46 @@ class CreationViewModel @Inject constructor(
     }
 
     fun updatePlantImage(path: String) {
-        _plantCreationState.update { state ->
-            if (state is PlantCreationState.Default) {
-                val updatedPlant = state.plant.copy(imageUri = path)
-                state.copy(updatedPlant)
-            } else {
-                state
-            }
-
+        _plantCreationData.update { state ->
+            val updatedPlant = state.plant.copy(imageUri = path)
+            state.copy(plant = updatedPlant)
         }
     }
 
     fun restorePlant(srcPlant: Plant) {
         isPlantExist = true
-        _plantCreationState.update { state ->
-            if (state is PlantCreationState.Default) {
-                state.copy(srcPlant)
-            } else {
-                state
-            }
-
+        _plantCreationData.update { state ->
+            state.copy(plant = srcPlant)
         }
     }
 
     fun restoreSchedule(schedule: RegularSchedule) {
-        _plantCreationState.update { state ->
-            if (state is PlantCreationState.Default) {
-                state.copy(schedule = schedule)
-            } else {
-                state
-            }
-
+        _plantCreationData.update { state ->
+            state.copy(schedule = schedule)
         }
     }
 
     fun setPlantName(text: CharSequence?) {
-        _plantCreationState.update { state ->
-            if (state is PlantCreationState.Default) {
-                val updatedPlant = state.plant.copy(name = text.toString())
-                state.copy(updatedPlant)
-            } else {
-                state
-            }
+        _plantCreationData.update { state ->
+            val updatedPlant = state.plant.copy(name = text.toString())
+            state.copy(plant = updatedPlant)
+        }
+        _plantCreationState.update {
+            validatePlantName(text)
+        }
+    }
 
+    private fun validatePlantName(text: CharSequence?): PlantCreationState = when {
+        text.isNullOrEmpty() -> {
+            PlantCreationError.NameIsEmpty
+        }
+
+        text.length > MAX_PLANT_NAME_LENGTH -> {
+            PlantCreationError.NameIsTooLong
+        }
+
+        else -> {
+            PlantCreationState.Idle
         }
     }
 
@@ -186,12 +198,16 @@ class CreationViewModel @Inject constructor(
         viewModelScope.launch {
             _uiCommand.emit(
                 PlantCreationCommand.OpenScheduleScreen(
-                    schedule = (plantCreationState.value as PlantCreationState.Default).schedule,
+                    schedule = plantCreationData.value.schedule,
                     scheduleItemType = careScheduleItemData.scheduleItemType,
                     title = careScheduleItemData.title,
                     icon = careScheduleItemData.icon,
                 )
             )
         }
+    }
+
+    companion object {
+        private const val MAX_PLANT_NAME_LENGTH = 40
     }
 }

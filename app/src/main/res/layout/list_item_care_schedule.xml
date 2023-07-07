@@ -42,7 +42,7 @@
         app:layout_constraintTop_toBottomOf="@id/scheduleItemTitle"
         tools:text="Not set" />
 
-    <com.google.android.material.switchmaterial.SwitchMaterial
+    <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/itemSwitch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

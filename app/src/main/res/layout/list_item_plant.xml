@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/activated_color_selector"
+    android:foreground="?selectableItemBackground"
     android:orientation="horizontal"
     android:padding="@dimen/margin_normal">
 
     <ImageView
         android:id="@+id/plantImage"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/size_image_in_list"
+        android:layout_height="@dimen/size_image_in_list"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -20,9 +21,16 @@
         app:srcCompat="@drawable/ic_outline_flower_24"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="end"
+        app:constraint_referenced_ids="plantImage" />
+
     <TextView
         android:id="@+id/plantName"
-        style="@style/TextAppearance.MaterialComponents.Subtitle1"
+        style="@style/TextAppearance.Material3.HeadlineSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/margin_normal"
@@ -31,13 +39,13 @@
         app:layout_constraintBottom_toTopOf="@id/plantDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toEndOf="@id/plantImage"
+        app:layout_constraintStart_toEndOf="@id/barrier"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="@tools:sample/lorem/random" />
 
     <TextView
         android:id="@+id/plantDescription"
-        style="@style/TextAppearance.MaterialComponents.Caption"
+        style="@style/TextAppearance.Material3.BodySmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/margin_normal"
@@ -46,7 +54,7 @@
         app:layout_constraintBottom_toBottomOf="@id/plantName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintStart_toEndOf="@id/plantImage"
+        app:layout_constraintStart_toEndOf="@id/barrier"
         app:layout_constraintTop_toBottomOf="@id/plantName"
         tools:text="@tools:sample/lorem/random" />
 </androidx.constraintlayout.widget.ConstraintLayout>

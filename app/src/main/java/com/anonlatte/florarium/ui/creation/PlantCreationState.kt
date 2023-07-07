@@ -1,11 +1,16 @@
 package com.anonlatte.florarium.ui.creation
 
-import com.anonlatte.florarium.data.model.Plant
-import com.anonlatte.florarium.data.model.RegularSchedule
-
 sealed interface PlantCreationState {
-    data class Default(
-        val plant: Plant = Plant(),
-        val schedule: RegularSchedule = RegularSchedule()
-    ) : PlantCreationState
+    data class Success(val plantCreationData: PlantCreationData) : PlantCreationState
+
+    object Loading : PlantCreationState
+
+    object Idle : PlantCreationState
+}
+
+sealed interface PlantCreationError : PlantCreationState {
+    object NameIsEmpty : PlantCreationError
+    object NameIsTooLong : PlantCreationError
+
+    object CouldNotCreatePlant : PlantCreationError
 }

@@ -14,10 +14,12 @@
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/plant_add_button"
+        style="?floatingActionButtonPrimaryStyle"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:backgroundTint="?colorAccent"
         android:contentDescription="@string/btn_add_plant"
         app:srcCompat="@drawable/ic_add_24"
         app:tint="@color/iconsColor" />

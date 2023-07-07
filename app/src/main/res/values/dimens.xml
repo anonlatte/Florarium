@@ -8,4 +8,5 @@
     <dimen name="size_image_button">40dp</dimen>
     <dimen name="list_item_height">72dp</dimen>
     <dimen name="button_plant_add_height">56dp</dimen>
+    <dimen name="size_image_in_list">84dp</dimen>
 </resources>

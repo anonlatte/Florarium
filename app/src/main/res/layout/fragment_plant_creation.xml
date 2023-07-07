@@ -1,161 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
-    <ScrollView
-        android:id="@+id/homeScrollView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <ImageView
+            android:id="@+id/plantImageView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="336dp"
+            android:contentDescription="@string/description_chosen_plant_image"
+            android:foreground="@drawable/gradient_creation_header"
+            android:scaleType="centerCrop"
+            android:src="@drawable/flower_example"
+            app:layout_constraintTop_toTopOf="parent" />
 
-            <ImageView
-                android:id="@+id/plantImageView"
-                android:layout_width="match_parent"
-                android:layout_height="336dp"
-                android:contentDescription="@string/description_chosen_plant_image"
-                android:foreground="@drawable/gradient_creation_header"
-                android:scaleType="centerCrop"
-                android:src="@drawable/flower_example"
-                app:layout_constraintTop_toTopOf="parent" />
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/pb_image_loading"
+            style="?progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            app:layout_constraintBottom_toBottomOf="@id/plantImageView"
+            app:layout_constraintEnd_toEndOf="@id/plantImageView"
+            app:layout_constraintStart_toStartOf="@id/plantImageView"
+            app:layout_constraintTop_toTopOf="@id/plantImageView" />
 
-            <com.google.android.material.progressindicator.CircularProgressIndicator
-                android:id="@+id/pb_image_loading"
-                style="?progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true"
-                app:layout_constraintBottom_toBottomOf="@id/plantImageView"
-                app:layout_constraintEnd_toEndOf="@id/plantImageView"
-                app:layout_constraintStart_toStartOf="@id/plantImageView"
-                app:layout_constraintTop_toTopOf="@id/plantImageView" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_title"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_extra_small"
+            android:hint="@string/hint_plant_title"
+            android:textColorHint="@color/edit_text_with_gradient_background"
+            app:boxStrokeColor="?attr/colorOnPrimarySurface"
+            app:boxStrokeWidth="0dp"
+            app:boxStrokeWidthFocused="0dp"
+            app:counterMaxLength="40"
+            app:hintTextColor="@color/edit_text_with_gradient_background"
+            app:layout_constraintBottom_toBottomOf="@id/plantImageView"
+            app:layout_constraintEnd_toStartOf="@id/btn_load_image"
+            app:layout_constraintStart_toStartOf="parent">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/til_title"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/margin_normal"
-                android:layout_marginBottom="@dimen/margin_extra_small"
-                android:hint="@string/hint_plant_title"
-                android:textColorHint="@color/edit_text_with_gradient_background"
-                app:boxStrokeColor="?attr/colorOnPrimarySurface"
-                app:boxStrokeWidth="0dp"
-                app:boxStrokeWidthFocused="0dp"
-                app:counterMaxLength="40"
-                app:hintTextColor="@color/edit_text_with_gradient_background"
-                app:layout_constraintBottom_toBottomOf="@id/plantImageView"
-                app:layout_constraintEnd_toStartOf="@id/btn_load_image"
-                app:layout_constraintStart_toStartOf="parent">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/et_title"
-                    style="@style/TextAppearance.MaterialComponents.Headline5"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:textColor="?attr/colorOnPrimarySurface" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <Button
-                android:id="@+id/btn_load_image"
-                style="@style/IconOnly"
-                android:layout_width="@dimen/size_image_button"
-                android:layout_height="@dimen/size_image_button"
-                android:layout_marginEnd="@dimen/margin_normal"
-                android:layout_marginBottom="@dimen/margin_normal"
-                android:contentDescription="@string/btn_add_photo"
-                app:backgroundTint="@color/iconsColor"
-                app:iconTint="@color/colorSecondary"
-                tools:icon="@drawable/ic_outline_camera_24"
-                tools:layout_constraintBottom_toBottomOf="@id/plantImageView"
-                tools:layout_constraintEnd_toEndOf="parent" />
-
-            <TextView
-                android:id="@+id/tv_title"
-                style="@style/TextAppearance.MaterialComponents.Headline6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_normal"
-                android:layout_marginTop="@dimen/margin_normal"
-                android:layout_marginBottom="@dimen/margin_normal"
-                android:text="@string/title_care_schedule"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/plantImageView" />
-
-            <com.anonlatte.florarium.ui.custom.CareScheduleItem
-                android:id="@+id/wateringListItem"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_small"
-                app:layout_constraintTop_toBottomOf="@id/tv_title"
-                tools:icon="@drawable/ic_outline_drop_24"
-                tools:scheduleItemType="0"
-                tools:scheduleValue="@string/value_not_set"
-                tools:title="@string/title_watering" />
+                android:inputType="text"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textColor="?attr/colorOnPrimarySurface" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <com.anonlatte.florarium.ui.custom.CareScheduleItem
-                android:id="@+id/sprayingListItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/wateringListItem"
-                tools:icon="@drawable/ic_outline_spray_24"
-                tools:scheduleItemType="1"
-                tools:scheduleValue="@string/value_not_set"
-                tools:title="@string/title_spraying" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_load_image"
+            style="?floatingActionButtonPrimaryStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_normal"
+            android:backgroundTint="?colorAccent"
+            android:contentDescription="@string/btn_add_photo"
+            app:layout_constraintBottom_toBottomOf="@id/plantImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:shapeAppearanceOverlay="?shapeAppearanceCornerMedium"
+            app:srcCompat="@drawable/ic_outline_camera_24"
+            app:tint="?colorOnPrimary" />
 
-            <com.anonlatte.florarium.ui.custom.CareScheduleItem
-                android:id="@+id/fertilizingListItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/sprayingListItem"
-                tools:icon="@drawable/ic_outline_fertilizing_24"
-                tools:scheduleItemType="2"
-                tools:scheduleValue="@string/value_not_set"
-                tools:title="@string/title_fertilizing" />
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/TextAppearance.MaterialComponents.Headline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_normal"
+            android:layout_marginTop="@dimen/margin_normal"
+            android:layout_marginBottom="@dimen/margin_normal"
+            android:text="@string/title_care_schedule"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/plantImageView" />
 
-            <com.anonlatte.florarium.ui.custom.CareScheduleItem
-                android:id="@+id/rotatingListItem"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/fertilizingListItem"
-                tools:icon="@drawable/ic_outline_rotate_right_24"
-                tools:scheduleItemType="3"
-                tools:scheduleValue="@string/value_not_set"
-                tools:title="@string/title_rotating" />
+        <com.anonlatte.florarium.ui.custom.CareScheduleItem
+            android:id="@+id/wateringListItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_small"
+            app:layout_constraintTop_toBottomOf="@id/tv_title"
+            tools:icon="@drawable/ic_outline_drop_24"
+            tools:scheduleItemType="0"
+            tools:scheduleValue="@string/value_not_set"
+            tools:title="@string/title_watering" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btn_add_plant"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/button_plant_add_height"
-                android:layout_margin="@dimen/margin_normal"
-                android:gravity="center"
-                android:text="@string/content_plant_create_button"
-                app:iconGravity="textStart"
-                tools:icon="@drawable/ic_add_24"
-                tools:layout_constraintBottom_toBottomOf="parent"
-                tools:layout_constraintTop_toBottomOf="@id/rotatingListItem" />
+        <com.anonlatte.florarium.ui.custom.CareScheduleItem
+            android:id="@+id/sprayingListItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/wateringListItem"
+            tools:icon="@drawable/ic_outline_spray_24"
+            tools:scheduleItemType="1"
+            tools:scheduleValue="@string/value_not_set"
+            tools:title="@string/title_spraying" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.anonlatte.florarium.ui.custom.CareScheduleItem
+            android:id="@+id/fertilizingListItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/sprayingListItem"
+            tools:icon="@drawable/ic_outline_fertilizing_24"
+            tools:scheduleItemType="2"
+            tools:scheduleValue="@string/value_not_set"
+            tools:title="@string/title_fertilizing" />
 
-    </ScrollView>
+        <com.anonlatte.florarium.ui.custom.CareScheduleItem
+            android:id="@+id/rotatingListItem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/fertilizingListItem"
+            tools:icon="@drawable/ic_outline_rotate_right_24"
+            tools:scheduleItemType="3"
+            tools:scheduleValue="@string/value_not_set"
+            tools:title="@string/title_rotating" />
 
-    <ProgressBar
-        android:id="@+id/progress_creation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        tools:visibility="gone" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_add_plant"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/button_plant_add_height"
+            android:layout_margin="@dimen/margin_normal"
+            android:text="@string/content_plant_create_button"
+            app:icon="@drawable/ic_add_24"
+            app:iconGravity="textStart"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rotatingListItem"
+            app:shapeAppearanceOverlay="?shapeAppearanceCornerMedium" />
 
-    <include
-        android:id="@+id/bottomSheet"
-        layout="@layout/bottom_sheet"
-        tools:visibility="gone" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <ProgressBar
+            android:id="@+id/progress_creation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

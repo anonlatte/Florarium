@@ -2,10 +2,12 @@ package com.anonlatte.florarium.ui.home.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.transform.CircleCropTransformation
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
 import com.anonlatte.florarium.data.model.Plant
 import com.anonlatte.florarium.data.model.PlantWithSchedule
@@ -59,7 +61,12 @@ class PlantsAdapter(
         fun bind(plantWithSchedule: PlantWithSchedule, isActivated: Boolean = false) {
             with(binding) {
                 root.isActivated = isActivated
-                plantImage.load(plantWithSchedule.plant.imageUri)
+                plantImage.isVisible = plantWithSchedule.plant.imageUri.isNotEmpty()
+                if (plantWithSchedule.plant.imageUri.isNotEmpty()) {
+                    plantImage.load(plantWithSchedule.plant.imageUri) {
+                        transformations(CircleCropTransformation())
+                    }
+                }
                 plantImage.contentDescription = plantWithSchedule.plant.name
                 plantName.text = plantWithSchedule.plant.name
                 plantWithSchedule.schedule?.let { schedule ->

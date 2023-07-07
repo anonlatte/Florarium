@@ -6,7 +6,6 @@ import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 
 sealed interface PlantCreationCommand {
-    object None : PlantCreationCommand
 
     data class OpenScheduleScreen(
         val schedule: RegularSchedule,

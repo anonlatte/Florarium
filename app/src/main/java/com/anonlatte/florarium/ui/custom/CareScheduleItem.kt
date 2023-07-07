@@ -25,10 +25,14 @@ class CareScheduleItem @JvmOverloads constructor(
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.CareScheduleItem).use {
-            @StringRes val title: Int = it.getResourceId(R.styleable.CareScheduleItem_title, 0)
-            @DrawableRes val icon: Int = it.getResourceId(R.styleable.CareScheduleItem_icon, 0)
-            @StringRes val scheduleValue: Int =
-                it.getResourceId(R.styleable.CareScheduleItem_scheduleValue, 0)
+            @StringRes
+            val title: Int = it.getResourceId(R.styleable.CareScheduleItem_title, 0)
+
+            @DrawableRes
+            val icon: Int = it.getResourceId(R.styleable.CareScheduleItem_icon, 0)
+
+            @StringRes
+            val scheduleValue: Int = it.getResourceId(R.styleable.CareScheduleItem_scheduleValue, 0)
             val scheduleItemTypeId: Int =
                 it.getInt(R.styleable.CareScheduleItem_scheduleItemType, 0)
             val scheduleType = checkNotNull(ScheduleType.toScheduleType(scheduleItemTypeId)) {
@@ -44,12 +48,11 @@ class CareScheduleItem @JvmOverloads constructor(
                 )
             )
         }
-        updateUi()
     }
 
     fun updateData(data: CareScheduleItemData) {
         state = data
-        // TODO: update UI
+        updateUi()
     }
 
     fun setItemDescription(
@@ -63,9 +66,15 @@ class CareScheduleItem @JvmOverloads constructor(
     }
 
     private fun updateUi() = with(state) {
-        binding.scheduleItemTitle.text = context.getString(title)
-        binding.scheduleItemIcon.setImageDrawable(ContextCompat.getDrawable(context, icon))
-        binding.scheduleItemDescription.text = context.getString(scheduleValue)
+        if (title != 0) {
+            binding.scheduleItemTitle.text = context.getString(title)
+        }
+        if (icon != 0) {
+            binding.scheduleItemIcon.setImageDrawable(ContextCompat.getDrawable(context, icon))
+        }
+        if (scheduleValue != 0) {
+            binding.scheduleItemDescription.text = context.getString(scheduleValue)
+        }
     }
 
     private fun formattedScheduleValue(
