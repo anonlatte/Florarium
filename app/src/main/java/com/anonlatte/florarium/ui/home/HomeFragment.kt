@@ -1,37 +1,32 @@
 package com.anonlatte.florarium.ui.home
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
-import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.collectWithLifecycle
 import com.anonlatte.florarium.ui.home.adapters.PlantsAdapter
-import javax.inject.Inject
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HomeFragment : Fragment() {
     private lateinit var plantsAdapter: PlantsAdapter
 
-    @Inject
-    lateinit var viewModel: HomeViewModel
+    private val viewModel by viewModels<HomeViewModel>()
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        context.appComponent.inject(this)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         subscribeUI()

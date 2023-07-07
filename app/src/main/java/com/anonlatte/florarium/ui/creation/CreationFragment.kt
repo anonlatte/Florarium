@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.ui.creation
 
-import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
@@ -25,19 +25,19 @@ import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
-import com.anonlatte.florarium.extensions.appComponent
 import com.anonlatte.florarium.extensions.collectWithLifecycle
 import com.anonlatte.florarium.extensions.setAlarm
 import com.anonlatte.florarium.extensions.setIcon
 import com.anonlatte.florarium.ui.custom.CareScheduleItem
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dagger.hilt.android.AndroidEntryPoint
 import org.jetbrains.annotations.TestOnly
 import timber.log.Timber
-import javax.inject.Inject
 import kotlin.random.Random
 
 
+@AndroidEntryPoint
 class CreationFragment : Fragment() {
     private var _binding: FragmentPlantCreationBinding? = null
     private val binding get() = _binding!!
@@ -79,12 +79,7 @@ class CreationFragment : Fragment() {
     }
 
 
-    @Inject
-    lateinit var viewModel: CreationViewModel
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        context.appComponent.inject(this)
-    }
+    private val viewModel by viewModels<CreationViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,

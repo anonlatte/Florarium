@@ -8,6 +8,7 @@ import com.anonlatte.florarium.data.model.PlantAlarm
 import com.anonlatte.florarium.data.model.RegularSchedule
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.data.repository.IMainRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
+@HiltViewModel
 class CreationViewModel @Inject constructor(
     private val mainRepository: IMainRepository,
 ) : ViewModel() {
