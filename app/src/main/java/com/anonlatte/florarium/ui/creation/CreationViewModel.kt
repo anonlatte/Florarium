@@ -20,11 +20,6 @@ import timber.log.Timber
 import java.util.Date
 import javax.inject.Inject
 
-data class PlantCreationData(
-    val plant: Plant = Plant(),
-    val schedule: RegularSchedule = RegularSchedule(),
-)
-
 class CreationViewModel @Inject constructor(
     private val mainRepository: IMainRepository,
 ) : ViewModel() {
@@ -103,8 +98,8 @@ class CreationViewModel @Inject constructor(
 
     fun updateSchedule(
         scheduleItemType: ScheduleType?,
-        defaultIntervalValue: Int? = null,
-        lastCareValue: Int? = null,
+        defaultIntervalValue: Int = 0,
+        lastCareValue: Int = 0,
     ) {
         _plantCreationData.update {
             val schedule = it.schedule
@@ -157,16 +152,26 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    fun restorePlant(srcPlant: Plant) {
-        isPlantExist = true
-        _plantCreationData.update { state ->
-            state.copy(plant = srcPlant)
-        }
-    }
+    fun restoreData(plant: Plant?, schedule: RegularSchedule?) {
+        isPlantExist = plant != null && schedule != null
+        if (!isPlantExist) return
 
-    fun restoreSchedule(schedule: RegularSchedule) {
-        _plantCreationData.update { state ->
-            state.copy(schedule = schedule)
+        if (_plantCreationData.value.isNotEdited) {
+            _plantCreationData.update { state ->
+                state.copy(
+                    plant = plant ?: state.plant,
+                    schedule = schedule ?: state.schedule
+                )
+            }
+            return
+        }
+        _plantCreationState.update {
+            PlantCreationState.PlantRecreation(
+                PlantCreationData(
+                    _plantCreationData.value.plant,
+                    _plantCreationData.value.schedule
+                )
+            )
         }
     }
 
@@ -206,6 +211,20 @@ class CreationViewModel @Inject constructor(
             )
         }
     }
+
+    fun revokeData() {
+        _plantCreationState.update {
+            PlantCreationState.PlantRecreation(
+                PlantCreationData(
+                    _plantCreationData.value.plant,
+                    _plantCreationData.value.schedule
+                )
+            )
+        }
+    }
+
+    private val PlantCreationData.isNotEdited: Boolean
+        get() = plant == Plant() && schedule == RegularSchedule()
 
     companion object {
         private const val MAX_PLANT_NAME_LENGTH = 40

@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -93,7 +92,7 @@ class CreationFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         _binding = FragmentPlantCreationBinding.inflate(inflater, container, false)
-        reinitializeScreen()
+        viewModel.restoreData(navArgs.plant, navArgs.schedule)
         initViews()
         subscribeUi()
         addImageButtonTooltip()
@@ -136,27 +135,6 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun reinitializeScreen() {
-        navArgs.plant?.let { plant ->
-            viewModel.restorePlant(plant)
-            navArgs.schedule?.let { schedule ->
-                // TODO if field is null then hide/show 'not set'
-                viewModel.restoreSchedule(schedule)
-                restoreCareSchedule(schedule)
-            }
-            binding.plantImageView.load(Uri.parse(plant.imageUri)) {
-                listener(
-                    onError = { _, errorResult ->
-                        Timber.e(errorResult.throwable)
-                    }
-                )
-            }
-            plant.name.takeIf {
-                it.isNotEmpty()
-            }?.let(binding.etTitle::setText)
-        }
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         if (navArgs.plant != null) {
@@ -165,6 +143,11 @@ class CreationFragment : Fragment() {
                 icon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_outline_save_24)
             }
         }
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        viewModel.revokeData()
     }
 
     private fun subscribeUi() {
@@ -183,14 +166,14 @@ class CreationFragment : Fragment() {
     }
 
     private fun collectMainState() {
-        viewModel.plantCreationState.collectWithLifecycle(this) {
-            binding.progressCreation.isVisible = it is PlantCreationState.Loading
-            if (it !is PlantCreationError) {
+        viewModel.plantCreationState.collectWithLifecycle(this) { state ->
+            binding.progressCreation.isVisible = state is PlantCreationState.Loading
+            if (state !is PlantCreationError) {
                 binding.tilTitle.error = null
             }
-            when (it) {
+            when (state) {
                 is PlantCreationState.Success -> {
-                    createAlarms(it.plantCreationData.plant, it.plantCreationData.schedule)
+                    createAlarms(state.plantCreationData.plant, state.plantCreationData.schedule)
                 }
 
                 PlantCreationState.Loading -> {
@@ -216,19 +199,35 @@ class CreationFragment : Fragment() {
                 PlantCreationError.NameIsTooLong -> {
                     binding.tilTitle.error = getString(R.string.error_long_plant_name)
                 }
+
+                is PlantCreationState.PlantRecreation -> {
+                    if (state.data.plant.imageUri.isNotEmpty()) {
+                        binding.plantImageView.load(Uri.parse(state.data.plant.imageUri)) {
+                            listener(
+                                onError = { _, errorResult ->
+                                    Timber.e(errorResult.throwable)
+                                }
+                            )
+                        }
+                    }
+                    if (state.data.plant.name.isNotEmpty()) {
+                        binding.etTitle.setText(state.data.plant.name)
+                    }
+                    restoreCareSchedule(state.data.schedule)
+                }
             }
         }
     }
 
     private fun collectCommands() {
-        viewModel.uiCommand.collectWithLifecycle(viewLifecycleOwner) {
-            when (it) {
+        viewModel.uiCommand.collectWithLifecycle(viewLifecycleOwner) { command ->
+            when (command) {
                 is PlantCreationCommand.OpenScheduleScreen -> {
                     openScheduleDialog(
-                        schedule = it.schedule,
-                        scheduleType = it.scheduleItemType,
-                        title = it.title,
-                        icon = it.icon,
+                        schedule = command.schedule,
+                        scheduleType = command.scheduleItemType,
+                        title = command.title,
+                        icon = command.icon,
                     )
                 }
 
@@ -256,23 +255,30 @@ class CreationFragment : Fragment() {
 
     private fun restoreCareSchedule(regularSchedule: RegularSchedule) {
         with(binding) {
-            wateringListItem.setItemDescription(
-                regularSchedule.wateringInterval,
-                getDaysFromTimestampAgo(regularSchedule.wateredAt)
-            )
-            sprayingListItem.setItemDescription(
-                regularSchedule.sprayingInterval,
-                getDaysFromTimestampAgo(regularSchedule.sprayedAt)
-            )
-            fertilizingListItem.setItemDescription(
-                regularSchedule.fertilizingInterval,
-                getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
-            )
-            rotatingListItem.setItemDescription(
-                regularSchedule.rotatingInterval,
-                getDaysFromTimestampAgo(regularSchedule.rotatedAt)
-
-            )
+            wateringListItem.updateData {
+                it.copy(
+                    intervalValue = regularSchedule.wateringInterval,
+                    lastCareValue = getDaysFromTimestampAgo(regularSchedule.wateredAt)
+                )
+            }
+            sprayingListItem.updateData {
+                it.copy(
+                    intervalValue = regularSchedule.sprayingInterval,
+                    lastCareValue = getDaysFromTimestampAgo(regularSchedule.sprayedAt)
+                )
+            }
+            fertilizingListItem.updateData {
+                it.copy(
+                    intervalValue = regularSchedule.fertilizingInterval,
+                    lastCareValue = getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
+                )
+            }
+            rotatingListItem.updateData {
+                it.copy(
+                    intervalValue = regularSchedule.rotatingInterval,
+                    lastCareValue = getDaysFromTimestampAgo(regularSchedule.rotatedAt)
+                )
+            }
         }
     }
 
@@ -331,17 +337,17 @@ class CreationFragment : Fragment() {
     ): MutableMap<ScheduleType, List<Long?>> {
         with(regularSchedule) {
             val schedule = mutableMapOf(
-                ScheduleType.WATERING to listOf(wateringInterval?.toLong(), wateredAt)
+                ScheduleType.WATERING to listOf(wateringInterval.toLong(), wateredAt)
             )
-            if (sprayingInterval != null) {
+            if (sprayingInterval > 0) {
                 schedule[ScheduleType.SPRAYING] = listOf(sprayingInterval.toLong(), sprayedAt)
             }
-            if (fertilizingInterval != null) {
+            if (fertilizingInterval > 0) {
                 schedule[ScheduleType.FERTILIZING] = listOf(
                     fertilizingInterval.toLong(), fertilizedAt
                 )
             }
-            if (rotatingInterval != null) {
+            if (rotatingInterval > 0) {
                 schedule[ScheduleType.ROTATING] = listOf(rotatingInterval.toLong(), rotatedAt)
             }
             return schedule
@@ -410,7 +416,6 @@ class CreationFragment : Fragment() {
                 ScheduleType.FERTILIZING -> binding.fertilizingListItem
                 ScheduleType.ROTATING -> binding.rotatingListItem
             }
-            careScheduleItem.binding.itemSwitch.isChecked = true
             updateCareSchedule(
                 dialogBinding,
                 careScheduleItem
@@ -428,19 +433,26 @@ class CreationFragment : Fragment() {
                 onScheduleItemClickListener(careScheduleItem)
             }
             /** Convert itemSwitch to View to avoid overriding [View.performClick] */
-            (binding.itemSwitch as View).setOnTouchListener { switchView, event ->
-                when {
-                    event.action == MotionEvent.ACTION_UP && !binding.itemSwitch.isChecked -> {
-                        onScheduleItemClickListener(careScheduleItem)
-                        switchView.performClick()
-                    }
-
-                    event.action == MotionEvent.ACTION_UP && binding.itemSwitch.isChecked -> {
-                        viewModel.clearScheduleField(state.scheduleItemType)
-                    }
+            careScheduleItem.setOnSwitchCheckedChangeListener { isChecked ->
+                if (isChecked) {
+                    onScheduleItemClickListener(careScheduleItem)
+                } else {
+                    clearScheduleField(state.scheduleItemType)
                 }
-                event.actionMasked == MotionEvent.ACTION_MOVE
             }
+        }
+    }
+
+    private fun clearScheduleField(scheduleItemType: ScheduleType) {
+        viewModel.clearScheduleField(scheduleItemType)
+        val careScheduleItem = when (scheduleItemType) {
+            ScheduleType.WATERING -> binding.wateringListItem
+            ScheduleType.SPRAYING -> binding.sprayingListItem
+            ScheduleType.FERTILIZING -> binding.fertilizingListItem
+            ScheduleType.ROTATING -> binding.rotatingListItem
+        }
+        careScheduleItem.updateData {
+            it.copy(intervalValue = 0)
         }
     }
 
@@ -454,22 +466,22 @@ class CreationFragment : Fragment() {
 
         when (careScheduleItem) {
             ScheduleType.WATERING -> binding.wateringListItem.apply {
-                defaultIntervalValue = regularSchedule.wateringInterval ?: 0
+                defaultIntervalValue = regularSchedule.wateringInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.wateredAt)
             }
 
             ScheduleType.SPRAYING -> binding.sprayingListItem.apply {
-                defaultIntervalValue = regularSchedule.sprayingInterval ?: 0
+                defaultIntervalValue = regularSchedule.sprayingInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.sprayedAt)
             }
 
             ScheduleType.FERTILIZING -> binding.fertilizingListItem.apply {
-                defaultIntervalValue = regularSchedule.fertilizingInterval ?: 0
+                defaultIntervalValue = regularSchedule.fertilizingInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.fertilizedAt)
             }
 
             ScheduleType.ROTATING -> binding.rotatingListItem.apply {
-                defaultIntervalValue = regularSchedule.rotatingInterval ?: 0
+                defaultIntervalValue = regularSchedule.rotatingInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(regularSchedule.rotatedAt)
             }
 
@@ -488,18 +500,17 @@ class CreationFragment : Fragment() {
         careScheduleItem: CareScheduleItem,
     ) {
         val defaultIntervalValue = dialogBinding.defaultIntervalItem.getSliderValue().toInt()
-
-        if (defaultIntervalValue <= 0) {
-            careScheduleItem.binding.itemSwitch.isChecked = false
-            return
+        careScheduleItem.updateData {
+            it.copy(intervalValue = defaultIntervalValue)
         }
+
 
         val lastCareValue = dialogBinding.lastCareItem.getSliderValue().toInt()
 
-        careScheduleItem.setItemDescription(
-            defaultIntervalValue,
-            lastCareValue
-        )
+        careScheduleItem.updateData {
+            it.copy(intervalValue = defaultIntervalValue, lastCareValue = lastCareValue)
+        }
+
         viewModel.updateSchedule(
             scheduleItemType = careScheduleItem.state.scheduleItemType,
             defaultIntervalValue = defaultIntervalValue,

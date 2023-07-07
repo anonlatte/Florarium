@@ -1,13 +1,23 @@
 package com.anonlatte.florarium.ui.creation
 
+import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.anonlatte.florarium.R
 import com.anonlatte.florarium.data.model.ScheduleType
+import kotlinx.parcelize.Parcelize
 
-class CareScheduleItemData(
+/**
+ * Data class for [com.anonlatte.florarium.ui.custom.CareScheduleItem] view
+ * @param title title of the item
+ * @param icon icon of the item
+ * @param intervalValue value of the slider
+ * @param scheduleItemType type of the schedule item
+ */
+@Parcelize
+data class CareScheduleItemData(
     @StringRes val title: Int,
     @DrawableRes val icon: Int,
-    @StringRes val scheduleValue: Int = R.string.value_not_set,
     val scheduleItemType: ScheduleType,
-)
+    val intervalValue: Int = 0,
+    val lastCareValue: Int = 0,
+) : Parcelable

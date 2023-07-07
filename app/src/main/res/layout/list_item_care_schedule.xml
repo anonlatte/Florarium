@@ -40,7 +40,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@id/scheduleItemTitle"
         app:layout_constraintTop_toBottomOf="@id/scheduleItemTitle"
-        tools:text="Not set" />
+        android:text="@string/value_not_set" />
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/itemSwitch"

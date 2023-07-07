@@ -3,6 +3,7 @@ package com.anonlatte.florarium.ui.custom
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.CompoundButton.OnCheckedChangeListener
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -14,14 +15,20 @@ import com.anonlatte.florarium.ui.creation.CareScheduleItemData
 import timber.log.Timber
 
 class CareScheduleItem @JvmOverloads constructor(
-    context: Context, attrs: AttributeSet? = null
+    context: Context, attrs: AttributeSet? = null,
 ) : ConstraintLayout(context, attrs) {
 
     lateinit var state: CareScheduleItemData
         private set
 
 
-    val binding = ListItemCareScheduleBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = ListItemCareScheduleBinding.inflate(
+        LayoutInflater.from(context),
+        this,
+        true
+    )
+
+    private var onSwitchCheckedChangeListener: OnCheckedChangeListener? = null
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.CareScheduleItem).use {
@@ -31,10 +38,10 @@ class CareScheduleItem @JvmOverloads constructor(
             @DrawableRes
             val icon: Int = it.getResourceId(R.styleable.CareScheduleItem_icon, 0)
 
-            @StringRes
-            val scheduleValue: Int = it.getResourceId(R.styleable.CareScheduleItem_scheduleValue, 0)
-            val scheduleItemTypeId: Int =
-                it.getInt(R.styleable.CareScheduleItem_scheduleItemType, 0)
+            val scheduleItemTypeId: Int = it.getInt(
+                R.styleable.CareScheduleItem_scheduleItemType,
+                0
+            )
             val scheduleType = checkNotNull(ScheduleType.toScheduleType(scheduleItemTypeId)) {
                 Timber.e("Unknown schedule type: $scheduleItemTypeId")
             }
@@ -43,26 +50,44 @@ class CareScheduleItem @JvmOverloads constructor(
                 CareScheduleItemData(
                     title = title,
                     icon = icon,
-                    scheduleValue = scheduleValue,
                     scheduleItemType = scheduleType
                 )
             )
         }
+        isSaveEnabled = true
     }
 
     fun updateData(data: CareScheduleItemData) {
-        state = data
+        state = data.copy(
+            lastCareValue = if (data.intervalValue == 0) 0 else data.lastCareValue,
+        )
         updateUi()
     }
 
-    fun setItemDescription(
+    fun updateData(data: (CareScheduleItemData) -> CareScheduleItemData) {
+        updateData(data(state))
+    }
+
+    fun setOnSwitchCheckedChangeListener(listener: (Boolean) -> Unit) {
+        onSwitchCheckedChangeListener = OnCheckedChangeListener { _, isChecked ->
+            listener(isChecked)
+        }
+        binding.itemSwitch.setOnCheckedChangeListener(onSwitchCheckedChangeListener)
+
+    }
+
+    private fun setItemDescription(
         defaultIntervalValue: Int?,
-        lastCareValue: Int?
+        lastCareValue: Int?,
     ) {
-        binding.scheduleItemDescription.text = formattedScheduleValue(
-            defaultIntervalValue,
-            lastCareValue
-        )
+        binding.scheduleItemDescription.text = if (defaultIntervalValue == 0) {
+            context.getString(R.string.value_not_set)
+        } else {
+            formattedScheduleValue(
+                defaultIntervalValue,
+                lastCareValue
+            )
+        }
     }
 
     private fun updateUi() = with(state) {
@@ -72,14 +97,17 @@ class CareScheduleItem @JvmOverloads constructor(
         if (icon != 0) {
             binding.scheduleItemIcon.setImageDrawable(ContextCompat.getDrawable(context, icon))
         }
-        if (scheduleValue != 0) {
-            binding.scheduleItemDescription.text = context.getString(scheduleValue)
-        }
+
+        setItemDescription(intervalValue, lastCareValue)
+
+        binding.itemSwitch.setOnCheckedChangeListener(null)
+        binding.itemSwitch.isChecked = intervalValue > 0
+        binding.itemSwitch.setOnCheckedChangeListener(onSwitchCheckedChangeListener)
     }
 
     private fun formattedScheduleValue(
         defaultIntervalValue: Int?,
-        lastCareValue: Int?
+        lastCareValue: Int?,
     ): String = if (lastCareValue != null && lastCareValue > 0) {
         "$lastCareValue $defaultIntervalValue"
     } else {
