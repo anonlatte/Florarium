@@ -34,4 +34,10 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#F5E8E2</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_florarium
+        </item>
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
 </resources>
