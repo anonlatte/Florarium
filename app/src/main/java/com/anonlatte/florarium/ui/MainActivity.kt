@@ -3,12 +3,12 @@ package com.anonlatte.florarium.ui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setupNavigationController()
         setupNavigationBar()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     private fun setupNavigationController() {
@@ -35,7 +36,6 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_host_fragment
         ) as NavHostFragment
         navController = navHostFragment.navController
-        setupActionBarWithNavController(navController, appBarConfiguration)
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.bottomNavigation.isVisible = appBarConfiguration.topLevelDestinations.contains(
                 destination.id

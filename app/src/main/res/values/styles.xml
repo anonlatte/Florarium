@@ -1,15 +1,4 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.Material3.Light">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
-        <item name="colorSecondary">@color/colorSecondary</item>
-        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
-
-        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
-    </style>
-
     <style name="IconOnly" parent="Widget.Material3.Button.OutlinedButton">
         <item name="iconPadding">0dp</item>
         <item name="android:insetTop">0dp</item>
@@ -21,10 +10,6 @@
         <item name="iconGravity">textStart</item>
     </style>
 
-    <style name="AppBottomSheetDialogTheme" parent="Theme.Material3.Light.BottomSheetDialog">
-        <item name="bottomSheetStyle">@style/Widget.Material3.BottomSheet.Modal</item>
-    </style>
-
     <style name="Tooltip" parent="Widget.Material3.Tooltip">
         <item name="shapeAppearanceOverlay">@style/tooltipOverlay</item>
         <item name="backgroundTint">@color/colorPrimary</item>
@@ -32,12 +17,5 @@
 
     <style name="tooltipOverlay">
         <item name="cornerSize">50%</item>
-    </style>
-
-    <style name="AppTheme.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">#F5E8E2</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground_florarium
-        </item>
-        <item name="postSplashScreenTheme">@style/AppTheme</item>
     </style>
 </resources>
