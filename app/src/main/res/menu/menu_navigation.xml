@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/nav_plants"
+        android:icon="@drawable/ic_list"
+        android:title="@string/navigation_tab_all_plants"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_flower"
+        android:title="@string/navigation_tab_home"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:title="@string/navigation_tab_profile"
+        app:showAsAction="ifRoom" />
+</menu>

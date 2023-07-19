@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">Florarium</string>
+
+    <string name="navigation_tab_home">Home</string>
+    <string name="navigation_tab_all_plants">All plants</string>
+    <string name="navigation_tab_profile">Profile</string>
+
     <string name="content_description_image">Image of the %s</string>
     <string name="content_plant_create_button">Add to my plants</string>
     <string name="description_chosen_plant_image">Chosen plant image</string>
