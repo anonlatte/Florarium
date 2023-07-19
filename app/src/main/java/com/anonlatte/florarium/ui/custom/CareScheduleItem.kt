@@ -8,6 +8,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.content.withStyledAttributes
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.data.model.ScheduleType
 import com.anonlatte.florarium.databinding.ListItemCareScheduleBinding
@@ -31,14 +32,14 @@ class CareScheduleItem @JvmOverloads constructor(
     private var onSwitchCheckedChangeListener: OnCheckedChangeListener? = null
 
     init {
-        context.obtainStyledAttributes(attrs, R.styleable.CareScheduleItem).use {
+        context.withStyledAttributes(attrs, R.styleable.CareScheduleItem) {
             @StringRes
-            val title: Int = it.getResourceId(R.styleable.CareScheduleItem_title, 0)
+            val title: Int = getResourceId(R.styleable.CareScheduleItem_title, 0)
 
             @DrawableRes
-            val icon: Int = it.getResourceId(R.styleable.CareScheduleItem_icon, 0)
+            val icon: Int = getResourceId(R.styleable.CareScheduleItem_icon, 0)
 
-            val scheduleItemTypeId: Int = it.getInt(
+            val scheduleItemTypeId: Int = getInt(
                 R.styleable.CareScheduleItem_scheduleItemType,
                 0
             )
