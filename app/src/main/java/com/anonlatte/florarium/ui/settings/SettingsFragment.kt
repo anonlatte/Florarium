@@ -5,10 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.anonlatte.florarium.databinding.FragmentSettingsBinding
 import com.anonlatte.florarium.ui.settings.data.SettingId
+import com.anonlatte.florarium.ui.settings.data.SettingsItemElement
 import com.anonlatte.florarium.ui.settings.recycler.SettingsAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import dev.chrisbanes.insetter.applyInsetter
 
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
@@ -33,6 +37,27 @@ class SettingsFragment : Fragment() {
 
     private fun initSettingsList() {
         binding.rvSettings.adapter = settingsAdapter
+        binding.rvSettings.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvSettings.addItemDecoration(
+            DividerItemDecoration(
+                requireContext(),
+                DividerItemDecoration.VERTICAL
+            )
+        )
+        binding.rvSettings.applyInsetter {
+            type(navigationBars = true, statusBars = true) {
+                padding()
+            }
+        }
+        settingsAdapter.submitList(
+            listOf(
+                SettingsItemElement.SettingsItem(
+                    SettingId.NOTIFICATIONS,
+                    getString(SettingId.NOTIFICATIONS.title),
+                    SettingId.NOTIFICATIONS.icon
+                )
+            )
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

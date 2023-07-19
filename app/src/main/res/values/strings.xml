@@ -49,4 +49,6 @@
     <string name="error_empty_plant_name">Name can\'t be empty</string>
     <string name="error_could_not_create_plant">Couldn\'t create plant</string>
     <string name="error_plant_deletion">Something went wrong</string>
+
+    <string name="setting_notifications">Notifications</string>
 </resources>

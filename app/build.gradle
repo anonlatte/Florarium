@@ -90,6 +90,7 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$timberVersion"
 
     implementation('io.coil-kt:coil:2.2.2')
+    implementation "dev.chrisbanes.insetter:insetter:0.6.1"
 
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationVersion"

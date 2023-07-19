@@ -5,7 +5,7 @@
     style="@style/ThemeOverlay.Material3.Button.TextButton"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?selectableItemBackgroundBorderless"
+    android:background="?selectableItemBackground"
     android:drawablePadding="@dimen/margin_normal"
     android:gravity="center_vertical"
     android:maxLines="1"
@@ -15,6 +15,6 @@
     android:textAppearance="?textAppearanceBodyLarge"
     android:textColor="?colorOnBackground"
     app:drawableEndCompat="@drawable/ic_chevron_right_24"
-    app:drawableStartCompat="@drawable/ic_outline_notifications_active_24"
+    tools:drawableStartCompat="@drawable/ic_notifications"
     app:drawableTint="?colorOnBackground"
     tools:text="@tools:sample/lorem/random" />

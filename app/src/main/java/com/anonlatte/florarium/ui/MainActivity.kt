@@ -17,7 +17,11 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var navController: NavController
-    private val appBarConfiguration by lazy { AppBarConfiguration(navController.graph) }
+    private val appBarConfiguration by lazy {
+        AppBarConfiguration(
+            setOf(R.id.homeFragment, R.id.settingsFragment)
+        )
+    }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -58,8 +62,9 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_profile -> {
-                    // navController.navigate(R.id.profileFragment)
-                    false
+                    navController.navigate(R.id.settingsFragment)
+                    // TODO replace with R.id.profileFragment fragment where settings will be
+                    true
                 }
 
                 else -> false
