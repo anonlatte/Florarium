@@ -18,6 +18,7 @@ import com.anonlatte.florarium.databinding.FragmentHomeBinding
 import com.anonlatte.florarium.extensions.collectWithLifecycle
 import com.anonlatte.florarium.ui.home.adapters.PlantsAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import dev.chrisbanes.insetter.applyInsetter
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -95,6 +96,11 @@ class HomeFragment : Fragment() {
         binding.plantsList.apply {
             setHasFixedSize(true)
             adapter = plantsAdapter
+            applyInsetter {
+                type(navigationBars = true, statusBars = true) {
+                    padding()
+                }
+            }
         }
     }
 
