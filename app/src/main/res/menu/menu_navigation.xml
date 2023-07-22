@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/nav_plants"
+        android:enabled="false"
         android:icon="@drawable/ic_list"
         android:title="@string/navigation_tab_all_plants"
         app:showAsAction="ifRoom" />

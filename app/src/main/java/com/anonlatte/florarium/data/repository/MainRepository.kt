@@ -53,4 +53,11 @@ class MainRepository @Inject constructor(
             PlantWithSchedule(plant, associatedSchedule)
         }
     }
+
+    override suspend fun updateGlobalNotificationTime(hour: Int, minute: Int) {
+        val schedules = regularScheduleDao.getSchedules()
+        schedules.forEach { schedule ->
+            // TODO regularScheduleDao.update(schedule.copy(hour = hour, minute = minute))
+        }
+    }
 }

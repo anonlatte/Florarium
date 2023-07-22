@@ -19,4 +19,5 @@ interface IMainRepository {
     suspend fun createPlantAlarm(plantAlarm: PlantAlarm): Long
     suspend fun getPlantsAlarms(): List<PlantAlarm>
     suspend fun getPlantsToSchedules(): List<PlantWithSchedule>
+    suspend fun updateGlobalNotificationTime(hour: Int, minute: Int)
 }
