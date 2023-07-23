@@ -110,6 +110,8 @@ dependencies {
 
     implementation(libs.bundles.room)
 
+    implementation(libs.bundles.datastore)
+
     implementation(libs.workManager)
 
     implementation(libs.androidMaterial)
