@@ -52,7 +52,7 @@ class RegularScheduleDaoTest {
     fun update() = runBlocking {
         schedule = schedule.copy(wateringInterval = 4)
         val updatedId = scheduleDao.update(schedule).toLong()
-        MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.scheduleId))
+        MatcherAssert.assertThat(updatedId, Matchers.equalTo(schedule.id))
     }
 
     @Test

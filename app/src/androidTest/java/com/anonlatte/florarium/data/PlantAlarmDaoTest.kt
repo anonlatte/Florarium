@@ -5,7 +5,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.anonlatte.florarium.app.utils.testPlantAlarm
 import com.anonlatte.florarium.data.db.AppDatabase
-import com.anonlatte.florarium.data.db.dao.PlantAlarmDao
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert
 import org.hamcrest.Matchers

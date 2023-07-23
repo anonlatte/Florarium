@@ -89,8 +89,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        plantsAdapter = PlantsAdapter { plant, schedule ->
-            val actionHomeToCreation = HomeFragmentDirections.actionHomeToCreation(plant, schedule)
+        plantsAdapter = PlantsAdapter { plantWithSchedule ->
+            val actionHomeToCreation =
+                HomeFragmentDirections.actionHomeToCreation(plantWithSchedule)
             findNavController().navigate(actionHomeToCreation)
         }
         binding.plantsList.apply {

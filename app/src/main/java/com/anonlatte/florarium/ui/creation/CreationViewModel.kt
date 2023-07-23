@@ -3,10 +3,11 @@ package com.anonlatte.florarium.ui.creation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anonlatte.florarium.app.utils.getTimestampFromDaysAgo
-import com.anonlatte.florarium.data.model.Plant
-import com.anonlatte.florarium.data.model.PlantAlarm
-import com.anonlatte.florarium.data.model.RegularSchedule
-import com.anonlatte.florarium.data.model.ScheduleType
+import com.anonlatte.florarium.data.domain.CareHolder
+import com.anonlatte.florarium.data.domain.Plant
+import com.anonlatte.florarium.data.domain.PlantWithSchedule
+import com.anonlatte.florarium.data.domain.RegularSchedule
+import com.anonlatte.florarium.data.domain.ScheduleType
 import com.anonlatte.florarium.data.repository.IMainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -49,33 +50,21 @@ class CreationViewModel @Inject constructor(
         _plantCreationState.value = validatePlantName(creationData.plant.name)
         if (_plantCreationState.value is PlantCreationState.Idle) {
             wasPlantCreated = true
-            addPlantToGarden(creationData.plant, creationData.schedule)
+            addPlantToGarden(creationData.plant, creationData.schedule, creationData.careHolder)
         }
     }
 
-    private fun addPlantToGarden(plant: Plant, schedule: RegularSchedule) {
+    private fun addPlantToGarden(plant: Plant, schedule: RegularSchedule, careHolder: CareHolder) {
         viewModelScope.launch {
             if (!isPlantExist) {
                 mainRepository.createPlant(
                     plant = plant.copy(createdAt = Date().time),
                     regularSchedule = schedule,
-                )
-                _uiCommand.emit(
-                    PlantCreationCommand.CreatePlantAlarms(
-                        PlantCreationData(plant, schedule)
-                    )
+                    careHolder = careHolder
                 )
             } else {
                 updatePlant(plant, schedule)
             }
-        }
-    }
-
-
-    fun addPlantAlarm(plantAlarm: PlantAlarm) {
-        viewModelScope.launch {
-            mainRepository.createPlantAlarm(plantAlarm)
-            _uiCommand.emit(PlantCreationCommand.PlantCreated)
         }
     }
 
@@ -110,33 +99,22 @@ class CreationViewModel @Inject constructor(
     ) {
         _plantCreationData.update {
             val schedule = it.schedule
+            val careHolder = it.careHolder
             val updatedSchedule = when (scheduleItemType) {
                 ScheduleType.WATERING -> {
-                    schedule.copy(
-                        wateringInterval = defaultIntervalValue,
-                        wateredAt = getTimestampFromDaysAgo(lastCareValue)
-                    )
+                    schedule.copy(wateringInterval = defaultIntervalValue)
                 }
 
                 ScheduleType.SPRAYING -> {
-                    schedule.copy(
-                        sprayingInterval = defaultIntervalValue,
-                        sprayedAt = getTimestampFromDaysAgo(lastCareValue)
-                    )
+                    schedule.copy(sprayingInterval = defaultIntervalValue)
                 }
 
                 ScheduleType.FERTILIZING -> {
-                    schedule.copy(
-                        fertilizingInterval = defaultIntervalValue,
-                        fertilizedAt = getTimestampFromDaysAgo(lastCareValue)
-                    )
+                    schedule.copy(fertilizingInterval = defaultIntervalValue)
                 }
 
                 ScheduleType.ROTATING -> {
-                    schedule.copy(
-                        rotatingInterval = defaultIntervalValue,
-                        rotatedAt = getTimestampFromDaysAgo(lastCareValue)
-                    )
+                    schedule.copy(rotatingInterval = defaultIntervalValue)
                 }
 
                 null -> {
@@ -144,7 +122,29 @@ class CreationViewModel @Inject constructor(
                     schedule
                 }
             }
-            it.copy(schedule = updatedSchedule)
+            val updatedCareHolder = when (scheduleItemType) {
+                ScheduleType.WATERING -> {
+                    careHolder.copy(wateredAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
+                }
+
+                ScheduleType.SPRAYING -> {
+                    careHolder.copy(sprayedAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
+                }
+
+                ScheduleType.FERTILIZING -> {
+                    careHolder.copy(fertilizedAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
+                }
+
+                ScheduleType.ROTATING -> {
+                    careHolder.copy(rotatedAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
+                }
+
+                null -> {
+                    Timber.e("Unknown schedule type")
+                    careHolder
+                }
+            }
+            it.copy(schedule = updatedSchedule, careHolder = updatedCareHolder)
         }
     }
 
@@ -159,15 +159,15 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    fun restoreData(plant: Plant?, schedule: RegularSchedule?) {
-        isPlantExist = plant != null && schedule != null
+    fun restoreData(plantToSchedule: PlantWithSchedule?) {
+        isPlantExist = plantToSchedule?.plant != null
         if (!isPlantExist) return
 
         if (_plantCreationData.value.isNotEdited) {
             _plantCreationData.update { state ->
                 state.copy(
-                    plant = plant ?: state.plant,
-                    schedule = schedule ?: state.schedule
+                    plant = plantToSchedule?.plant ?: state.plant,
+                    schedule = plantToSchedule?.schedule ?: state.schedule
                 )
             }
             return
@@ -211,6 +211,7 @@ class CreationViewModel @Inject constructor(
             _uiCommand.emit(
                 PlantCreationCommand.OpenScheduleScreen(
                     schedule = plantCreationData.value.schedule,
+                    careHolder = plantCreationData.value.careHolder,
                     scheduleItemType = careScheduleItemData.scheduleItemType,
                     title = careScheduleItemData.title,
                     icon = careScheduleItemData.icon,

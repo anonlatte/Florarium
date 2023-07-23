@@ -49,7 +49,7 @@ class PlantDaoTest {
     fun testUpdatePlant() = runBlocking {
         plant.name = "chamomile"
         val updatedId = plantDao.update(plant).toLong()
-        assertThat(updatedId, equalTo(plant.plantId))
+        assertThat(updatedId, equalTo(plant.id))
     }
 
     @Test

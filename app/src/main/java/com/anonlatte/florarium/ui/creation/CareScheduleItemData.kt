@@ -3,7 +3,7 @@ package com.anonlatte.florarium.ui.creation
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.anonlatte.florarium.data.model.ScheduleType
+import com.anonlatte.florarium.data.domain.ScheduleType
 import kotlinx.parcelize.Parcelize
 
 /**

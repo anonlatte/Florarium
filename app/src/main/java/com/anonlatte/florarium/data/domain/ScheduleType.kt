@@ -1,4 +1,4 @@
-package com.anonlatte.florarium.data.model
+package com.anonlatte.florarium.data.domain
 
 enum class ScheduleType {
     WATERING, SPRAYING, FERTILIZING, ROTATING;

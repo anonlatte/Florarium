@@ -4,11 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.anonlatte.florarium.data.repository.MainRepository
-import com.anonlatte.florarium.extensions.setAlarm
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class RestartAlarmsService : BroadcastReceiver() {
@@ -22,14 +17,17 @@ class RestartAlarmsService : BroadcastReceiver() {
             intent.action == ACTION_BOOT_QUICKBOOT_POWERON
         ) {
             val pendingResult = goAsync()
-            CoroutineScope(Dispatchers.IO).launch {
-                val plantsAlarms = mainRepository.getPlantsAlarms()
-                plantsAlarms.forEach { plantAlarm ->
-                    plantAlarm.setAlarm(context, plantAlarm)
-                }
-                Timber.d("Alarms had been set ${plantsAlarms.size} alarms.")
-                pendingResult.finish()
-            }
+            // TODO restart alarms
+            /*
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val plantsAlarms = mainRepository.getPlantsAlarms()
+                            plantsAlarms.forEach { plantAlarm ->
+                                plantAlarm.setAlarm(context, plantAlarm)
+                            }
+                            Timber.d("Alarms had been set ${plantsAlarms.size} alarms.")
+                            pendingResult.finish()
+                        }
+            */
         }
     }
 

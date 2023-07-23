@@ -220,7 +220,7 @@ dependencyResolutionManagement {
                     .versionRef(navigationVersion)
             bundle(
                 "navigation",
-                listOf("navigationDynamicFeatures", "navigationFragmentKtx", "navigationUiKtx",)
+                listOf("navigationDynamicFeatures", "navigationFragmentKtx", "navigationUiKtx")
             )
 
         }

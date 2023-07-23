@@ -8,13 +8,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.anonlatte.florarium.BuildConfig
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.data.model.PlantAlarm
-import com.anonlatte.florarium.extensions.WORKER_ALARM_DATA_KEY
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
-import timber.log.Timber
 
 class PlantsNotificationWorker(
     private val context: Context,
@@ -22,19 +16,23 @@ class PlantsNotificationWorker(
 ) : Worker(context, workerParams) {
 
     override fun doWork(): Result {
-        if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
+        // TODO get data from database
+        /*
+                if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())
 
-        val formattedAlarm = workerParams.inputData.getString(
-            WORKER_ALARM_DATA_KEY
-        )
-        if (formattedAlarm == null) {
-            Timber.w("Alarm data wasn't receive.")
-            return Result.failure()
-        }
+                val formattedAlarm = workerParams.inputData.getString(
+                    WORKER_ALARM_DATA_KEY
+                )
+                if (formattedAlarm == null) {
+                    Timber.w("Alarm data wasn't receive.")
+                    return Result.failure()
+                }
 
-        Json.decodeFromString<PlantAlarm>(formattedAlarm).run {
-            makeNotification(context, eventTag, plantName)
-        }
+                Json.decodeFromString<PlantAlarm>(formattedAlarm).run {
+                    makeNotification(context, eventTag, plantName)
+                }
+                return Result.success()
+        */
         return Result.success()
     }
 

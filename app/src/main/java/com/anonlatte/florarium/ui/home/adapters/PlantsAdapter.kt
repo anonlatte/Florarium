@@ -9,13 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
 import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
-import com.anonlatte.florarium.data.model.Plant
-import com.anonlatte.florarium.data.model.PlantWithSchedule
-import com.anonlatte.florarium.data.model.RegularSchedule
+import com.anonlatte.florarium.data.domain.CareHolder
+import com.anonlatte.florarium.data.domain.PlantWithSchedule
+import com.anonlatte.florarium.data.domain.RegularSchedule
 import com.anonlatte.florarium.databinding.ListItemPlantBinding
 
 class PlantsAdapter(
-    private val onPlantClick: (Plant, RegularSchedule?) -> Unit
+    private val onPlantClick: (PlantWithSchedule) -> Unit,
 ) : ListAdapter<PlantWithSchedule, PlantsAdapter.PlantsViewHolder>(DiffCallback()) {
 
     init {
@@ -35,7 +35,7 @@ class PlantsAdapter(
         val item = getItem(position)
         holder.bind(item, false)
         holder.itemView.setOnClickListener {
-            onPlantClick(item.plant, item.schedule)
+            onPlantClick(item)
         }
     }
 
@@ -69,19 +69,21 @@ class PlantsAdapter(
                 }
                 plantImage.contentDescription = plantWithSchedule.plant.name
                 plantName.text = plantWithSchedule.plant.name
-                plantWithSchedule.schedule?.let { schedule ->
-                    plantDescription.text = getFormattedSchedule(schedule)
-                }
+                plantDescription.text =
+                    getFormattedSchedule(plantWithSchedule.schedule, plantWithSchedule.careHolder)
             }
         }
 
-        private fun getFormattedSchedule(schedule: RegularSchedule): String {
+        private fun getFormattedSchedule(
+            schedule: RegularSchedule,
+            careHolder: CareHolder,
+        ): String {
             with(schedule) {
                 return listOfNotNull(
-                    formatSchedule(wateringInterval, wateredAt),
-                    formatSchedule(sprayingInterval, sprayedAt),
-                    formatSchedule(fertilizingInterval, fertilizedAt),
-                    formatSchedule(rotatingInterval, rotatedAt)
+                    formatSchedule(wateringInterval, careHolder.wateredAt),
+                    formatSchedule(sprayingInterval, careHolder.sprayedAt),
+                    formatSchedule(fertilizingInterval, careHolder.fertilizedAt),
+                    formatSchedule(rotatingInterval, careHolder.rotatedAt)
                 ).joinToString(" ")
             }
         }

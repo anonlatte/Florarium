@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.data.model.ScheduleType
+import com.anonlatte.florarium.data.domain.ScheduleType
 import com.anonlatte.florarium.databinding.ListItemCareScheduleBinding
 import com.anonlatte.florarium.ui.creation.CareScheduleItemData
 import timber.log.Timber

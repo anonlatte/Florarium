@@ -27,8 +27,11 @@ class DatabaseModule {
     fun providePlantDao(db: AppDatabase) = db.plantDao()
 
     @Provides
-    fun providePlantAlarmDao(db: AppDatabase) = db.plantAlarmDao()
+    fun provideRegularScheduleDao(db: AppDatabase) = db.regularScheduleDao()
 
     @Provides
-    fun provideRegularScheduleDao(db: AppDatabase) = db.regularScheduleDao()
+    fun provideCareHolderDao(db: AppDatabase) = db.careHolderDao()
+
+    @Provides
+    fun provideCareArrangerDao(db: AppDatabase) = db.careArrangerDao()
 }

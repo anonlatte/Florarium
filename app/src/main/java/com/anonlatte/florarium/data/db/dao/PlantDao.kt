@@ -2,10 +2,10 @@ package com.anonlatte.florarium.data.db.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.anonlatte.florarium.data.model.Plant
+import com.anonlatte.florarium.data.db.model.PlantEntity
 
 @Dao
-interface PlantDao : BaseDao<Plant> {
+interface PlantDao : BaseDao<PlantEntity> {
     @Query("SELECT * FROM plants ORDER BY name")
-    suspend fun getPlants(): List<Plant>
+    suspend fun getPlants(): List<PlantEntity>
 }
