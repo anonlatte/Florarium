@@ -22,7 +22,6 @@ dependencyResolutionManagement {
             version("targetSdk", "33")
         }
         create("libs") {
-            val kotlinVersion = version("kotlinStdlibVersion", "1.8.21")
             val androidxCoreVersion = version("androidxCoreVersion", "1.10.0")
             val androidxAppcompatVersion = version("androidxAppcompatVersion", "1.6.1")
             val viewBindingDelegateVersion = version("viewBindingDelegateVersion", "1.5.9")
@@ -36,6 +35,7 @@ dependencyResolutionManagement {
             val timberVersion = version("timberVersion", "5.0.1")
             val kotlinxCoroutinesVersion = version("kotlinxCoroutinesVersion", "1.7.0-RC")
             val hiltVersion = version("hiltVersion", "2.45")
+            val androidxHiltVersion = version("androidxHiltVersion", "1.0.0")
             val roomVersion = version("roomVersion", "2.5.1")
             val datastoreVersion = version("datastoreVersion", "1.0.0")
             val coilVersion = version("coilVersion", "2.4.0")
@@ -44,8 +44,6 @@ dependencyResolutionManagement {
             val firebaseAnalyticsVersion = version("firebaseAnalyticsVersion", "21.2.2")
             val junitVersion = version("junitVersion", "4.13.2")
             val mockitoVersion = version("mockitoVersion", "4.0.0")
-            val archVersion = version("archVersion", "2.1.0")
-            val truthVersion = version("truthVersion", "1.1.3")
             val androidxTestCoreVersion = version("androidxTestCoreVersion", "1.5.0")
             val androidxJunitVersion = version("androidxJunitVersion", "1.1.5")
             val espressoVersion = version("espressoVersion", "3.4.0")
@@ -125,11 +123,17 @@ dependencyResolutionManagement {
 
             // Hilt Di
             library("hiltAndroid", "com.google.dagger", "hilt-android").versionRef(hiltVersion)
-            library("hiltCompiler", "com.google.dagger", "hilt-compiler").versionRef(hiltVersion)
             library("hiltAndroidCompiler", "com.google.dagger", "hilt-android-compiler").versionRef(
-                "hiltVersion"
+                hiltVersion
             )
-            bundle("hilt", listOf("hiltAndroid", "hiltCompiler"))
+            library("hiltCommon", "androidx.hilt", "hilt-common").versionRef(androidxHiltVersion)
+            library(
+                "hiltCompiler",
+                "androidx.hilt",
+                "hilt-compiler"
+            ).versionRef(androidxHiltVersion)
+            library("hiltWorker", "androidx.hilt", "hilt-work").versionRef(androidxHiltVersion)
+            bundle("hilt", listOf("hiltAndroid", "hiltCompiler", "hiltWorker", "hiltCommon"))
 
             // Database (Room)
             library("androidxRoom", "androidx.room", "room-runtime").versionRef(roomVersion)

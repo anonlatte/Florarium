@@ -10,6 +10,6 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version kotlinVersion
     id("com.google.gms.google-services") version "4.3.15" apply false
     id("com.google.firebase.crashlytics") version "2.9.4"
-    id("com.google.dagger.hilt.android") version "2.44" apply false
+    id("com.google.dagger.hilt.android") version "2.45" apply false
     id("androidx.navigation.safeargs.kotlin") version navigationVersion apply false
 }

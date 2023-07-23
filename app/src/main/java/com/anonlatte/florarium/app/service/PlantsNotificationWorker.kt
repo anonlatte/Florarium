@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
@@ -20,18 +21,18 @@ import com.anonlatte.florarium.R
 import com.anonlatte.florarium.data.domain.PlantWithSchedule
 import com.anonlatte.florarium.data.repository.IMainRepository
 import com.anonlatte.florarium.extensions.StringExt.capitalizeFirstLetter
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import timber.log.Timber
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
-class PlantsNotificationWorker(
-    private val context: Context,
-    workerParams: WorkerParameters,
+@HiltWorker
+class PlantsNotificationWorker @AssistedInject constructor(
+    @Assisted private val context: Context,
+    @Assisted workerParams: WorkerParameters,
+    private val repository: IMainRepository,
 ) : CoroutineWorker(context, workerParams) {
-
-    @Inject
-    lateinit var repository: IMainRepository
 
     override suspend fun doWork(): Result {
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())

@@ -15,8 +15,8 @@ object TimeStampHelper {
         }
     }
 
-    fun getDaysFromTimestampAgo(timestamp: Long?): Int {
-        return if (timestamp != null) {
+    fun getDaysFromTimestampAgo(timestamp: Long): Int {
+        return if (timestamp > 0) {
             ((System.currentTimeMillis() - timestamp) / DAY_IN_MILLIS).toInt()
         } else {
             0

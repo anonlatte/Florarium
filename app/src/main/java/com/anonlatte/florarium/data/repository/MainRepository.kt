@@ -1,5 +1,10 @@
 package com.anonlatte.florarium.data.repository
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import com.anonlatte.florarium.app.service.PlantsNotificationWorker
 import com.anonlatte.florarium.data.db.dao.CareArrangerDao
 import com.anonlatte.florarium.data.db.dao.CareHolderDao
 import com.anonlatte.florarium.data.db.dao.PlantDao
@@ -15,13 +20,18 @@ import com.anonlatte.florarium.data.domain.Plant.Companion.toEntity
 import com.anonlatte.florarium.data.domain.PlantWithSchedule
 import com.anonlatte.florarium.data.domain.RegularSchedule
 import com.anonlatte.florarium.data.domain.RegularSchedule.Companion.toEntity
+import com.anonlatte.florarium.data.models.AppSettings.Companion.PREFS_NOTIFICATION_HOUR
+import com.anonlatte.florarium.data.models.AppSettings.Companion.PREFS_NOTIFICATION_MINUTES
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class MainRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val careArrangerDao: CareArrangerDao,
     private val careHolderDao: CareHolderDao,
     private val plantDao: PlantDao,
     private val regularScheduleDao: RegularScheduleDao,
+    private val preferencesDataStore: DataStore<Preferences>,
 ) : IMainRepository {
 
     override suspend fun createPlant(
@@ -32,7 +42,14 @@ class MainRepository @Inject constructor(
         val plantId = plantDao.create(plant.toEntity())
         val regularScheduleId = regularScheduleDao.create(regularSchedule.toEntity())
         val careHolderId = careHolderDao.create(careHolder.toEntity())
-        careArrangerDao.create(CareArrangerEntity(plantId, regularScheduleId, careHolderId))
+
+        val careArrangerEntity = CareArrangerEntity(
+            plantId = plantId,
+            regularScheduleId = regularScheduleId,
+            careHolderId = careHolderId
+        )
+
+        careArrangerDao.create(careArrangerEntity)
     }
 
     override suspend fun getPlants(): List<Plant> = plantDao.getPlants().map { it.toDomain() }
@@ -67,9 +84,10 @@ class MainRepository @Inject constructor(
     }
 
     override suspend fun updateGlobalNotificationTime(hour: Int, minute: Int) {
-        val schedules = regularScheduleDao.getSchedules()
-        schedules.forEach { schedule ->
-            // TODO regularScheduleDao.update(schedule.copy(hour = hour, minute = minute))
+        preferencesDataStore.edit {
+            it[PREFS_NOTIFICATION_HOUR] = hour
+            it[PREFS_NOTIFICATION_MINUTES] = minute
         }
+        PlantsNotificationWorker.init(context, hour, minute)
     }
 }

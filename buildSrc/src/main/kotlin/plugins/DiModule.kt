@@ -12,8 +12,7 @@ class DiModule : Plugin<Project> {
 
         target.dependencies.apply {
             add("kapt", "com.google.dagger:hilt-android:2.45")
-            add("kapt", "com.google.dagger:hilt-compiler:2.45")
+            add("kapt", "androidx.hilt:hilt-compiler:1.0.0")
         }
     }
 }
-

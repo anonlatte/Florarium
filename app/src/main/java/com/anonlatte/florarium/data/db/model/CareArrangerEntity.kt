@@ -17,24 +17,27 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["plantId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = RegularScheduleEntity::class,
             parentColumns = ["id"],
             childColumns = ["regularScheduleId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = CareHolderEntity::class,
             parentColumns = ["id"],
             childColumns = ["careHolderId"],
             onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE,
         )
     ],
     indices = [
-        Index(value = ["plantId"]),
-        Index(value = ["regularScheduleId"]),
-        Index(value = ["careHolderId"]),
+        Index(value = ["plantId"], unique = true),
+        Index(value = ["regularScheduleId"], unique = true),
+        Index(value = ["careHolderId"], unique = true),
     ]
 )
 data class CareArrangerEntity(
@@ -42,10 +45,10 @@ data class CareArrangerEntity(
     @ColumnInfo(name = "id")
     val id: Long = 0,
     @ColumnInfo(name = "plantId")
-    val plantId: Long = 0,
+    val plantId: Long,
     @ColumnInfo(name = "regularScheduleId")
-    val regularScheduleId: Long = 0,
+    val regularScheduleId: Long,
     @ColumnInfo(name = "careHolderId")
-    val careHolderId: Long = 0,
+    val careHolderId: Long,
 )
 
