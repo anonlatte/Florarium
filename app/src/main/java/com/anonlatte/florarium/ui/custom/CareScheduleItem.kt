@@ -10,7 +10,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.data.domain.ScheduleType
+import com.anonlatte.florarium.data.domain.CareType
 import com.anonlatte.florarium.databinding.ListItemCareScheduleBinding
 import com.anonlatte.florarium.ui.creation.CareScheduleItemData
 import timber.log.Timber
@@ -43,7 +43,7 @@ class CareScheduleItem @JvmOverloads constructor(
                 R.styleable.CareScheduleItem_scheduleItemType,
                 0
             )
-            val scheduleType = checkNotNull(ScheduleType.toScheduleType(scheduleItemTypeId)) {
+            val careType = checkNotNull(CareType.toScheduleType(scheduleItemTypeId)) {
                 Timber.e("Unknown schedule type: $scheduleItemTypeId")
             }
 
@@ -51,7 +51,7 @@ class CareScheduleItem @JvmOverloads constructor(
                 CareScheduleItemData(
                     title = title,
                     icon = icon,
-                    scheduleItemType = scheduleType
+                    scheduleItemType = careType
                 )
             )
         }

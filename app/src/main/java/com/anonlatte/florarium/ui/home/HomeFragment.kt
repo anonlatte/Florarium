@@ -14,11 +14,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.anonlatte.florarium.R
+import com.anonlatte.florarium.app.service.PlantsNotificationWorker
 import com.anonlatte.florarium.databinding.FragmentHomeBinding
 import com.anonlatte.florarium.extensions.collectWithLifecycle
 import com.anonlatte.florarium.ui.home.adapters.PlantsAdapter
 import dagger.hilt.android.AndroidEntryPoint
 import dev.chrisbanes.insetter.applyInsetter
+import java.util.Calendar
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -34,6 +36,14 @@ class HomeFragment : Fragment() {
     ) { isGranted ->
         if (!isGranted) {
             // TODO show specific screen to request notifications
+        } else {
+            // TODO show screen to request convenient time to send notifications
+            //  for test it's currentTime + 15 minutes
+            PlantsNotificationWorker.init(
+                requireContext(),
+                0,
+                Calendar.getInstance().get(Calendar.MINUTE) + 15
+            )
         }
     }
 

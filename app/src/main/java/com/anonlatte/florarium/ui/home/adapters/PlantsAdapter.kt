@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import coil.transform.CircleCropTransformation
-import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
+import com.anonlatte.florarium.app.utils.TimeStampHelper.getDaysFromTimestampAgo
 import com.anonlatte.florarium.data.domain.CareHolder
 import com.anonlatte.florarium.data.domain.PlantWithSchedule
 import com.anonlatte.florarium.data.domain.RegularSchedule
@@ -99,9 +99,7 @@ class PlantsAdapter(
             interval: Int?, doneAt: Long?
         ): String? = if (interval != null) {
             if (doneAt != null) {
-                val lastCare = getDaysFromTimestampAgo(
-                    doneAt
-                )
+                val lastCare = getDaysFromTimestampAgo(doneAt)
                 "${interval - lastCare}:$interval"
             } else {
                 interval.toString()

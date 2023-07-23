@@ -16,12 +16,12 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
 import com.anonlatte.florarium.R
-import com.anonlatte.florarium.app.utils.getDaysFromTimestampAgo
+import com.anonlatte.florarium.app.utils.TimeStampHelper.getDaysFromTimestampAgo
 import com.anonlatte.florarium.app.utils.photo.PhotoPicker
 import com.anonlatte.florarium.app.utils.photo.PhotoTaker
 import com.anonlatte.florarium.data.domain.CareHolder
+import com.anonlatte.florarium.data.domain.CareType
 import com.anonlatte.florarium.data.domain.RegularSchedule
-import com.anonlatte.florarium.data.domain.ScheduleType
 import com.anonlatte.florarium.databinding.BottomSheetBinding
 import com.anonlatte.florarium.databinding.FragmentPlantCreationBinding
 import com.anonlatte.florarium.extensions.collectWithLifecycle
@@ -47,27 +47,27 @@ class CreationFragment : Fragment() {
     /** Takes photos from camera */
     private val photoTaker = PhotoTaker(this, ::updatePlantImage)
 
-    private val careScheduleItemsUiData = ScheduleType.values().associate {
+    private val careScheduleItemsUiData = CareType.values().associate {
         when (it) {
-            ScheduleType.WATERING -> ScheduleType.WATERING to CareScheduleItemData(
+            CareType.WATERING -> CareType.WATERING to CareScheduleItemData(
                 title = R.string.title_watering,
                 icon = R.drawable.ic_outline_drop_24,
                 scheduleItemType = it
             )
 
-            ScheduleType.SPRAYING -> ScheduleType.SPRAYING to CareScheduleItemData(
+            CareType.SPRAYING -> CareType.SPRAYING to CareScheduleItemData(
                 title = R.string.title_spraying,
                 icon = R.drawable.ic_outline_spray_24,
                 scheduleItemType = it
             )
 
-            ScheduleType.FERTILIZING -> ScheduleType.FERTILIZING to CareScheduleItemData(
+            CareType.FERTILIZING -> CareType.FERTILIZING to CareScheduleItemData(
                 title = R.string.title_fertilizing,
                 icon = R.drawable.ic_outline_fertilizing_24,
                 scheduleItemType = it
             )
 
-            ScheduleType.ROTATING -> ScheduleType.ROTATING to CareScheduleItemData(
+            CareType.ROTATING -> CareType.ROTATING to CareScheduleItemData(
                 title = R.string.title_rotating,
                 icon = R.drawable.ic_outline_rotate_right_24,
                 scheduleItemType = it
@@ -116,10 +116,10 @@ class CreationFragment : Fragment() {
         btnLoadImage.setOnClickListener { showImageSelectDialog() }
         careScheduleItemsUiData.forEach { scheduleToData ->
             when (scheduleToData.key) {
-                ScheduleType.WATERING -> wateringListItem
-                ScheduleType.SPRAYING -> sprayingListItem
-                ScheduleType.FERTILIZING -> fertilizingListItem
-                ScheduleType.ROTATING -> rotatingListItem
+                CareType.WATERING -> wateringListItem
+                CareType.SPRAYING -> sprayingListItem
+                CareType.FERTILIZING -> fertilizingListItem
+                CareType.ROTATING -> rotatingListItem
             }.let { careScheduleItem ->
                 careScheduleItem.updateData(scheduleToData.value)
                 setScheduleItemListener(careScheduleItem)
@@ -218,7 +218,7 @@ class CreationFragment : Fragment() {
                     openScheduleDialog(
                         schedule = command.schedule,
                         careHolder = command.careHolder,
-                        scheduleType = command.scheduleItemType,
+                        careType = command.scheduleItemType,
                         title = command.title,
                         icon = command.icon,
                     )
@@ -327,7 +327,7 @@ class CreationFragment : Fragment() {
     private fun openScheduleDialog(
         schedule: RegularSchedule,
         careHolder: CareHolder,
-        scheduleType: ScheduleType,
+        careType: CareType,
         title: Int,
         icon: Int,
     ) {
@@ -340,8 +340,8 @@ class CreationFragment : Fragment() {
             left = ContextCompat.getDrawable(requireContext(), icon)
         )
 
-        restoreCareScheduleItem(schedule, careHolder, dialogBinding, scheduleType)
-        setDialogListeners(dialog, dialogBinding, scheduleType)
+        restoreCareScheduleItem(schedule, careHolder, dialogBinding, careType)
+        setDialogListeners(dialog, dialogBinding, careType)
 
         dialog.show()
     }
@@ -349,7 +349,7 @@ class CreationFragment : Fragment() {
     private fun setDialogListeners(
         dialog: BottomSheetDialog,
         dialogBinding: BottomSheetBinding,
-        scheduleType: ScheduleType,
+        careType: CareType,
     ) {
         dialog.setOnDismissListener {
             /**
@@ -357,11 +357,11 @@ class CreationFragment : Fragment() {
              *  move out checking condition from [updateCareSchedule]
              */
             // fixme repeating code
-            val careScheduleItem = when (scheduleType) {
-                ScheduleType.WATERING -> binding.wateringListItem
-                ScheduleType.SPRAYING -> binding.sprayingListItem
-                ScheduleType.FERTILIZING -> binding.fertilizingListItem
-                ScheduleType.ROTATING -> binding.rotatingListItem
+            val careScheduleItem = when (careType) {
+                CareType.WATERING -> binding.wateringListItem
+                CareType.SPRAYING -> binding.sprayingListItem
+                CareType.FERTILIZING -> binding.fertilizingListItem
+                CareType.ROTATING -> binding.rotatingListItem
             }
             updateCareSchedule(
                 dialogBinding,
@@ -390,13 +390,13 @@ class CreationFragment : Fragment() {
         }
     }
 
-    private fun clearScheduleField(scheduleItemType: ScheduleType) {
+    private fun clearScheduleField(scheduleItemType: CareType) {
         viewModel.clearScheduleField(scheduleItemType)
         val careScheduleItem = when (scheduleItemType) {
-            ScheduleType.WATERING -> binding.wateringListItem
-            ScheduleType.SPRAYING -> binding.sprayingListItem
-            ScheduleType.FERTILIZING -> binding.fertilizingListItem
-            ScheduleType.ROTATING -> binding.rotatingListItem
+            CareType.WATERING -> binding.wateringListItem
+            CareType.SPRAYING -> binding.sprayingListItem
+            CareType.FERTILIZING -> binding.fertilizingListItem
+            CareType.ROTATING -> binding.rotatingListItem
         }
         careScheduleItem.updateData {
             it.copy(intervalValue = 0)
@@ -407,28 +407,28 @@ class CreationFragment : Fragment() {
         regularSchedule: RegularSchedule,
         careHolder: CareHolder,
         dialogBinding: BottomSheetBinding,
-        careScheduleItem: ScheduleType,
+        careScheduleItem: CareType,
     ) {
         var defaultIntervalValue = 0
         var lastCareIntervalValue = 0
 
         when (careScheduleItem) {
-            ScheduleType.WATERING -> binding.wateringListItem.apply {
+            CareType.WATERING -> binding.wateringListItem.apply {
                 defaultIntervalValue = regularSchedule.wateringInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(careHolder.wateredAt)
             }
 
-            ScheduleType.SPRAYING -> binding.sprayingListItem.apply {
+            CareType.SPRAYING -> binding.sprayingListItem.apply {
                 defaultIntervalValue = regularSchedule.sprayingInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(careHolder.sprayedAt)
             }
 
-            ScheduleType.FERTILIZING -> binding.fertilizingListItem.apply {
+            CareType.FERTILIZING -> binding.fertilizingListItem.apply {
                 defaultIntervalValue = regularSchedule.fertilizingInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(careHolder.fertilizedAt)
             }
 
-            ScheduleType.ROTATING -> binding.rotatingListItem.apply {
+            CareType.ROTATING -> binding.rotatingListItem.apply {
                 defaultIntervalValue = regularSchedule.rotatingInterval
                 lastCareIntervalValue = getDaysFromTimestampAgo(careHolder.rotatedAt)
             }

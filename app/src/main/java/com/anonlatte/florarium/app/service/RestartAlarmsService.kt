@@ -3,13 +3,11 @@ package com.anonlatte.florarium.app.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.anonlatte.florarium.data.repository.MainRepository
-import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class RestartAlarmsService : BroadcastReceiver() {
-
-    @Inject
-    lateinit var mainRepository: MainRepository
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null || intent == null) return
@@ -17,17 +15,11 @@ class RestartAlarmsService : BroadcastReceiver() {
             intent.action == ACTION_BOOT_QUICKBOOT_POWERON
         ) {
             val pendingResult = goAsync()
-            // TODO restart alarms
-            /*
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val plantsAlarms = mainRepository.getPlantsAlarms()
-                            plantsAlarms.forEach { plantAlarm ->
-                                plantAlarm.setAlarm(context, plantAlarm)
-                            }
-                            Timber.d("Alarms had been set ${plantsAlarms.size} alarms.")
-                            pendingResult.finish()
-                        }
-            */
+            CoroutineScope(Dispatchers.IO).launch {
+                // get convenient notification time from dataStore
+                PlantsNotificationWorker.init(context, 0, 0)
+                pendingResult.finish()
+            }
         }
     }
 

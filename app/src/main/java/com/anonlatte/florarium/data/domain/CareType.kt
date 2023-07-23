@@ -1,6 +1,6 @@
 package com.anonlatte.florarium.data.domain
 
-enum class ScheduleType {
+enum class CareType {
     WATERING, SPRAYING, FERTILIZING, ROTATING;
 
     companion object {

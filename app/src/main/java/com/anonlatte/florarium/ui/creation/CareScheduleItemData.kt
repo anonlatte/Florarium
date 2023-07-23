@@ -3,7 +3,7 @@ package com.anonlatte.florarium.ui.creation
 import android.os.Parcelable
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.anonlatte.florarium.data.domain.ScheduleType
+import com.anonlatte.florarium.data.domain.CareType
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -17,7 +17,7 @@ import kotlinx.parcelize.Parcelize
 data class CareScheduleItemData(
     @StringRes val title: Int,
     @DrawableRes val icon: Int,
-    val scheduleItemType: ScheduleType,
+    val scheduleItemType: CareType,
     val intervalValue: Int = 0,
     val lastCareValue: Int = 0,
 ) : Parcelable

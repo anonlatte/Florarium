@@ -2,12 +2,12 @@ package com.anonlatte.florarium.ui.creation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.anonlatte.florarium.app.utils.getTimestampFromDaysAgo
+import com.anonlatte.florarium.app.utils.TimeStampHelper.getTimestampFromDaysAgo
 import com.anonlatte.florarium.data.domain.CareHolder
+import com.anonlatte.florarium.data.domain.CareType
 import com.anonlatte.florarium.data.domain.Plant
 import com.anonlatte.florarium.data.domain.PlantWithSchedule
 import com.anonlatte.florarium.data.domain.RegularSchedule
-import com.anonlatte.florarium.data.domain.ScheduleType
 import com.anonlatte.florarium.data.repository.IMainRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +93,7 @@ class CreationViewModel @Inject constructor(
     }
 
     fun updateSchedule(
-        scheduleItemType: ScheduleType?,
+        scheduleItemType: CareType?,
         defaultIntervalValue: Int = 0,
         lastCareValue: Int = 0,
     ) {
@@ -101,19 +101,19 @@ class CreationViewModel @Inject constructor(
             val schedule = it.schedule
             val careHolder = it.careHolder
             val updatedSchedule = when (scheduleItemType) {
-                ScheduleType.WATERING -> {
+                CareType.WATERING -> {
                     schedule.copy(wateringInterval = defaultIntervalValue)
                 }
 
-                ScheduleType.SPRAYING -> {
+                CareType.SPRAYING -> {
                     schedule.copy(sprayingInterval = defaultIntervalValue)
                 }
 
-                ScheduleType.FERTILIZING -> {
+                CareType.FERTILIZING -> {
                     schedule.copy(fertilizingInterval = defaultIntervalValue)
                 }
 
-                ScheduleType.ROTATING -> {
+                CareType.ROTATING -> {
                     schedule.copy(rotatingInterval = defaultIntervalValue)
                 }
 
@@ -123,19 +123,19 @@ class CreationViewModel @Inject constructor(
                 }
             }
             val updatedCareHolder = when (scheduleItemType) {
-                ScheduleType.WATERING -> {
+                CareType.WATERING -> {
                     careHolder.copy(wateredAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
                 }
 
-                ScheduleType.SPRAYING -> {
+                CareType.SPRAYING -> {
                     careHolder.copy(sprayedAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
                 }
 
-                ScheduleType.FERTILIZING -> {
+                CareType.FERTILIZING -> {
                     careHolder.copy(fertilizedAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
                 }
 
-                ScheduleType.ROTATING -> {
+                CareType.ROTATING -> {
                     careHolder.copy(rotatedAt = getTimestampFromDaysAgo(lastCareValue) ?: 0)
                 }
 
@@ -148,8 +148,8 @@ class CreationViewModel @Inject constructor(
         }
     }
 
-    fun clearScheduleField(toScheduleType: ScheduleType?) {
-        updateSchedule(toScheduleType)
+    fun clearScheduleField(toCareType: CareType?) {
+        updateSchedule(toCareType)
     }
 
     fun updatePlantImage(path: String) {

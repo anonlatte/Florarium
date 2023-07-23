@@ -52,4 +52,15 @@
 
     <string name="setting_notifications">Notifications</string>
     <string name="content_setting_notifications_time_to_notify">Time to notify</string>
+
+    <!--  region Notifications  -->
+
+    <string name="notifications_care_channel_name">Plants care</string>
+    <string name="notifications_care_channel_description">Remind to watering, spraying and other plants caring actions.</string>
+
+    <string name="notifications_care_multiple">%d plants needs care!</string>
+    <string name="notifications_care_title">%s needs care!</string>
+    <string name="notifications_care_message">Don\'t forget!</string>
+
+    <!--  endregion  -->
 </resources>
