@@ -61,6 +61,8 @@
     <string name="notifications_care_multiple">%d plants needs care!</string>
     <string name="notifications_care_title">%s needs care!</string>
     <string name="notifications_care_message">Don\'t forget!</string>
+    <string name="content_setting_notifications_time_updated">Updated</string>
+    <string name="content_setting_notifications_time_error">Something went wrong</string>
 
     <!--  endregion  -->
 </resources>

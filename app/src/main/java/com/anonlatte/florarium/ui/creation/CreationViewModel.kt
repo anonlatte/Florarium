@@ -57,11 +57,17 @@ class CreationViewModel @Inject constructor(
     private fun addPlantToGarden(plant: Plant, schedule: RegularSchedule, careHolder: CareHolder) {
         viewModelScope.launch {
             if (!isPlantExist) {
-                mainRepository.createPlant(
-                    plant = plant.copy(createdAt = Date().time),
-                    regularSchedule = schedule,
-                    careHolder = careHolder
-                )
+                kotlin.runCatching {
+                    mainRepository.createPlant(
+                        plant = plant.copy(createdAt = Date().time),
+                        regularSchedule = schedule,
+                        careHolder = careHolder
+                    )
+                }.onSuccess {
+                    _uiCommand.emit(PlantCreationCommand.PlantCreated)
+                }.onFailure {
+                    _plantCreationState.emit(PlantCreationError.CouldNotCreatePlant)
+                }
             } else {
                 updatePlant(plant, schedule)
             }
