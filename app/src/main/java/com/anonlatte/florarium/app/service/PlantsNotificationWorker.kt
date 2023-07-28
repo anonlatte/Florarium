@@ -133,7 +133,7 @@ class PlantsNotificationWorker @AssistedInject constructor(
         }
 
         private fun dailyWorkRequest(hours: Int, minutes: Int): PeriodicWorkRequest {
-            return PeriodicWorkRequestBuilder<PlantsNotificationWorker>(1, TimeUnit.DAYS)
+            return PeriodicWorkRequestBuilder<PlantsNotificationWorker>(15, TimeUnit.MINUTES)
                 .setInitialDelay(calculateNotificationDelay(hours, minutes), TimeUnit.MILLISECONDS)
                 .build()
         }

@@ -44,7 +44,7 @@ dependencyResolutionManagement {
             val firebaseAnalyticsVersion = version("firebaseAnalyticsVersion", "21.2.2")
             val junitVersion = version("junitVersion", "4.13.2")
             val mockitoVersion = version("mockitoVersion", "4.0.0")
-            val androidxTestCoreVersion = version("androidxTestCoreVersion", "1.5.0")
+            val androidxTestCoreVersion = version("androidxTestCoreVersion", "1.4.0")
             val androidxJunitVersion = version("androidxJunitVersion", "1.1.5")
             val espressoVersion = version("espressoVersion", "3.4.0")
             val firebaseMessagingVersion = version("firebaseMessagingVersion", "23.1.2")
