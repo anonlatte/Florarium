@@ -27,6 +27,10 @@ androidx-splashscreen = "1.0.1"
 androidx-work = "2.10.0"
 androidx-exifinterface = "1.4.0"
 
+# Compose
+compose-compiler = "1.5.15"
+compose-bom = "2025.03.01"
+
 # Kotlin
 kotlinx-coroutines = "1.10.1"
 kotlinx-serialization = "1.8.0"
@@ -70,6 +74,19 @@ timber = "5.0.1"
 # AndroidX Core
 androidx-core = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "androidx-splashscreen" }
+
+# Compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-material = { group = "androidx.compose.material", name = "material" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 
 # WorkManager
 work-manager = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "androidx-work" }
@@ -176,6 +193,7 @@ navigation = ["navigation-dynamic-features", "navigation-fragment-ktx", "navigat
 [plugins]
 android-application = { id = "com.android.application", version.ref = "gradle" }
 android-library = { id = "com.android.library", version.ref = "gradle" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

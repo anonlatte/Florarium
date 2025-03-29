@@ -9,4 +9,5 @@ plugins {
     alias(libs.plugins.navigation.safeargs) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.room) apply false
+    alias(libs.plugins.compose.compiler) apply false
 }
