@@ -6,23 +6,26 @@ plugins {
     id("kotlin-parcelize")
     id("com.google.dagger.hilt.android")
     kotlin("kapt")
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
     kotlin("plugin.serialization")
     id("androidx.navigation.safeargs.kotlin")
+    alias(libs.plugins.firebase.crashlytics)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.room)
+    alias(libs.plugins.google.services)
 }
 
 android {
 
     namespace = "com.anonlatte.florarium"
 
-    compileSdk = meta.versions.compileSdk.get().toInt()
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.anonlatte.florarium"
-        minSdkPreview = meta.versions.minSdk.get()
-        targetSdkPreview = meta.versions.targetSdk.get()
-        versionCode = meta.versions.appCode.get().toInt()
-        versionName = meta.versions.app.get()
+        minSdkPreview = libs.versions.minSdk.get()
+        targetSdkPreview = libs.versions.targetSdk.get()
+        versionCode = libs.versions.appCode.get().toInt()
+        versionName = libs.versions.app.get()
 
         javaCompileOptions {
             annotationProcessorOptions {
@@ -86,25 +89,29 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    
+
     kotlinOptions {
         jvmTarget = "17"
+    }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
 dependencies {
-    kapt(libs.androidxRoomCompiler)
-    kapt(libs.hiltAndroid)
-    kapt(libs.hiltCompiler)
-    kapt(libs.hiltAndroidCompiler)
+    kapt(libs.androidx.room.compiler)
+    kapt(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    kapt(libs.hilt.android.compiler)
 
-    implementation(libs.androidxAppcompat)
+    implementation(libs.androidx.appcompat)
 
-    implementation(libs.androidxConstraintLayout)
-    implementation(libs.bundles.androidxCore)
-    implementation(libs.androidFragment)
-    implementation(libs.bundles.androidxLifecycle)
-    implementation("androidx.exifinterface:exifinterface:1.3.6")
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.bundles.androidx.core)
+    implementation(libs.android.fragment)
+    implementation(libs.bundles.androidx.lifecycle)
+    implementation(libs.androidx.exifinterface)
 
     implementation(libs.bundles.navigation)
 
@@ -112,22 +119,22 @@ dependencies {
 
     implementation(libs.bundles.datastore)
 
-    implementation(libs.workManager)
+    implementation(libs.work.manager)
 
-    implementation(libs.androidMaterial)
+    implementation(libs.android.material)
     implementation(libs.bundles.hilt)
 
     implementation(libs.timber)
 
     implementation(libs.bundles.coil)
-    implementation("dev.chrisbanes.insetter:insetter:0.6.1")
+    implementation(libs.insetter)
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation(libs.kotlinx.serialization)
 
-    debugImplementation("androidx.fragment:fragment-testing:1.5.7")
-    debugImplementation(libs.bundles.leakCanary)
-    debugImplementation(libs.leakCanaryDebug)
+    debugImplementation(libs.android.fragment.testing)
+    debugImplementation(libs.bundles.leak.canary)
+    debugImplementation(libs.leak.canary)
 
-    androidTestImplementation(libs.bundles.androidTestLibs)
-    testImplementation(libs.bundles.testLibs)
+    androidTestImplementation(libs.bundles.android.test.libs)
+    testImplementation(libs.bundles.test.libs)
 }

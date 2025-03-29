@@ -74,13 +74,15 @@ class ImageFilesStorageManager {
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 val imageRotationAngle = getRotationFromExif(context, imageUri)
                 context.contentResolver.openOutputStream(imageUri).use { outputStream ->
-                    bitmap?.rotate(
-                        imageRotationAngle
-                    )?.compress(
-                        getRequiredWebpConfig(),
-                        COMPRESSION_QUALITY,
-                        outputStream
-                    )
+                    if (bitmap != null && outputStream != null) {
+                        bitmap.rotate(
+                            imageRotationAngle
+                        ).compress(
+                            getRequiredWebpConfig(),
+                            COMPRESSION_QUALITY,
+                            outputStream
+                        )
+                    }
                 }
             }
 
