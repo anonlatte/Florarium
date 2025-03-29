@@ -1,5 +1,11 @@
 package com.anonlatte.florarium.ui.creation
 
+import android.app.AlertDialog
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,8 +40,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
+import com.anonlatte.florarium.R
 import com.anonlatte.florarium.ui.theme.PlantCareAppTheme
 
 @Composable
@@ -43,10 +54,44 @@ fun AddPlantScreen(
     onAddPlant: () -> Unit,
     onAddTaskClick: () -> Unit
 ) {
+    val context = LocalContext.current
+
+    val photoUri = remember {
+        val directory = context.cacheDir
+        val file = java.io.File.createTempFile("plant_photo_", ".jpg", directory).apply {
+            deleteOnExit()
+        }
+        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+    }
+
     var plantName by remember { mutableStateOf("") }
+    var plantImageUri by remember { mutableStateOf<Uri?>(null) }
 
     // Example of one task (will be replaced with a list later)
     val wateringInterval = 7
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        plantImageUri = uri
+    }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success) {
+            plantImageUri = photoUri
+        }
+    }
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            cameraLauncher.launch(photoUri)
+        } else {
+            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -64,7 +109,36 @@ fun AddPlantScreen(
                 .background(Color.LightGray),
             contentAlignment = Alignment.TopEnd
         ) {
-            IconButton(onClick = { /* handle photo capture */ }) {
+            if (plantImageUri != null) {
+                AsyncImage(
+                    model = plantImageUri,
+                    contentDescription = "Plant photo",
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.flower_example),
+                    contentDescription = "Placeholder image",
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            IconButton(onClick = {
+                val options = listOf("Choose from gallery", "Take a photo")
+                AlertDialog.Builder(context).apply {
+                    setTitle("Add photo")
+                    setItems(options.toTypedArray()) { _, which ->
+                        when (which) {
+                            0 -> imagePickerLauncher.launch("image/*")
+                            1 -> {
+                                val permission = android.Manifest.permission.CAMERA
+                                cameraPermissionLauncher.launch(permission)
+                            }
+                        }
+                    }
+                    show()
+                }
+            }) {
                 Icon(
                     imageVector = Icons.Default.PhotoCamera,
                     contentDescription = "Add photo",
