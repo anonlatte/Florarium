@@ -128,6 +128,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.activity)
     implementation(libs.coil.compose)
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
