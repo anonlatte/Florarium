@@ -3,8 +3,10 @@ package com.anonlatte.florarium.data.domain
 import android.os.Parcelable
 import com.anonlatte.florarium.data.db.model.RegularScheduleEntity
 import kotlinx.parcelize.Parcelize
+import kotlinx.serialization.Serializable
 
 @Parcelize
+@Serializable
 data class RegularSchedule(
     val id: Long = 0,
     val wateringInterval: Int = 7,

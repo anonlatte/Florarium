@@ -1,78 +1,88 @@
 package com.anonlatte.florarium.ui
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.Surface
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
-import androidx.core.view.isVisible
-import androidx.navigation.NavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import com.anonlatte.florarium.R
-import com.anonlatte.florarium.databinding.ActivityMainBinding
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.anonlatte.florarium.data.domain.CareTask
+import com.anonlatte.florarium.data.domain.Plant
+import com.anonlatte.florarium.data.domain.PlantCreationData
+import com.anonlatte.florarium.navigation.Screen
+import com.anonlatte.florarium.navigation.plantCreationDataNavType
+import com.anonlatte.florarium.ui.creation.AddPlantScreen
+import com.anonlatte.florarium.ui.home.HomeScreen
+import com.anonlatte.florarium.ui.theme.PlantCareAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.UUID
+import kotlin.reflect.typeOf
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var navController: NavController
-    private val appBarConfiguration by lazy {
-        AppBarConfiguration(
-            setOf(R.id.homeFragment, R.id.settingsFragment)
-        )
-    }
-
-    private lateinit var binding: ActivityMainBinding
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        setupNavigationController()
-        setupNavigationBar()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-    }
+        setContent {
+            val navController = rememberNavController()
+            PlantCareAppTheme {
+                Surface {
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.Home
+                    ) {
+                        composable<Screen.Home> {
+                            HomeScreen(
+                                onAddPlant = {
+                                    navController.navigate(
+                                        Screen.AddPlant(
+                                            PlantCreationData(
+                                                plant = Plant(
+                                                    id = UUID.randomUUID().hashCode().toLong(),
+                                                    name = "New Plant",
+                                                    imageUri = "",
+                                                    createdAt = System.currentTimeMillis()
+                                                ),
+                                                careTasks = listOf(
+                                                    CareTask.Watering("Watering", 7),
+                                                    CareTask.Spraying("Spraying", 14),
+                                                    CareTask.Fertilizing("Fertilizing", 30),
+                                                    CareTask.Rotating("Rotating", 365)
+                                                )
+                                            )
+                                        )
+                                    )
+                                }
+                            )
+                        }
 
-    private fun setupNavigationController() {
-        val navHostFragment = supportFragmentManager.findFragmentById(
-            R.id.nav_host_fragment
-        ) as NavHostFragment
-        navController = navHostFragment.navController
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.bottomNavigation.isVisible = appBarConfiguration.topLevelDestinations.contains(
-                destination.id
-            )
-        }
-    }
-
-    private fun setupNavigationBar() {
-        binding.bottomNavigation.selectedItemId = R.id.nav_home
-        binding.bottomNavigation.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.nav_plants -> {
-                    // navController.navigate(R.id.plantsFragment)
-                    false
+                        composable<Screen.AddPlant>(
+                            typeMap = mapOf(typeOf<PlantCreationData?>() to plantCreationDataNavType)
+                        ) { backStackEntry ->
+                            val addPlantScreen = backStackEntry.toRoute<Screen.AddPlant>()
+                            val plantData = addPlantScreen.plantData ?: PlantCreationData(
+                                plant = Plant(
+                                    id = UUID.randomUUID().hashCode().toLong(),
+                                    name = "",
+                                    imageUri = "",
+                                    createdAt = System.currentTimeMillis()
+                                ),
+                                careTasks = listOf()
+                            )
+                            AddPlantScreen(
+                                plantData = plantData,
+                                viewModel = hiltViewModel(),
+                                onBack = { navController.navigateUp() }
+                            )
+                        }
+                    }
                 }
-
-                R.id.nav_home -> {
-                    navController.navigate(R.id.homeFragment)
-                    true
-                }
-
-                R.id.nav_profile -> {
-                    navController.navigate(R.id.settingsFragment)
-                    // TODO replace with R.id.profileFragment fragment where settings will be
-                    true
-                }
-
-                else -> false
             }
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

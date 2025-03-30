@@ -158,57 +158,59 @@ class CreationFragment : Fragment() {
     }
 
     private fun collectMainState() {
-        viewModel.plantCreationState.collectWithLifecycle(this) { state ->
-            binding.progressCreation.isVisible = state is PlantCreationState.Loading
-            if (state !is PlantCreationError) {
-                binding.tilTitle.error = null
-            }
-            when (state) {
-                is PlantCreationState.Success -> {
-                    onPlantCreated()
-                }
+        /*
+                viewModel.plantCreationState.collectWithLifecycle(this) { state ->
+                    binding.progressCreation.isVisible = state is PlantCreationState.Loading
+                    if (state !is PlantCreationError) {
+                        binding.tilTitle.error = null
+                    }
+                    when (state) {
+                        is PlantCreationState.Success -> {
+                            onPlantCreated()
+                        }
 
-                PlantCreationState.Loading -> {
-                    Unit
-                }
+                        PlantCreationState.Loading -> {
+                            Unit
+                        }
 
-                PlantCreationState.Idle -> {
-                    Unit
-                }
+                        PlantCreationState.Idle -> {
+                            Unit
+                        }
 
-                PlantCreationError.NameIsEmpty -> {
-                    binding.tilTitle.error = getString(R.string.error_empty_plant_name)
-                }
+                        PlantCreationError.NameIsEmpty -> {
+                            binding.tilTitle.error = getString(R.string.error_empty_plant_name)
+                        }
 
-                PlantCreationError.CouldNotCreatePlant -> {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.error_could_not_create_plant),
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+                        PlantCreationError.CouldNotCreatePlant -> {
+                            Toast.makeText(
+                                requireContext(),
+                                getString(R.string.error_could_not_create_plant),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
 
-                PlantCreationError.NameIsTooLong -> {
-                    binding.tilTitle.error = getString(R.string.error_long_plant_name)
-                }
+                        PlantCreationError.NameIsTooLong -> {
+                            binding.tilTitle.error = getString(R.string.error_long_plant_name)
+                        }
 
-                is PlantCreationState.PlantRecreation -> {
-                    if (state.data.plant.imageUri.isNotEmpty()) {
-                        binding.plantImageView.load(Uri.parse(state.data.plant.imageUri)) {
-                            listener(
-                                onError = { _, errorResult ->
-                                    Timber.e(errorResult.throwable)
+                        is PlantCreationState.PlantRecreation -> {
+                            if (state.data.plant.imageUri.isNotEmpty()) {
+                                binding.plantImageView.load(Uri.parse(state.data.plant.imageUri)) {
+                                    listener(
+                                        onError = { _, errorResult ->
+                                            Timber.e(errorResult.throwable)
+                                        }
+                                    )
                                 }
-                            )
+                            }
+                            if (state.data.plant.name.isNotEmpty()) {
+                                binding.etTitle.setText(state.data.plant.name)
+                            }
+                            restoreCareSchedule(state.data.schedule, state.data.careHolder)
                         }
                     }
-                    if (state.data.plant.name.isNotEmpty()) {
-                        binding.etTitle.setText(state.data.plant.name)
-                    }
-                    restoreCareSchedule(state.data.schedule, state.data.careHolder)
                 }
-            }
-        }
+        */
     }
 
     private fun collectCommands() {

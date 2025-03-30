@@ -1,5 +1,6 @@
 package com.anonlatte.florarium.ui.creation
 
+import android.Manifest
 import android.app.AlertDialog
 import android.net.Uri
 import android.widget.Toast
@@ -21,8 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,53 +34,49 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.FileProvider
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.anonlatte.florarium.R
+import com.anonlatte.florarium.data.domain.CareTask
+import com.anonlatte.florarium.data.domain.Plant
+import com.anonlatte.florarium.data.domain.PlantCreationData
 import com.anonlatte.florarium.ui.theme.PlantCareAppTheme
+
+data class CareTaskUi(val icon: Painter, val name: String, val intervalDays: Int)
 
 @Composable
 fun AddPlantScreen(
-    onAddPlant: () -> Unit,
-    onAddTaskClick: () -> Unit
+    plantData: PlantCreationData,
+    viewModel: CreationViewModel,
+    onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val photoUri = remember {
-        val directory = context.cacheDir
-        val file = java.io.File.createTempFile("plant_photo_", ".jpg", directory).apply {
-            deleteOnExit()
-        }
-        FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
-    }
-
-    var plantName by remember { mutableStateOf("") }
-    var plantImageUri by remember { mutableStateOf<Uri?>(null) }
-
-    // Example of one task (will be replaced with a list later)
-    val wateringInterval = 7
+    val photoUri = plantData.plant.imageUri.toUri()
+    val plantImageUriState: Uri by remember { mutableStateOf(photoUri) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        plantImageUri = uri
+        viewModel.onImagePicked(uri?.toString())
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         if (success) {
-            plantImageUri = photoUri
+            viewModel.onTakePhoto(photoUri.toString())
         }
     }
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -93,6 +89,51 @@ fun AddPlantScreen(
         }
     }
 
+    AddPlantScreenContent(
+        plantData = plantData,
+        plantImageUriState = plantImageUriState,
+        onImagePicked = viewModel::onImagePicked,
+        onTakePhoto = viewModel::onTakePhoto,
+        onRequestCameraPermission = viewModel::onRequestCameraPermission,
+        onPlantNameChange = viewModel::onPlantNameChange,
+        onAddTask = viewModel::addTask,
+        onRemoveTask = viewModel::removeTask,
+        onAddPlantToGarden = viewModel::addPlantToGarden,
+        onAddPhoto = {
+            val options = listOf("Choose from gallery", "Take a photo")
+            AlertDialog.Builder(context).apply {
+                setTitle("Add photo")
+                setItems(options.toTypedArray()) { _, which ->
+                    when (which) {
+                        0 -> imagePickerLauncher.launch("image/*")
+                        1 -> {
+                            val permission = Manifest.permission.CAMERA
+                            viewModel.onRequestCameraPermission(permission)
+                        }
+                    }
+                }
+                show()
+            }
+        },
+        onBack = onBack
+    )
+}
+
+@Composable
+fun AddPlantScreenContent(
+    plantData: PlantCreationData,
+    plantImageUriState: Uri,
+    onImagePicked: (String?) -> Unit,
+    onTakePhoto: (String) -> Unit,
+    onRequestCameraPermission: (String) -> Unit,
+    onPlantNameChange: (String) -> Unit,
+    onAddTask: () -> Unit,
+    onRemoveTask: (Int) -> Unit,
+    onAddPlantToGarden: () -> Unit,
+    onAddPhoto: () -> Unit,
+    onBack: () -> Unit
+) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,9 +150,9 @@ fun AddPlantScreen(
                 .background(Color.LightGray),
             contentAlignment = Alignment.TopEnd
         ) {
-            if (plantImageUri != null) {
+            if (plantImageUriState != Uri.EMPTY) {
                 AsyncImage(
-                    model = plantImageUri,
+                    model = plantImageUriState,
                     contentDescription = "Plant photo",
                     modifier = Modifier.fillMaxSize()
                 )
@@ -123,24 +164,9 @@ fun AddPlantScreen(
                 )
             }
 
-            IconButton(onClick = {
-                val options = listOf("Choose from gallery", "Take a photo")
-                AlertDialog.Builder(context).apply {
-                    setTitle("Add photo")
-                    setItems(options.toTypedArray()) { _, which ->
-                        when (which) {
-                            0 -> imagePickerLauncher.launch("image/*")
-                            1 -> {
-                                val permission = android.Manifest.permission.CAMERA
-                                cameraPermissionLauncher.launch(permission)
-                            }
-                        }
-                    }
-                    show()
-                }
-            }) {
+            IconButton(onClick = onAddPhoto) {
                 Icon(
-                    imageVector = Icons.Default.PhotoCamera,
+                    painter = painterResource(id = R.drawable.ic_outline_camera_24),
                     contentDescription = "Add photo",
                     modifier = Modifier
                         .padding(12.dp)
@@ -151,8 +177,8 @@ fun AddPlantScreen(
 
         // 🌱 Plant name
         OutlinedTextField(
-            value = plantName,
-            onValueChange = { plantName = it },
+            value = plantData.plant.name,
+            onValueChange = onPlantNameChange,
             label = { Text("Enter plant name") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -160,16 +186,32 @@ fun AddPlantScreen(
         // 📆 Care schedule
         Text("Care schedule", style = MaterialTheme.typography.titleMedium)
 
-        // 💧 Watering
-        CareTaskRow(
-            icon = Icons.Default.WaterDrop,
-            taskName = "Watering",
-            intervalText = "Every $wateringInterval days"
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            plantData.careTasks.forEachIndexed { index, task ->
+                val taskUi = task.toUi()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    CareTaskRow(
+                        icon = taskUi.icon,
+                        taskName = task.name,
+                        intervalText = "Every ${task.intervalDays} days"
+                    )
+                    IconButton(onClick = { onRemoveTask(index) }) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "Delete task"
+                        )
+                    }
+                }
+            }
+        }
 
         // ➕ Add task
         OutlinedButton(
-            onClick = onAddTaskClick,
+            onClick = { onAddTask() },
             modifier = Modifier.fillMaxWidth()
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
@@ -181,7 +223,7 @@ fun AddPlantScreen(
 
         // ✅ Add
         Button(
-            onClick = onAddPlant,
+            onClick = onAddPlantToGarden,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
@@ -193,7 +235,7 @@ fun AddPlantScreen(
 
 @Composable
 fun CareTaskRow(
-    icon: ImageVector,
+    icon: Painter,
     taskName: String,
     intervalText: String
 ) {
@@ -206,7 +248,7 @@ fun CareTaskRow(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                imageVector = icon,
+                painter = icon,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp)
             )
@@ -221,9 +263,31 @@ fun CareTaskRow(
 @Composable
 fun AddPlantScreenPreview() {
     PlantCareAppTheme {
-        AddPlantScreen(
-            onAddPlant = {},
-            onAddTaskClick = {}
+        AddPlantScreenContent(
+            plantData = PlantCreationData(
+                plant = Plant(
+                    id = 0,
+                    name = "Plant",
+                    imageUri = "",
+                    createdAt = System.currentTimeMillis()
+                ),
+                careTasks = listOf(
+                    CareTask.Watering("Watering", 7),
+                    CareTask.Spraying("Spraying", 14),
+                    CareTask.Fertilizing("Fertilizing", 30),
+                    CareTask.Rotating("Rotating", 365)
+                )
+            ),
+            plantImageUriState = Uri.EMPTY,
+            onImagePicked = {},
+            onTakePhoto = {},
+            onRequestCameraPermission = {},
+            onPlantNameChange = {},
+            onAddTask = {},
+            onRemoveTask = {},
+            onAddPlantToGarden = {},
+            onAddPhoto = {},
+            onBack = {}
         )
     }
 }
@@ -233,9 +297,38 @@ fun AddPlantScreenPreview() {
 fun CareTaskRowPreview() {
     PlantCareAppTheme {
         CareTaskRow(
-            icon = Icons.Default.WaterDrop,
+            icon = painterResource(id = R.drawable.ic_outline_drop_24),
             taskName = "Watering",
             intervalText = "Every 7 days"
+        )
+    }
+}
+
+@Composable
+fun CareTask.toUi(): CareTaskUi {
+    return when (this) {
+        is CareTask.Watering -> CareTaskUi(
+            painterResource(id = R.drawable.ic_outline_drop_24),
+            name,
+            intervalDays
+        )
+
+        is CareTask.Spraying -> CareTaskUi(
+            painterResource(id = R.drawable.ic_outline_spray_24),
+            name,
+            intervalDays
+        )
+
+        is CareTask.Fertilizing -> CareTaskUi(
+            painterResource(id = R.drawable.ic_outline_fertilizing_24),
+            name,
+            intervalDays
+        )
+
+        is CareTask.Rotating -> CareTaskUi(
+            painterResource(id = R.drawable.ic_outline_rotate_right_24),
+            name,
+            intervalDays
         )
     }
 }

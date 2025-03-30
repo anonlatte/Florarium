@@ -1,5 +1,7 @@
 package com.anonlatte.florarium.ui.creation
 
+import com.anonlatte.florarium.data.domain.PlantCreationData
+
 sealed interface PlantCreationState {
     data class Success(val plantCreationData: PlantCreationData) : PlantCreationState
 
