@@ -1,6 +1,5 @@
 package com.anonlatte.florarium.navigation
 
-import com.anonlatte.florarium.data.domain.PlantCreationData
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -10,5 +9,11 @@ sealed interface Screen {
     data object Home : Screen
 
     @Serializable
-    data class AddPlant(val plantData: PlantCreationData?) : Screen
+    data class AddPlant(val plantId: Long? = null) : Screen
+
+    @Serializable
+    data object PlantsList : Screen
+
+    @Serializable
+    data object Profile : Screen
 }

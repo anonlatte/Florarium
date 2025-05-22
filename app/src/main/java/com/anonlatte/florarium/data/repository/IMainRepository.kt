@@ -1,6 +1,7 @@
 package com.anonlatte.florarium.data.repository
 
 import com.anonlatte.florarium.data.domain.CareHolder
+import com.anonlatte.florarium.data.domain.CareTask
 import com.anonlatte.florarium.data.domain.Plant
 import com.anonlatte.florarium.data.domain.PlantWithSchedule
 import com.anonlatte.florarium.data.domain.RegularSchedule
@@ -18,5 +19,9 @@ interface IMainRepository {
     suspend fun updateSchedule(regularSchedule: RegularSchedule?)
     suspend fun getRegularScheduleList(): List<RegularSchedule>
     suspend fun getPlantsToSchedules(): List<PlantWithSchedule>
+    suspend fun getPlantById(id: Long): Plant?
+    suspend fun createPlant(plant: Plant, careTasks: List<CareTask>)
+    suspend fun updatePlant(plant: Plant, careTasks: List<CareTask>)
+    suspend fun deletePlant(id: Long)
     suspend fun updateGlobalNotificationTime(hour: Int, minute: Int)
 }

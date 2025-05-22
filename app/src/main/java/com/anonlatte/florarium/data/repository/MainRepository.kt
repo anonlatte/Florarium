@@ -15,6 +15,7 @@ import com.anonlatte.florarium.data.db.model.PlantEntity.Companion.toDomain
 import com.anonlatte.florarium.data.db.model.RegularScheduleEntity.Companion.toDomain
 import com.anonlatte.florarium.data.domain.CareHolder
 import com.anonlatte.florarium.data.domain.CareHolder.Companion.toEntity
+import com.anonlatte.florarium.data.domain.CareTask
 import com.anonlatte.florarium.data.domain.Plant
 import com.anonlatte.florarium.data.domain.Plant.Companion.toEntity
 import com.anonlatte.florarium.data.domain.PlantWithSchedule
@@ -89,5 +90,34 @@ class MainRepository @Inject constructor(
             it[PREFS_NOTIFICATION_MINUTES] = minute
         }
         PlantsNotificationWorker.init(context, hour, minute)
+    }
+
+    override suspend fun getPlantById(id: Long): Plant? {
+        return plantDao.getPlantById(id)?.toDomain()
+    }
+
+    override suspend fun createPlant(plant: Plant, careTasks: List<CareTask>) {
+        val plantId = plantDao.create(plant.toEntity())
+        val careHolder = CareHolder(
+            id = 0,
+            plantId = plantId,
+            careTasks = careTasks
+        )
+        careHolderDao.insertCareHolder(careHolder.toEntity())
+    }
+
+    override suspend fun updatePlant(plant: Plant, careTasks: List<CareTask>) {
+        plantDao.updatePlant(plant.id, plant.name, plant.imageUri)
+        val existing = careHolderDao.getByPlantId(plant.id)
+        if (existing != null) {
+            val updated =
+                existing.copy(careTasks = kotlinx.serialization.json.Json.encodeToString(careTasks))
+            careHolderDao.updateCareHolder(updated)
+        }
+    }
+
+    override suspend fun deletePlant(id: Long) {
+        plantDao.deletePlant(id)
+        careHolderDao.deleteCareHolderByPlantId(id)
     }
 }

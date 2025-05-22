@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.anonlatte.florarium.data.domain.CareHolder
+import kotlinx.serialization.json.Json
 
 /**
  * Keeps track of the last time the plant was watered, sprayed, fertilized and rotated.
@@ -13,6 +14,10 @@ data class CareHolderEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     val id: Long = 0,
+    @ColumnInfo(name = "plantId")
+    val plantId: Long = 0,
+    @ColumnInfo(name = "careTasks")
+    val careTasks: String = "[]",
     @ColumnInfo(name = "wateredAt")
     val wateredAt: Long = 0,
     @ColumnInfo(name = "sprayedAt")
@@ -26,6 +31,8 @@ data class CareHolderEntity(
     companion object {
         fun CareHolderEntity.toDomain() = CareHolder(
             id = id,
+            plantId = plantId,
+            careTasks = Json.decodeFromString(careTasks),
             wateredAt = wateredAt,
             sprayedAt = sprayedAt,
             fertilizedAt = fertilizedAt,

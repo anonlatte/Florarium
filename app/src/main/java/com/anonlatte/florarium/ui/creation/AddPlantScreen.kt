@@ -1,11 +1,6 @@
 package com.anonlatte.florarium.ui.creation
 
-import android.Manifest
-import android.app.AlertDialog
 import android.net.Uri
-import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,17 +18,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,80 +47,93 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.anonlatte.florarium.R
 import com.anonlatte.florarium.data.domain.CareTask
 import com.anonlatte.florarium.data.domain.Plant
 import com.anonlatte.florarium.data.domain.PlantCreationData
+import com.anonlatte.florarium.ui.creation.viewmodel.AddPlantUiState
+import com.anonlatte.florarium.ui.creation.viewmodel.AddPlantViewModel
 import com.anonlatte.florarium.ui.theme.PlantCareAppTheme
+import kotlinx.coroutines.launch
 
 data class CareTaskUi(val icon: Painter, val name: String, val intervalDays: Int)
 
 @Composable
 fun AddPlantScreen(
-    plantData: PlantCreationData,
-    viewModel: CreationViewModel,
+    plantId: Long? = null,
+    viewModel: AddPlantViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    val context = LocalContext.current
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsState()
+    var showAddTaskDialog by remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    var selectedTaskType by remember { mutableStateOf<CareTaskType?>(null) }
+    var intervalText by remember { mutableStateOf("") }
 
-    val photoUri = plantData.plant.imageUri.toUri()
-    val plantImageUriState: Uri by remember { mutableStateOf(photoUri) }
-
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        viewModel.onImagePicked(uri?.toString())
+    // Получаем текущее состояние растения и задач
+    val plant = when (uiState) {
+        is AddPlantUiState.EditPlant -> (uiState as AddPlantUiState.EditPlant).plant
+        is AddPlantUiState.NewPlant -> Plant()
+        else -> Plant()
     }
+    val careTasks = viewModel.currentCareTasks
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            viewModel.onTakePhoto(photoUri.toString())
-        }
-    }
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            cameraLauncher.launch(photoUri)
-        } else {
-            Toast.makeText(context, "Camera permission denied", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    AddPlantScreenContent(
-        plantData = plantData,
-        plantImageUriState = plantImageUriState,
-        onImagePicked = viewModel::onImagePicked,
-        onTakePhoto = viewModel::onTakePhoto,
-        onRequestCameraPermission = viewModel::onRequestCameraPermission,
-        onPlantNameChange = viewModel::onPlantNameChange,
-        onAddTask = viewModel::addTask,
-        onRemoveTask = viewModel::removeTask,
-        onAddPlantToGarden = viewModel::addPlantToGarden,
-        onAddPhoto = {
-            val options = listOf("Choose from gallery", "Take a photo")
-            AlertDialog.Builder(context).apply {
-                setTitle("Add photo")
-                setItems(options.toTypedArray()) { _, which ->
-                    when (which) {
-                        0 -> imagePickerLauncher.launch("image/*")
-                        1 -> {
-                            val permission = Manifest.permission.CAMERA
-                            viewModel.onRequestCameraPermission(permission)
-                        }
-                    }
-                }
-                show()
+    // Валидация
+    var validationError by remember { mutableStateOf<String?>(null) }
+    fun validateAndSave() {
+        when {
+            plant.name.isBlank() -> {
+                validationError = "Plant name cannot be empty"
+                scope.launch { snackbarHostState.showSnackbar(validationError!!) }
             }
-        },
-        onBack = onBack
-    )
+
+            careTasks.isEmpty() -> {
+                validationError = "Add at least one care task"
+                scope.launch { snackbarHostState.showSnackbar(validationError!!) }
+            }
+
+            else -> {
+                validationError = null
+                viewModel.savePlant()
+                onBack()
+            }
+        }
+    }
+
+    Box(Modifier.fillMaxSize()) {
+        AddPlantScreenContent(
+            plantData = PlantCreationData(plant, careTasks),
+            plantImageUriState = if (plant.imageUri.isNotEmpty()) Uri.parse(plant.imageUri) else Uri.EMPTY,
+            onImagePicked = { uri -> viewModel.updatePlantImage(uri ?: "") },
+            onTakePhoto = { uri -> viewModel.updatePlantImage(uri) },
+            onRequestCameraPermission = {},
+            onPlantNameChange = { name -> viewModel.updatePlantName(name) },
+            onAddTask = { showAddTaskDialog = true },
+            onRemoveTask = { index -> viewModel.removeCareTask(index) },
+            onAddPlantToGarden = { validateAndSave() },
+            onAddPhoto = {},
+            onBack = onBack
+        )
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        )
+    }
+
+    if (showAddTaskDialog) {
+        AddCareTaskDialog(
+            onDismiss = { showAddTaskDialog = false },
+            onAdd = { type, interval ->
+                viewModel.addCareTask(type.toCareTask(interval))
+                showAddTaskDialog = false
+            }
+        )
+    }
 }
 
 @Composable
@@ -331,4 +348,78 @@ fun CareTask.toUi(): CareTaskUi {
             intervalDays
         )
     }
+}
+
+enum class CareTaskType(val displayName: String) {
+    WATERING("Watering"),
+    SPRAYING("Spraying"),
+    FERTILIZING("Fertilizing"),
+    ROTATING("Rotating");
+
+    fun toCareTask(interval: Int): CareTask = when (this) {
+        WATERING -> CareTask.Watering("Watering", interval)
+        SPRAYING -> CareTask.Spraying("Spraying", interval)
+        FERTILIZING -> CareTask.Fertilizing("Fertilizing", interval)
+        ROTATING -> CareTask.Rotating("Rotating", interval)
+    }
+}
+
+@Composable
+fun AddCareTaskDialog(
+    onDismiss: () -> Unit,
+    onAdd: (CareTaskType, Int) -> Unit
+) {
+    var selectedType by remember { mutableStateOf(CareTaskType.WATERING) }
+    var intervalText by remember { mutableStateOf("") }
+    var intervalError by remember { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Add Care Task") },
+        text = {
+            Column {
+                // Тип задачи
+                var expanded by remember { mutableStateOf(false) }
+                OutlinedButton(onClick = { expanded = true }) {
+                    Text(selectedType.displayName)
+                }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    CareTaskType.values().forEach { type ->
+                        DropdownMenuItem(text = { Text(type.displayName) }, onClick = {
+                            selectedType = type
+                            expanded = false
+                        })
+                    }
+                }
+                Spacer(Modifier.height(8.dp))
+                // Интервал
+                OutlinedTextField(
+                    value = intervalText,
+                    onValueChange = {
+                        intervalText = it
+                        intervalError = false
+                    },
+                    label = { Text("Interval (days)") },
+                    isError = intervalError
+                )
+                if (intervalError) {
+                    Text("Enter a valid interval", color = Color.Red)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val interval = intervalText.toIntOrNull()
+                if (interval == null || interval <= 0) {
+                    intervalError = true
+                } else {
+                    onAdd(selectedType, interval)
+                }
+            }) {
+                Text("Add")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        }
+    )
 }

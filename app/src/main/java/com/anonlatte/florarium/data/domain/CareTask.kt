@@ -1,9 +1,12 @@
 package com.anonlatte.florarium.data.domain
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class CareTask(val id: String) {
+@Parcelize
+sealed class CareTask(val id: String) : Parcelable {
     abstract val name: String
     abstract val intervalDays: Int
 

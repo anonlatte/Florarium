@@ -5,36 +5,32 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.anonlatte.florarium.data.domain.CareTask
-import com.anonlatte.florarium.data.domain.Plant
-import com.anonlatte.florarium.data.domain.PlantCreationData
 import com.anonlatte.florarium.navigation.Screen
-import com.anonlatte.florarium.navigation.plantCreationDataNavType
+import com.anonlatte.florarium.navigation.topLevelRoutes
 import com.anonlatte.florarium.ui.creation.AddPlantScreen
 import com.anonlatte.florarium.ui.home.HomeScreen
+import com.anonlatte.florarium.ui.plants.PlantsListScreen
 import com.anonlatte.florarium.ui.theme.PlantCareAppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.UUID
-import kotlin.reflect.typeOf
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -51,6 +47,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Composable
+    fun MainActivityContent(navController: NavHostController) {
+        Scaffold(
+            bottomBar = {
+                val navBackStackEntry = navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry.value?.destination
+
+                if (currentDestination != null &&
+                    currentDestination.route in topLevelRoutes.map { it.name }
+                ) {
+                    BottomNavigation {
+                        topLevelRoutes.forEach { topLevelRoute ->
+                            BottomNavigationItem(
+                                selected = currentDestination.hierarchy.any {
+                                    it.hasRoute(topLevelRoute.route::class)
+                                },
+                                onClick = {
+                                    navController.navigate(topLevelRoute.route) {
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = topLevelRoute.icon,
+                                        contentDescription = topLevelRoute.name
+                                    )
+                                },
+                                label = { Text(topLevelRoute.name) })
+                        }
+                    }
+                }
+            }
+        ) { padding ->
+            PlantCareAppNavHost(navController, padding)
+        }
+    }
+
+    @Composable
     private fun PlantCareAppNavHost(navController: NavHostController, padding: PaddingValues) {
         NavHost(
             navController = navController,
@@ -59,91 +96,38 @@ class MainActivity : AppCompatActivity() {
         ) {
             home(navController)
             addPlant(navController)
+            plantsList(navController)
         }
     }
-
-    @Composable
-    fun MainActivityContent(navController: NavHostController) {
-        Scaffold(
-            bottomBar = {
-                NavigationBar {
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { /* TODO: navController.navigate(Screen.PlantsList.route) */ },
-                        icon = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.List,
-                                contentDescription = "Plants"
-                            )
-                        },
-                        label = { Text("Plants") }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { /* TODO: general info */ },
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") }
-                    )
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = { /* TODO: navController.navigate(Screen.Profile.route) */ },
-                        icon = { Icon(Icons.Default.Person, contentDescription = "Profile") },
-                        label = { Text("Profile") }
-                    )
-                }
-            }
-        ) { padding ->
-            PlantCareAppNavHost(navController, padding)
-        }
-    }
-
 }
 
 private fun NavGraphBuilder.home(navController: NavHostController) {
     composable<Screen.Home> {
         HomeScreen(
             onAddPlant = {
-                navController.navigate(
-                    Screen.AddPlant(
-                        PlantCreationData(
-                            plant = Plant(
-                                id = UUID.randomUUID().hashCode().toLong(),
-                                name = "New Plant",
-                                imageUri = "",
-                                createdAt = System.currentTimeMillis()
-                            ),
-                            careTasks = listOf(
-                                CareTask.Watering("Watering", 7),
-                                CareTask.Spraying("Spraying", 14),
-                                CareTask.Fertilizing("Fertilizing", 30),
-                                CareTask.Rotating("Rotating", 365)
-                            )
-                        )
-                    )
-                )
+                navController.navigate(Screen.AddPlant())
             }
         )
     }
 }
 
 private fun NavGraphBuilder.addPlant(navController: NavHostController) {
-    composable<Screen.AddPlant>(
-        typeMap = mapOf(typeOf<PlantCreationData?>() to plantCreationDataNavType)
-    ) { backStackEntry ->
+    composable<Screen.AddPlant> { backStackEntry ->
         val addPlantScreen = backStackEntry.toRoute<Screen.AddPlant>()
-        val plantData = addPlantScreen.plantData ?: PlantCreationData(
-            plant = Plant(
-                id = UUID.randomUUID().hashCode().toLong(),
-                name = "",
-                imageUri = "",
-                createdAt = System.currentTimeMillis()
-            ),
-            careTasks = listOf()
-        )
         AddPlantScreen(
-            plantData = plantData,
+            plantId = addPlantScreen.plantId,
             viewModel = hiltViewModel(),
             onBack = { navController.navigateUp() }
+        )
+    }
+}
+
+private fun NavGraphBuilder.plantsList(navController: NavHostController) {
+    composable<Screen.PlantsList> {
+        PlantsListScreen(
+            onAddPlant = {
+                navController.navigate(Screen.AddPlant())
+            }
         )
     }
 }
