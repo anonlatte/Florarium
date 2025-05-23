@@ -32,6 +32,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +67,9 @@ fun AddPlantScreen(
     viewModel: AddPlantViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
+    LaunchedEffect(plantId) {
+        viewModel.loadPlant(plantId)
+    }
     val uiState by viewModel.uiState.collectAsState()
     var showAddTaskDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -157,7 +161,6 @@ fun AddPlantScreenContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
         // 🌵 Photo + camera
         Box(
             modifier = Modifier
@@ -197,7 +200,8 @@ fun AddPlantScreenContent(
             value = plantData.plant.name,
             onValueChange = onPlantNameChange,
             label = { Text("Enter plant name") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
         )
 
         // 📆 Care schedule

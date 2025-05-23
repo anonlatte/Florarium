@@ -11,6 +11,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -103,6 +104,10 @@ class MainActivity : AppCompatActivity() {
 
 private fun NavGraphBuilder.home(navController: NavHostController) {
     composable<Screen.Home> {
+        val viewModel: com.anonlatte.florarium.ui.home.HomeViewModel = hiltViewModel()
+        LaunchedEffect(Unit) {
+            viewModel.getPlantsToSchedules()
+        }
         HomeScreen(
             onAddPlant = {
                 navController.navigate(Screen.AddPlant())

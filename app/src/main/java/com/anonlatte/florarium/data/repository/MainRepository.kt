@@ -103,7 +103,16 @@ class MainRepository @Inject constructor(
             plantId = plantId,
             careTasks = careTasks
         )
-        careHolderDao.insertCareHolder(careHolder.toEntity())
+        val careHolderId = careHolderDao.insertCareHolder(careHolder.toEntity())
+        // Для совместимости: создаём фиктивный RegularSchedule
+        val regularSchedule = com.anonlatte.florarium.data.domain.RegularSchedule()
+        val regularScheduleId = regularScheduleDao.create(regularSchedule.toEntity())
+        val careArrangerEntity = com.anonlatte.florarium.data.db.model.CareArrangerEntity(
+            plantId = plantId,
+            regularScheduleId = regularScheduleId,
+            careHolderId = careHolderId
+        )
+        careArrangerDao.create(careArrangerEntity)
     }
 
     override suspend fun updatePlant(plant: Plant, careTasks: List<CareTask>) {
